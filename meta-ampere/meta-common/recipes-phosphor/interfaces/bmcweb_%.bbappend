@@ -5,3 +5,5 @@ EXTRA_OEMESON_append = " \
      -Dbmcweb-logging=enabled \
      -Dredfish-bmc-journal=enabled \
      "
+
+SRC_URI += "file://0001-Redfish-Add-message-registries-for-Ampere-event.patch"
