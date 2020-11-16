@@ -3,7 +3,8 @@ RDEPENDS:${PN}-extras:append:mtjade = " \
                                        phosphor-image-signing \
                                        phosphor-virtual-sensor \
                                        scp-failover \
-                                     "
+                                       tempevent-monitor \
+                                      "
 
 RDEPENDS:${PN}-inventory:append:mtjade = " \
                                           fault-monitor \
