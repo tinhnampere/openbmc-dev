@@ -1,14 +1,21 @@
 #!/bin/bash
 #
 # This script is used to get the MAC Address from FRU Inventory information
+# Author : Hoang Nguyen  <hnguyen@amperecomputing.com>
+# Modify : Chanh Nguyen  <chnguyen@amperecomputing.com>
 
-ETHERNET_INTERFACE="eth0"
+ETHERNET_INTERFACE="eth1"
+ETHERNET_NCSI="eth0"
 ENV_ETH="eth1addr"
 ENV_MAC_ADDR=`fw_printenv`
 
+# Workaround to dhcp NC-SI eth0 interface when BMC boot up
+ifconfig ${ETHERNET_NCSI} down
+ifconfig ${ETHERNET_NCSI} up
+
 # Check if BMC MAC address is exported
 if [[ $ENV_MAC_ADDR =~ $ENV_ETH ]]; then
-    echo "WARNING: BMC MAC address already exist!"
+    echo "WARNING: BMC MAC address is already updated!"
     exit 0
 fi
 
@@ -27,17 +34,18 @@ fi
 fw_setenv ${ENV_ETH} ${MAC_ADDR}
 
 if [[ $? -ne 0 ]]; then
-   echo "ERROR: Fail to set MAC address to ${ENV_ETH}"
+   echo "ERROR: fw_setenv failed"
    exit 1
 fi
 
 # Request to restart the service
 ifconfig ${ETHERNET_INTERFACE} down
 ifconfig ${ETHERNET_INTERFACE} hw ether ${MAC_ADDR}
-if [[ $? -ne 0 ]]; then
-   echo "ERROR: Can not update MAC ADDR to ${ETHERNET_INTERFACE}"
-   exit 1
-fi
 ifconfig ${ETHERNET_INTERFACE} up
 
-echo "Successfully update the MAC address ${MAC_ADDR} to ${ENV_ETH} and ${ETHERNET_INTERFACE}"
+if [[ $? -ne 0 ]]; then
+   echo "ERROR: Can not update MAC ADDR"
+   exit 1
+fi
+
+echo "Updated the MAC address!"
