@@ -5,3 +5,7 @@ PACKAGECONFIG[flash_bios] = "-Dhost-bios-upgrade=enabled, -Dhost-bios-upgrade=di
 PACKAGECONFIG_append_ = " flash_bios"
 
 SYSTEMD_SERVICE_${PN}-updater += "${@bb.utils.contains('PACKAGECONFIG', 'flash_bios', 'obmc-flash-host-bios@.service', '', d)}"
+
+SRC_URI += " \
+            file://0001-Add-other-image-update-support.patch \
+           "
