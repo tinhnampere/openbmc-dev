@@ -16,4 +16,5 @@ SYSTEMD_SERVICE_${PN}-updater += " \
 
 SRC_URI += " \
             file://0001-Add-other-image-update-support.patch \
+            file://0002-BMC-Updater-Support-update-on-BMC-Alternate-device.patch \
            "
