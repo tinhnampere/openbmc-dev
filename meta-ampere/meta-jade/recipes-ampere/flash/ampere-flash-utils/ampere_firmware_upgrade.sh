@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Ampere Computing LLC
+# Copyright (c) 2020 Ampere Computing LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,33 +34,11 @@ else
 	DEV_SEL=$3
 fi
 
-SECPRO="0"
-if [ ! -z "$4" ]; then
-	if [[ "$4" == "1" ]]; then
-		SECPRO="1"
-	fi
-fi
-
-MANIFEST="$(echo $IMAGE | cut -d'/' -f-4)/MANIFEST"
-if [ -f $MANIFEST ]; then
-	echo "MANIFEST: $MANIFEST"
-	if grep -qF "SECPRO" $MANIFEST; then
-		SECPRO="1"
-	fi
-fi
-
-# restrict to flash failover in case of SECPRO
-if [ $SECPRO == 1 ] && [ $DEV_SEL == 2 ]; then
-	echo "Not allow to flash the failover with SECPRO image"
-	exit -1
-fi
-
 do_smpmpro_upgrade() {
 	I2C_BUS_DEV="1"
 	EEPROM_ADDR="0x50"
 	FIRMWARE_IMAGE=$IMAGE
 
-	echo "SECPRO mode: $SECPRO"
 	# lock the power control
 	echo "--- Locking power control"
 	systemctl start reboot-guard-enable.service
@@ -83,9 +61,8 @@ do_fru_upgrade() {
 }
 
 if [ $# -eq 0 ]; then
-	echo "Usage: $(basename $0) <Type> <Image file> <DEV_SEL> [SECPRO]"
+	echo "Usage: $(basename $0) <Type> <Image file> <DEV_SEL>"
 	echo "If Type is smpmpro, then DEV_SEL must is 1 (MAIN EEPROM), 2 (Failover)"
-	echo "SECPRO mode: Optional, input '1' to enter & flash secpro mode. Default: 0"
 	exit 0
 fi
 
@@ -106,13 +83,6 @@ if [[ $TYPE == "smpmpro" ]]; then
 			echo "Error : Failed turning the Chassis off"
 			exit 1
 		fi
-	fi
-
-	if [[ $SECPRO == 1 ]]; then
-		# 3 is S0_SPECIAL_BOOT
-		gpioset 0 3=1
-		# 66 is S1_SPECIAL_BOOT
-		gpioset 0 66=1
 	fi
 
 	# Switch EEPROM control to BMC AST2500 I2C
@@ -146,22 +116,6 @@ if [[ $TYPE == "smpmpro" ]]; then
 		echo "Turn on the Host"
 		obmcutil chassison
 	fi
-
-	# Deassert SECPRO GPIO PINs
-	if [[ $SECPRO == 1 ]]; then
-		chassisstate=$(obmcutil chassisstate | awk -F. '{print $NF}')
-		if [ "$chassisstate_off" == 'Off' ]; then
-				obmcutil chassison
-		fi
-
-		sleep 30s
-		echo "De-asserting special GPIO PINs"
-		# 3 is S0_SPECIAL_BOOT
-		gpioset 0 3=0
-		# 66 is S1_SPECIAL_BOOT
-		gpioset 0 66=0
-	fi
-
 fi
 
 if [[ $TYPE == "fru" ]]; then
