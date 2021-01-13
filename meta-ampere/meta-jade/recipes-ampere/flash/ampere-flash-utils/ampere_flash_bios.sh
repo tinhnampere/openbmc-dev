@@ -15,6 +15,9 @@
 # limitations under the License.
 
 do_flash () {
+        # The flash offset is changed to 0x400000
+        OFFSET=0x400000
+
 	# Check the PNOR partition available
 	HOST_MTD=$(cat /proc/mtd | grep "pnor" | sed -n 's/^\(.*\):.*/\1/p')
 	if [ -z "$HOST_MTD" ];
@@ -35,8 +38,8 @@ do_flash () {
 		echo "--- Locking power control"
 		systemctl start reboot-guard-enable.service
 
-		echo "--- Flashing firmware to @/dev/$HOST_MTD"
-		flashcp -v $IMAGE /dev/$HOST_MTD
+		echo "--- Flashing firmware to @/dev/$HOST_MTD offset=$OFFSET"
+		ampere_flashcp -v $IMAGE /dev/$HOST_MTD $OFFSET
 
 		# unlock the power control
 		echo "--- Unlocking power control"
@@ -49,8 +52,8 @@ do_flash () {
 		echo "--- Locking power control"
 		systemctl start reboot-guard-enable.service
 
-		echo "--- Flashing firmware to @/dev/$HOST_MTD"
-		flashcp -v $IMAGE /dev/$HOST_MTD
+		echo "--- Flashing firmware to @/dev/$HOST_MTD offset=$OFFSET"
+		ampere_flashcp -v $IMAGE /dev/$HOST_MTD $OFFSET
 
 		# unlock the power control
 		echo "--- Unlocking power control"
