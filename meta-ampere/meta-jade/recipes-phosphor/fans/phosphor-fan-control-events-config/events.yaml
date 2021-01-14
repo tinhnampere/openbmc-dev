@@ -43,8 +43,7 @@ groups:
       description: Group of nvme temperature sensors for zone 0
       type: /xyz/openbmc_project/sensors
       members:
-          - temperature/nvme_max
-
+          - /temperature/nvme_max
 matches:
     - name: propertiesChanged
       parameters:
@@ -57,7 +56,6 @@ matches:
       parameters:
           - object
           - interface
-
 signals:
     - name: propertiesChanged
       description: >
@@ -82,7 +80,6 @@ signals:
           A name owner changed match
       parameters:
       match: nameOwnerChanged
-
 methods:
     - name: getProperties
       description: >
@@ -106,7 +103,6 @@ handlers:
           Sets the service name and ownership status for the given group
       parameters:
           - group
-
 preconditions:
     - name: property_states_match
       description: >
@@ -119,7 +115,6 @@ preconditions:
           Any services missing an owner enable the events given otherwise
           the events are removed/disabled
       parameters:
-
 actions:
     - name: call_actions_based_on_timer
       description: >
@@ -180,7 +175,6 @@ actions:
           - neg_hysteresis
           - pos_hysteresis
           - target
-
 events:
     - name: default_fan_floor_on_service_fail
       precondition:
@@ -240,7 +234,6 @@ events:
             speed:
                 value: 255
                 type: uint64_t
-
     - name: set_wiwynn_algo_on_ts_temp
       groups:
           - name: zone0_ambient
@@ -314,7 +307,6 @@ events:
             target:
                 value: 1
                 type: int
-
     - name: set_wiwynn_algo_on_dimms_temp
       groups:
           - name: zone0_dimms
@@ -344,7 +336,6 @@ events:
                     - 81000: 230
                     - 82000: 242
                     - 83000: 255
-
                 type: std::map<int64_t, uint64_t>
             neg_hysteresis:
                 value: 2000
@@ -355,7 +346,6 @@ events:
             target:
                 value: 2
                 type: int
-
     - name: set_wiwynn_algo_on_ocp_temp
       groups:
           - name: zone0_ocp
@@ -385,7 +375,6 @@ events:
                     - 89000: 204
                     - 94000: 230
                     - 99000: 255
-
                 type: std::map<int64_t, uint64_t>
             neg_hysteresis:
                 value: 2000
@@ -396,7 +385,6 @@ events:
             target:
                 value: 3
                 type: int
-
     - name: set_wiwynn_algo_on_nvme_temp
       groups:
           - name: zone0_nvme
@@ -425,7 +413,6 @@ events:
                     - 67000: 217
                     - 68000: 229
                     - 69000: 255
-
                 type: std::map<int64_t, uint64_t>
             neg_hysteresis:
                 value: 2000
