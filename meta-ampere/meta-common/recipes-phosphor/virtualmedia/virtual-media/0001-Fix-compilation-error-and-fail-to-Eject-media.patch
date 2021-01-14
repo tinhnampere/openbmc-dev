@@ -1,0 +1,164 @@
+From 20abd3d208ff7072af22ebf6c5830f1ced8631d9 Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieu.huynh@amperecomputing.com>
+Date: Tue, 26 Jan 2021 07:18:56 +0000
+Subject: [PATCH] Fix compilation error and fail to Eject media
+
+This patch makes the following changes:
+- Remove -fno-rtti to fix compilation error.
+- Use rm command to remove USB config file as current fs::remove_all function does not work correctly.
+- Remove ISO0, USB0 and USB2 mount points as we only support legacy mode.
+
+Signed-off-by: Hieu Huynh <hieu.huynh@amperecomputing.com>
+---
+ virtual-media/CMakeLists.txt        |  1 -
+ virtual-media/src/state_machine.hpp |  7 -----
+ virtual-media/src/system.hpp        | 48 +++++++++--------------------
+ virtual-media/virtual-media.json    | 24 ---------------
+ 4 files changed, 15 insertions(+), 65 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c9fd7bd..e7b7fdc 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 17)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+ 
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fno-rtti")
+ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -flto")
+ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+ 
+diff --git a/src/state_machine.hpp b/src/state_machine.hpp
+index 6711401..1218c2a 100644
+--- a/src/state_machine.hpp
++++ b/src/state_machine.hpp
+@@ -159,13 +159,6 @@ struct MountPointStateMachine
+ 
+                 auto now = std::chrono::steady_clock::now();
+ 
+-                auto stats = UsbGadget::getStats(machine.name);
+-                if (stats && (*stats != lastStats))
+-                {
+-                    lastStats = std::move(*stats);
+-                    lastAccess = now;
+-                }
+-
+                 auto timeSinceLastAccess =
+                     std::chrono::duration_cast<std::chrono::seconds>(
+                         now - lastAccess);
+diff --git a/src/system.hpp b/src/system.hpp
+index 500630f..39fea3c 100644
+--- a/src/system.hpp
++++ b/src/system.hpp
+@@ -501,6 +501,7 @@ struct UsbGadget
+                ", path=", path, ", State=", static_cast<uint32_t>(change), ")");
+         bool success = true;
+         std::error_code ec;
++        std::string cmd;
+         if (change == StateChange::unknown)
+         {
+             LogMsg(Logger::Critical,
+@@ -565,22 +566,20 @@ struct UsbGadget
+                 success = false;
+             }
+         }
+-        // StateChange: unknown, notMonitored, inserted were handler
+-        // earlier. We'll get here only for removed, or cleanup
+-
+-        const std::array<const char*, 6> dirs = {
+-            massStorageDir.c_str(),   funcMassStorageDir.c_str(),
+-            configStringsDir.c_str(), configDir.c_str(),
+-            stringsDir.c_str(),       gadgetDir.c_str()};
+-        for (const char* dir : dirs)
+-        {
+-            fs::remove_all(dir, ec);
+-            if (ec)
+-            {
+-                success = false;
+-                LogMsg(Logger::Error, "[App]: UsbGadget ", ec.message());
+-            }
+-        }
++
++        cmd = "rm " + massStorageDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + funcMassStorageDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + configStringsDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + configDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + stringsDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + gadgetDir.string();
++        system(cmd.c_str());
++
+ 
+         if (success)
+         {
+@@ -588,21 +587,4 @@ struct UsbGadget
+         }
+         return -1;
+     }
+-
+-    static std::optional<std::string> getStats(const std::string& name)
+-    {
+-        const fs::path statsPath =
+-            "/sys/kernel/config/usb_gadget/mass-storage-" + name +
+-            "/functions/mass_storage.usb0/lun.0/stats";
+-
+-        std::ifstream ifs(statsPath);
+-        if (!ifs.is_open())
+-        {
+-            LogMsg(Logger::Error, name, "Failed to open ", statsPath);
+-            return {};
+-        }
+-
+-        return std::string{std::istreambuf_iterator<char>(ifs),
+-                           std::istreambuf_iterator<char>()};
+-    }
+ };
+diff --git a/virtual-media.json b/virtual-media.json
+index 3b63df3..2ba7934 100644
+--- a/virtual-media.json
++++ b/virtual-media.json
+@@ -1,22 +1,6 @@
+ {
+     "InactivityTimeout": 1800,
+     "MountPoints": {
+-        "ISO0": {
+-            "EndpointId": "/nbd/0",
+-            "Mode": 0,
+-            "NBDDevice": "nbd0",
+-            "UnixSocket": "/tmp/nbd0.sock",
+-            "Timeout": 30,
+-            "BlockSize": 512
+-        },
+-        "USB0": {
+-            "EndpointId": "/nbd/1",
+-            "Mode": 0,
+-            "NBDDevice": "nbd1",
+-            "UnixSocket": "/tmp/nbd1.sock",
+-            "Timeout": 30,
+-            "BlockSize": 512
+-        },
+         "USB1": {
+             "EndpointId": "",
+             "Mode": 1,
+@@ -24,14 +8,6 @@
+             "UnixSocket": "/tmp/nbd2.sock",
+             "Timeout": 30,
+             "BlockSize": 512
+-        },
+-        "USB2": {
+-            "EndpointId": "",
+-            "Mode": 1,
+-            "NBDDevice": "nbd3",
+-            "UnixSocket": "/tmp/nbd3.sock",
+-            "Timeout": 30,
+-            "BlockSize": 512
+         }
+     }
+ }
+-- 
+2.17.1
+
