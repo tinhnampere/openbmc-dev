@@ -9,8 +9,9 @@ PACKAGECONFIG_append_mtjade += " other_update"
 SYSTEMD_SERVICE_${PN}-updater += "${@bb.utils.contains('PACKAGECONFIG', 'flash_bios', 'obmc-flash-host-bios@.service', '', d)}"
 
 SYSTEMD_SERVICE_${PN}-updater += " \
-				  obmc-update-scp-primary@.service \
-				  obmc-update-scp-secondary@.service \
+                                  obmc-update-scp-primary@.service \
+                                  obmc-update-scp-secondary@.service \
+                                  obmc-update-fru@.service \
 				 "
 
 SRC_URI += " \
