@@ -441,6 +441,12 @@ namespace ras
         errFields.status = ampere::utils::parseHexStrToUInt32(result[3]);
         errFields.address = ampere::utils::parseHexStrToUInt64(result[4]);
 
+	/* Error type is Overflowed */
+	if (errFields.errType == 0xff && errFields.subType == 0xff)
+	{
+		errFields.instance = data.socket << 6;
+	}
+
         /* Add Ipmi SEL log*/
         logErrorToIpmiSEL(data, errFields);
 
