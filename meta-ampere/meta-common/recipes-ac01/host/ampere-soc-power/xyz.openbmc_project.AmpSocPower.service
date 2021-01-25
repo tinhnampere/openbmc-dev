@@ -1,9 +1,9 @@
 [Unit]
-Description=Ampere Power Capping
+Description=Ampere Soc Power Limit
 
 [Service]
 Restart=always
-ExecStart=/usr/bin/ampere-power-cap
+ExecStart=/usr/bin/ampere-soc-power
 Type=simple
 
 [Install]

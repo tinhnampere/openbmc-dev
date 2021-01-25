@@ -8,9 +8,9 @@ S = "${WORKDIR}"
 
 SRC_URI += " \
             file://LICENSE \
-            file://ampere-power-cap.cpp \
+            file://ampere-soc-power.cpp \
             file://CMakeLists.txt \
-            file://xyz.openbmc_project.AmpPowerCap.service \
+            file://xyz.openbmc_project.AmpSocPower.service \
            "
 
-SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.AmpPowerCap.service"
+SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.AmpSocPower.service"

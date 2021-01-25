@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.6)
 
-project (ampere-power-cap CXX)
+project (ampere-soc-power CXX)
 
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,14 +15,14 @@ add_definitions (-DBOOST_NO_RTTI)
 add_definitions (-DBOOST_NO_TYPEID)
 add_definitions (-DBOOST_ASIO_DISABLE_THREADS)
 
-# ampere-power-cap
-add_executable (ampere-power-cap ampere-power-cap.cpp)
-target_link_libraries (ampere-power-cap sdbusplus systemd)
-install (TARGETS ampere-power-cap DESTINATION bin)
+# ampere-soc-power
+add_executable (ampere-soc-power ampere-soc-power.cpp)
+target_link_libraries (ampere-soc-power sdbusplus systemd)
+install (TARGETS ampere-soc-power DESTINATION bin)
 
 # service file
 set (
     SERVICE_FILES
-    ${PROJECT_SOURCE_DIR}/xyz.openbmc_project.AmpPowerCap.service
+    ${PROJECT_SOURCE_DIR}/xyz.openbmc_project.AmpSocPower.service
 )
 install (FILES ${SERVICE_FILES} DESTINATION /lib/systemd/system/)

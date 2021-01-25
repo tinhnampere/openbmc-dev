@@ -39,8 +39,8 @@ constexpr size_t minScpPowerLimit = 90;
 constexpr size_t maxScpPowerLimit = 500;
 
 const std::vector<std::string> powerCapPath =  {
-    "/sys/bus/i2c/devices/2-004f/1e78a0c0.i2c-bus:smpro@4f:misc/acpi_power_limit",
-    "/sys/bus/i2c/devices/2-004e/1e78a0c0.i2c-bus:smpro@4e:misc/acpi_power_limit"
+    "/sys/bus/i2c/devices/2-004f/1e78a0c0.i2c-bus:smpro@4f:misc/soc_power_limit",
+    "/sys/bus/i2c/devices/2-004e/1e78a0c0.i2c-bus:smpro@4e:misc/soc_power_limit"
 };
 
 static std::optional<std::string> getPowerLimitDevPath(unsigned int cpuSocket)
@@ -76,12 +76,12 @@ static void setBmcPowerCap(
     systemBusConnection->async_method_call(
         [](const boost::system::error_code ec) {
             if (ec)
-                std::cerr << "PowerCap Set: Dbus error: " << ec;
+                std::cerr << "Soc Power Limit Set: Dbus error: " << ec;
         },
         "xyz.openbmc_project.Settings",
-        "/xyz/openbmc_project/control/host0/power_cap",
+        "/xyz/openbmc_project/control/host0/soc_power",
         "org.freedesktop.DBus.Properties", "Set",
-        "xyz.openbmc_project.Control.Power.Cap", "PowerCap",
+        "xyz.openbmc_project.Control.Power.Soc", "SocPowerLimit",
         std::variant<uint32_t>(powerCap));
 }
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
     // Initialize dbus connection
     boost::asio::io_service io;
     auto conn = std::make_shared<sdbusplus::asio::connection>(io);
-    conn->request_name("xyz.openbmc_project.Ampere.PowerCapping");
+    conn->request_name("xyz.openbmc_project.Ampere.SocPowerLimit");
 
     // Update Power Capping value from SCP to BMC settings
     uint32_t scpPowerCap = ampere::power::getScpPowerCap(pwrLimitPath.value());
@@ -111,13 +111,13 @@ int main(int argc, char** argv)
     sdbusplus::bus::match::match powerMatch = sdbusplus::bus::match::match(
         static_cast<sdbusplus::bus::bus&>(*conn),
         "type='signal',member='PropertiesChanged',"
-        "path='/xyz/openbmc_project/control/host0/power_cap'",
+        "path='/xyz/openbmc_project/control/host0/soc_power'",
         [pwrLimitPath](sdbusplus::message::message& msg) {
             std::string interfaceName;
             boost::container::flat_map<std::string, std::variant<uint32_t>>
                 propertiesList;
             msg.read(interfaceName, propertiesList);
-            auto find = propertiesList.find("PowerCap");
+            auto find = propertiesList.find("SocPowerLimit");
             if (find == propertiesList.end())
                 return;
             uint32_t bmcPowerCap = std::get<uint32_t>(find->second);
