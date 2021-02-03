@@ -1,0 +1,11 @@
+{
+    "config": [
+        {
+            "Index": 0,
+            "BusId": 5,
+            "ChannelId": "0x0",
+            "SlaveAddress": "0x1f",
+            "MuxAddress": "0x70"
+        }
+    ]
+}
