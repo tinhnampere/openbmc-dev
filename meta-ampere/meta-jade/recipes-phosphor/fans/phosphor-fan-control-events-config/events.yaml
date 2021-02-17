@@ -34,6 +34,12 @@ groups:
           - /temperature/S0_DIMM_VRD_Temp
           - /temperature/S1_DIMMG0_Temp
           - /temperature/S1_DIMM_VRD_Temp
+    - name: zone0_ocp
+      description: Group of ocp temperature sensors for zone 0
+      type: /xyz/openbmc_project/sensors
+      members:
+          - temperature/card0
+
 
 matches:
     - name: propertiesChanged
@@ -345,3 +351,45 @@ events:
             target:
                 value: 2
                 type: int
+
+    - name: set_wiwynn_algo_on_ocp_temp
+      groups:
+          - name: zone0_ocp
+            interface: xyz.openbmc_project.Sensor.Value
+            property:
+                name: Value
+                type: int64_t
+      triggers:
+          - name: init
+            method: getProperties
+            handler: setProperty
+          - name: signal
+            signal: propertiesChanged
+            handler: setProperty
+      actions:
+          - name: set_speed_from_max_sensor_value
+            map:
+                value:
+                    - 1000: 64
+                    - 54000: 64
+                    - 59000: 77
+                    - 64000: 90
+                    - 69000: 102
+                    - 74000: 128
+                    - 79000: 153
+                    - 84000: 179
+                    - 89000: 204
+                    - 94000: 230
+                    - 99000: 255
+
+                type: std::map<int64_t, uint64_t>
+            neg_hysteresis:
+                value: 2000
+                type: int64_t
+            pos_hysteresis:
+                value: 2000
+                type: int64_t
+            target:
+                value: 2
+                type: int
+
