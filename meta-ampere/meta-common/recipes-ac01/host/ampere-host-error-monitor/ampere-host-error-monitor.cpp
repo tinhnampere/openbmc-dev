@@ -35,6 +35,8 @@ namespace ampere
 namespace ras
 {
     const static constexpr u_int16_t MAX_MSG_LEN    = 128;
+    const static constexpr u_int8_t TYPE_TEMP       = 0x01;
+    const static constexpr u_int8_t TYPE_STATE      = 0x02;
     const static constexpr u_int8_t TYPE_OTHER      = 0x12;
     const static constexpr u_int8_t TYPE_MEM        = 0x0C;
     const static constexpr u_int8_t TYPE_CORE       = 0x07;
@@ -50,9 +52,18 @@ namespace ras
     const static constexpr u_int8_t UE_PCIE_IERR    = 202;
     const static constexpr u_int8_t SMPRO_IERR     = 147;
     const static constexpr u_int8_t PMPRO_IERR     = 148;
+    /* Event ID */
+    const static constexpr u_int8_t S0_DIMM_HOT         = 160;
+    const static constexpr u_int8_t S0_VRD_HOT          = 180;
+    const static constexpr u_int8_t S0_VRD_WARN_FAULT   = 181;
+    const static constexpr u_int8_t S1_DIMM_HOT         = 161;
+    const static constexpr u_int8_t S1_VRD_HOT          = 183;
+    const static constexpr u_int8_t S1_VRD_WARN_FAULT   = 184;
     /* Direction of RAS Internal errors */
     const static constexpr u_int8_t  DIR_ENTER      = 0;
     const static constexpr u_int8_t  DIR_EXIT       = 1;
+    const static constexpr u_int8_t  DIR_ASSERTED   = 0;
+    const static constexpr u_int8_t  DIR_DEASSERTED = 1;
     /* Sub types of RAS Internal errors */
     const static constexpr u_int8_t  SMPMPRO_WARNING       = 1;
     const static constexpr u_int8_t  SMPMPRO_ERROR         = 2;
@@ -62,6 +73,38 @@ namespace ras
     const static constexpr u_int8_t  PMPRO_IERR_TYPE        = 1;
 
     const static constexpr u_int8_t IERR_SENSOR_SPECIFIC     = 0x71;
+    const static constexpr u_int8_t TEMP_READ_TYPE          = 0x5;
+    const static constexpr u_int8_t STATUS_READ_TYPE        = 0x3;
+
+    const static constexpr u_int8_t EVENT_DATA_1            = 0x80;
+    const static constexpr u_int8_t EVENT_DATA_3            = 0x20;
+
+    const static constexpr u_int8_t SOC_COMPONENT           = 0x00;
+    const static constexpr u_int8_t CORE_COMPONENT          = 0x01;
+    const static constexpr u_int8_t DIMM_COMPONENT          = 0x02;
+
+    const static constexpr u_int8_t VRD_1                   = 0x01;
+    const static constexpr u_int8_t VRD_2                   = 0x02;
+    const static constexpr u_int8_t VRD_3                   = 0x03;
+    const static constexpr u_int8_t VRD_4                   = 0x04;
+
+    const static constexpr u_int16_t BIT_0                  = 0x0001;
+    const static constexpr u_int16_t BIT_1                  = 0x0002;
+    const static constexpr u_int16_t BIT_2                  = 0x0004;
+    const static constexpr u_int16_t BIT_3                  = 0x0008;
+    const static constexpr u_int16_t BIT_4                  = 0x0010;
+    const static constexpr u_int16_t BIT_5                  = 0x0020;
+    const static constexpr u_int16_t BIT_6                  = 0x0040;
+    const static constexpr u_int16_t BIT_7                  = 0x0080;
+    const static constexpr u_int16_t BIT_8                  = 0x0100;
+    const static constexpr u_int16_t BIT_9                  = 0x0200;
+    const static constexpr u_int16_t BIT_10                 = 0x0400;
+    const static constexpr u_int16_t BIT_11                 = 0x0800;
+
+    const static constexpr u_int16_t SMPRO_DATA_REG_SIZE    = 16;
+    const static constexpr u_int8_t AMPERE_IANA_BYTE_1      = 0x3A;
+    const static constexpr u_int8_t AMPERE_IANA_BYTE_2      = 0xCD;
+    const static constexpr u_int8_t AMPERE_IANA_BYTE_3      = 0x00;
 
     struct ErrorFields {
         u_int8_t errType;
@@ -228,15 +271,59 @@ namespace ras
     const static constexpr u_int16_t MCU_ERR_1_TYPE    = 0x0101;
     const static constexpr u_int16_t MCU_ERR_2_TYPE    = 0x0102;
 
+    struct EventFields {
+        u_int8_t type;
+        u_int8_t subType;
+        u_int16_t data;
+    };
+
+    struct EventData {
+        u_int8_t idx;
+        u_int16_t socket;
+        u_int8_t intEventType;
+        const char* label;
+        u_int8_t eventType;
+        u_int8_t eventReadType;
+        u_int8_t eventNum;
+        const char* eventName;
+        const char* redFishMsgID;
+    };
+
+    /* Event type index */
+    enum EventTypes{
+        event_vrd_warn_fault,
+        event_vrd_hot,
+        event_dimm_hot
+    };
+
+    EventData eventTypeTable[] = {
+        {0, 0, event_vrd_warn_fault, "event_vrd_warn_fault", TYPE_STATE, STATUS_READ_TYPE, S0_VRD_WARN_FAULT,
+            "VR_WarnFault", "AmpereWarning"},
+        {1, 0, event_vrd_hot, "event_vrd_hot", TYPE_TEMP, TEMP_READ_TYPE, S0_VRD_HOT,
+            "VR_HOT", "AmpereWarning"},
+        {2, 0, event_dimm_hot, "event_dimm_hot", TYPE_TEMP, TEMP_READ_TYPE, S0_DIMM_HOT,
+            "DIMM_HOT", "AmpereWarning"},
+        {3, 1, event_vrd_warn_fault, "event_vrd_warn_fault", TYPE_STATE, STATUS_READ_TYPE, S1_VRD_WARN_FAULT,
+            "VR_WarnFault", "AmpereWarning"},
+        {4, 1, event_vrd_hot, "event_vrd_hot", TYPE_TEMP, TEMP_READ_TYPE, S1_VRD_HOT,
+            "VR_HOT", "AmpereWarning"},
+        {5, 1, event_dimm_hot, "event_dimm_hot", TYPE_TEMP, TEMP_READ_TYPE, S1_DIMM_HOT,
+            "DIMM_HOT", "AmpereWarning"}
+    };
+
+    const static constexpr u_int8_t NUMBER_OF_EVENTS    =
+            sizeof(eventTypeTable) / sizeof(EventData);
+    u_int16_t curEventMask[NUMBER_OF_EVENTS] = {0, 0, 0, 0 ,0 ,0};
+
     static int logInternalErrorToIpmiSEL(ErrorData data,
                                         InternalFields eFields)
     {
         std::vector<uint8_t> eventData(
             ampere::sel::SEL_OEM_DATA_MAX_SIZE, 0xFF);
 
-        eventData[0] = 0x3A;
-        eventData[1] = 0xCD;
-        eventData[2] = 0x00;
+        eventData[0] = AMPERE_IANA_BYTE_1;
+        eventData[1] = AMPERE_IANA_BYTE_2;
+        eventData[2] = AMPERE_IANA_BYTE_3;
         eventData[3] = data.errType;
         eventData[4] = data.errNum;
         eventData[5] = (eFields.dir << 7) | IERR_SENSOR_SPECIFIC;
@@ -410,9 +497,9 @@ namespace ras
         std::vector<uint8_t> eventData(
                 ampere::sel::SEL_OEM_DATA_MAX_SIZE, 0xFF);
 
-        eventData[0] = 0x3A;
-        eventData[1] = 0xCD;
-        eventData[2] = 0x00;
+        eventData[0] = AMPERE_IANA_BYTE_1;
+        eventData[1] = AMPERE_IANA_BYTE_2;
+        eventData[2] = AMPERE_IANA_BYTE_3;
         eventData[3] = data.errType;
         eventData[4] = data.errNum;
         eventData[5] = eFields.errType;
@@ -480,27 +567,613 @@ namespace ras
         return 1;
     }
 
-    static int getErrors()
+    static int logEventDIMMHot(EventData data, EventFields eFields)
+    {
+        std::vector<uint8_t> eventData(
+                ampere::sel::SEL_OEM_DATA_MAX_SIZE, 0xFF);
+        u_int16_t bitMask = 0;
+        u_int8_t channel = 0, dimmIdx = 0;
+        char redFishMsgID[MAX_MSG_LEN] = {'\0'};
+        char redFishMsg[MAX_MSG_LEN] = {'\0'};
+        char comp[MAX_MSG_LEN] = {'\0'};
+        u_int8_t i = 0;
+        u_int16_t currentMask = curEventMask[data.idx];
+
+        eventData[0] = AMPERE_IANA_BYTE_1;
+        eventData[1] = AMPERE_IANA_BYTE_2;
+        eventData[2] = AMPERE_IANA_BYTE_3;
+        eventData[3] = data.eventType;
+        eventData[4] = data.eventNum;
+        eventData[6] = 0x1 | EVENT_DATA_1 | EVENT_DATA_3;
+
+        snprintf(redFishMsgID, MAX_MSG_LEN,
+            "OpenBMC.0.1.%s.Warning", data.redFishMsgID);
+        for (i = 0; i < SMPRO_DATA_REG_SIZE; i++) {
+            bitMask = 2 << i;
+            channel = i % 8;
+            dimmIdx = i / 8;
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM%d of channel %d"\
+                " of Socket %d", data.eventName, dimmIdx, channel, data.socket);
+
+            if ((eFields.data & bitMask) && (!(currentMask & bitMask))) {
+                eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+                eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+                eventData[8] = (dimmIdx << 7) + channel;
+                curEventMask[data.idx] = curEventMask[data.idx] | bitMask;
+                ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+                snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+                sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                            "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+
+            } else if ((!(eFields.data & bitMask)) && (currentMask & bitMask)) {
+                eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+                eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+                eventData[8] = (dimmIdx << 7) + channel;
+                curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - bitMask);
+                ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+                snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+                sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                            "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+            }
+        }
+
+        return 1;
+    }
+
+    static int logEventVrdHot(EventData data, EventFields eFields)
+    {
+        std::vector<uint8_t> eventData(
+                ampere::sel::SEL_OEM_DATA_MAX_SIZE, 0xFF);
+        char redFishMsgID[MAX_MSG_LEN] = {'\0'};
+        char redFishMsg[MAX_MSG_LEN] = {'\0'};
+        char comp[MAX_MSG_LEN] = {'\0'};
+        u_int16_t currentMask = curEventMask[data.idx];
+
+        eventData[0] = AMPERE_IANA_BYTE_1;
+        eventData[1] = AMPERE_IANA_BYTE_2;
+        eventData[2] = AMPERE_IANA_BYTE_3;
+        eventData[3] = data.eventType;
+        eventData[4] = data.eventNum;
+        eventData[6] = 0x1 | EVENT_DATA_1 | EVENT_DATA_3;
+
+        snprintf(redFishMsgID, MAX_MSG_LEN,
+            "OpenBMC.0.1.%s.Warning", data.redFishMsgID);
+        /* SoC VRD hot */
+        if ((eFields.data & BIT_0) && (!(currentMask & BIT_0))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (SOC_COMPONENT << 4) | data.socket;
+            eventData[8] = 0;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_0;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at SoC_VRD of Socket %d",
+                data.eventName, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_0)) && (currentMask & BIT_0)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (SOC_COMPONENT << 4) | data.socket;
+            eventData[8] = 0;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_0);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at SoC_VRD of Socket %d",
+                data.eventName, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* Core VRD1 fault/warning */
+        if ((eFields.data & BIT_4) && (!(currentMask & BIT_4))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_4;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_4)) && (currentMask & BIT_4)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_4);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* Core VRD2 fault/warning */
+        if ((eFields.data & BIT_5) && (!(currentMask & BIT_5))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_5;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_5)) && (currentMask & BIT_5)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_5);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* Core VRD3 fault/warning */
+        if ((eFields.data & BIT_6) && (!(currentMask & BIT_6))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_6;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_6)) && (currentMask & BIT_6)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_6);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD1 fault/warning */
+        if ((eFields.data & BIT_8) && (!(currentMask & BIT_8))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_8;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_8)) && (currentMask & BIT_8)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_8);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD2 fault/warning */
+        if ((eFields.data & BIT_9) && (!(currentMask & BIT_9))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_9;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_9)) && (currentMask & BIT_9)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_9);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD3 fault/warning */
+        if ((eFields.data & BIT_10) && (!(currentMask & BIT_10))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_10;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_10)) && (currentMask & BIT_10)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_10);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD4 fault/warning */
+        if ((eFields.data & BIT_11) && (!(currentMask & BIT_11))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_4;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_11;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_4, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_11)) && (currentMask & BIT_11)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_4;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_11);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_4, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        return 1;
+    }
+
+    static int logEventVrdWarnFault(EventData data, EventFields eFields)
+    {
+        std::vector<uint8_t> eventData(
+                ampere::sel::SEL_OEM_DATA_MAX_SIZE, 0xFF);
+        char redFishMsgID[MAX_MSG_LEN] = {'\0'};
+        char redFishMsg[MAX_MSG_LEN] = {'\0'};
+        char comp[MAX_MSG_LEN] = {'\0'};
+        u_int16_t currentMask = curEventMask[data.idx];
+
+        eventData[0] = AMPERE_IANA_BYTE_1;
+        eventData[1] = AMPERE_IANA_BYTE_2;
+        eventData[2] = AMPERE_IANA_BYTE_3;
+        eventData[3] = data.eventType;
+        eventData[4] = data.eventNum;
+        eventData[6] = 0x1 | EVENT_DATA_1 | EVENT_DATA_3;
+
+        snprintf(redFishMsgID, MAX_MSG_LEN,
+            "OpenBMC.0.1.%s.Warning", data.redFishMsgID);
+        /* SoC VRD fault/warning */
+        if ((eFields.data & BIT_0) && (!(currentMask & BIT_0))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (SOC_COMPONENT << 4) | data.socket;
+            eventData[8] = 0;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_0;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at SoC_VRD of Socket %d",
+                data.eventName, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_0)) && (currentMask & BIT_0)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (SOC_COMPONENT << 4) | data.socket;
+            eventData[8] = 0;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_0);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at SoC_VRD of Socket %d",
+                data.eventName, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* Core VRD1 fault/warning */
+        if ((eFields.data & BIT_1) && (!(currentMask & BIT_1))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_1;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_1)) && (currentMask & BIT_1)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_1);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* Core VRD2 fault/warning */
+        if ((eFields.data & BIT_2) && (!(currentMask & BIT_2))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_2;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_2)) && (currentMask & BIT_2)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_2);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* Core VRD3 fault/warning */
+        if ((eFields.data & BIT_3) && (!(currentMask & BIT_3))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_3;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_3)) && (currentMask & BIT_3)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (CORE_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_3);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at CORE_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD1 fault/warning */
+        if ((eFields.data & BIT_4) && (!(currentMask & BIT_4))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_4;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_4)) && (currentMask & BIT_4)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_1;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_4);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_1, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD2 fault/warning */
+        if ((eFields.data & BIT_5) && (!(currentMask & BIT_5))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_5;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_5)) && (currentMask & BIT_5)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_2;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_5);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_2, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD3 fault/warning */
+        if ((eFields.data & BIT_6) && (!(currentMask & BIT_6))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_6;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_6)) && (currentMask & BIT_6)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_3;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_6);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_3, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        /* DIMM VRD4 fault/warning */
+        if ((eFields.data & BIT_7) && (!(currentMask & BIT_7))) {
+            eventData[5] = (DIR_ASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_4;
+            curEventMask[data.idx] = curEventMask[data.idx] | BIT_7;
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Asserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_4, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        } else if ((!(eFields.data & BIT_7)) && (currentMask & BIT_7)) {
+            eventData[5] = (DIR_DEASSERTED << 7) | data.eventReadType;
+            eventData[7] = (DIMM_COMPONENT << 4) | data.socket;
+            eventData[8] = VRD_4;
+            curEventMask[data.idx] = curEventMask[data.idx] & (0xffff - BIT_7);
+            ampere::sel::addSelOem("OEM RAS error:", eventData);
+
+            snprintf(redFishMsg, MAX_MSG_LEN, "Deasserted.");
+            snprintf(comp, MAX_MSG_LEN, "Event %s at DIMM_VRD%d of Socket %d",
+                data.eventName, VRD_4, data.socket);
+            sd_journal_send("REDFISH_MESSAGE_ID=%s", redFishMsgID,
+                        "REDFISH_MESSAGE_ARGS=%s,%s", comp, redFishMsg, NULL);
+        }
+
+        return 1;
+    }
+
+    static int parseAndLogEvents(EventData data, std::string eventLine)
+    {
+        EventFields eventFields;
+        std::vector<std::string> result;
+
+        eventLine.erase(std::remove(eventLine.begin(), eventLine.end(), '\n'),
+            eventLine.end());
+        boost::split(result, eventLine, boost::is_any_of(" "));
+        if (result.size() < 2)
+            return 0;
+        eventFields.type = ampere::utils::parseHexStrToUInt8(result[0]);
+        eventFields.data = ampere::utils::parseHexStrToUInt16(result[1]);
+
+        switch (eventFields.type)
+        {
+        case event_vrd_warn_fault:
+            logEventVrdWarnFault(data, eventFields);
+            break;
+        case event_vrd_hot:
+            logEventVrdHot(data, eventFields);
+            break;
+        case event_dimm_hot:
+            logEventDIMMHot(data, eventFields);
+            break;
+        default:
+            break;
+        }
+
+        return 1;
+    }
+
+    static int logEvents(EventData data, const char *fileName) {
+        FILE *fp;
+        char* line = NULL;
+
+        /* Read system file */
+        fp = fopen(fileName, "r");
+        if (!fp)
+            return 0;
+        size_t len = 0;
+        while ((getline(&line, &len, fp)) != -1) {
+            parseAndLogEvents(data, line);
+        }
+
+        fclose(fp);
+        if (line)
+            free(line);
+        return 1;
+    }
+
+    static int getErrorsAndEvents()
     {
         std::string filePath;
-        int index = 0;
+        u_int8_t index = 0;
         bool c0ntinue = true;
 
         index = 0;
         while(c0ntinue) {
-            ErrorData data = errorTypeTable[index];
-            filePath = ampere::utils::getAbsolutePath(
-                    data.socket, data.label);
-            if (filePath != "")
-            {
-                logErrors(data, filePath.c_str());
+            for(index = 0; index < NUMBER_OF_ERRORS; index ++){
+                ErrorData data1 = errorTypeTable[index];
+                filePath = ampere::utils::getAbsolutePath(
+                        data1.socket, data1.label);
+                if (filePath != "")
+                {
+                    logErrors(data1, filePath.c_str());
+                }
             }
 
-            index++;
-            if (index >= NUMBER_OF_ERRORS) {
-                index = 0;
-                sleep(1);
+            for(index = 0; index < NUMBER_OF_EVENTS; index ++)
+            {
+                EventData data2 = eventTypeTable[index];
+                filePath = ampere::utils::getAbsolutePath(
+                        data2.socket, data2.label);
+                if (filePath != "")
+                {
+                    logEvents(data2, filePath.c_str());
+                }
             }
+
+            sleep(1);
         }
         return 1;
     }
@@ -522,7 +1195,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    ampere::ras::getErrors();
+    ampere::ras::getErrorsAndEvents();
 
     return 0;
 }

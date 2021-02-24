@@ -79,6 +79,7 @@ namespace sel
             message,
             selData,
             IPMI_SEL_OEM_RECORD_TYPE);
+        usleep(300000);
         return;
     }
 
