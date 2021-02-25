@@ -39,7 +39,11 @@ groups:
       type: /xyz/openbmc_project/sensors
       members:
           - temperature/card0
-
+    - name: zone0_nvme
+      description: Group of nvme temperature sensors for zone 0
+      type: /xyz/openbmc_project/sensors
+      members:
+          - temperature/nvme_max
 
 matches:
     - name: propertiesChanged
@@ -390,6 +394,46 @@ events:
                 value: 2000
                 type: int64_t
             target:
-                value: 2
+                value: 3
+                type: int
+
+    - name: set_wiwynn_algo_on_nvme_temp
+      groups:
+          - name: zone0_nvme
+            interface: xyz.openbmc_project.Sensor.Value
+            property:
+                name: Value
+                type: int64_t
+      triggers:
+          - name: init
+            method: getProperties
+            handler: setProperty
+          - name: signal
+            signal: propertiesChanged
+            handler: setProperty
+      actions:
+          - name: set_speed_from_max_sensor_value
+            map:
+                value:
+                    - 1000: 64
+                    - 40000: 64
+                    - 50000: 90
+                    - 55000: 115
+                    - 60000: 141
+                    - 65000: 192
+                    - 66000: 204
+                    - 67000: 217
+                    - 68000: 229
+                    - 69000: 255
+
+                type: std::map<int64_t, uint64_t>
+            neg_hysteresis:
+                value: 2000
+                type: int64_t
+            pos_hysteresis:
+                value: 0
+                type: int64_t
+            target:
+                value: 4
                 type: int
 
