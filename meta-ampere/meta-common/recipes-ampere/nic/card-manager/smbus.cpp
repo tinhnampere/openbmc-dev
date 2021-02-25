@@ -93,19 +93,23 @@ int phosphor::smbus::Smbus::smbusMuxToChan(int smbus_num, int8_t addr,
 {
     int ret = 0;
 
+    gMutex.lock();
     ret = i2c_set_address(fd[smbus_num], addr);
+
     if (ret < 0)
     {
-        fprintf(stderr, "Error: set the address failed\n");
-        return ret;
-    }
-    ret = i2c_smbus_write_byte_data(fd[smbus_num], addr, (1 << chan));
-    if (ret < 0)
-    {
-        fprintf(stderr, "Error: set the channel failed\n");
+        gMutex.unlock();
         return ret;
     }
 
+    ret = i2c_smbus_write_byte(fd[smbus_num], chan);
+    if (ret < 0)
+    {
+        gMutex.unlock();
+        return ret;
+    }
+
+    gMutex.unlock();
     return ret;
 }
 
@@ -119,10 +123,28 @@ uint8_t phosphor::smbus::Smbus::smbusReadByteData(int smbus_num, int8_t addr,
     if (ret < 0)
     {
         fprintf(stderr, "Error: set the address failed\n");
-        return 0xff;
+        return ret;
     }
 
     value = i2c_smbus_read_byte_data(fd[smbus_num], offset);
+
+    return value;
+}
+
+int32_t phosphor::smbus::Smbus::smbusReadWordData(int smbus_num, int8_t addr,
+                                                  uint8_t offset)
+{
+    int ret = 0;
+    int32_t value = 0;
+
+    ret = i2c_set_address(fd[smbus_num], addr);
+    if (ret < 0)
+    {
+        fprintf(stderr, "Error: set the address failed\n");
+        return ret;
+    }
+
+    value = i2c_smbus_read_word_data(fd[smbus_num], offset);
 
     return value;
 }

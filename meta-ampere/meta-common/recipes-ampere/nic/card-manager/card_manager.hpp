@@ -11,6 +11,9 @@
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/utility/timer.hpp>
+#include <nlohmann/json.hpp>
+
+using Json = nlohmann::json;
 
 namespace phosphor
 {
@@ -39,7 +42,7 @@ class CardManager
         _timer(_event, std::bind(&CardManager::read, this))
     {
         // read json file
-        configs = getCardConfig();
+        configs = getConfig();
     }
 
     /*
@@ -54,23 +57,24 @@ class CardManager
     };
 
     /**
+     * Card types
+     */
+    enum CardType
+    {
+        OCP=0,
+        NVME
+    };
+
+    /**
      * Structure for keeping nic configure data required by nic monitoring
      */
     struct CardConfig
     {
+        std::string id;
         std::string index;
         int busID;
-        uint8_t channelId;
-        uint8_t muxAddress;
-        uint8_t slaveAddress;
-
-        /* just store information, not support now */
-        int8_t criticalHigh;
-        int8_t criticalLow;
-        int8_t maxValue;
-        int8_t minValue;
-        int8_t warningHigh;
-        int8_t warningLow;
+        std::vector<std::pair<uint8_t, int>> muxes;
+        phosphor::nic::CardManager::CardType type;
     };
 
     /**
@@ -85,6 +89,7 @@ class CardManager
         int16_t mfrId;
         int16_t deviceId;
         std::string name;
+        std::vector<uint8_t> serial;
     };
 
     /** @brief Setup polling timer in a sd event loop and attach to D-Bus
@@ -92,7 +97,7 @@ class CardManager
      */
     void run();
 
-    /** @brief Map of the object CardManagerSSD */
+    /** @brief save the card objects */
     std::unordered_map<std::string, std::shared_ptr<phosphor::nic::Nic>> cards;
 
     /** @brief Set inventory properties of nic */
@@ -100,6 +105,7 @@ class CardManager
         bool present, const phosphor::nic::CardManager::CardData& cardData,
         const std::string& inventoryPath);
 
+    /** @brief Create inventory of nic or nvme */
     void createCardInventory();
 
     /** @brief read and update data to dbus */
@@ -122,11 +128,26 @@ class CardManager
     void read();
 
     /** @brief Get card configuration */
-    std::vector<phosphor::nic::CardManager::CardConfig> getCardConfig();
+    std::vector<phosphor::nic::CardManager::CardConfig> getConfig();
+
+    /** @brief Parse the card data from json string */
+    void parseConfig(std::vector<Json> readings,
+            phosphor::nic::CardManager::CardType type,
+            std::vector<phosphor::nic::CardManager::CardConfig> &cardConfigs);
 
     /** @brief Read card info via I2C */
     bool getCardInfobyBusID(CardConfig& config,
                     phosphor::nic::CardManager::CardData& cardData);
+
+    /** @brief Read NVME info via I2C */
+    bool getNVMeInfobyBusID(
+        CardConfig& config, phosphor::nic::CardManager::CardData& cardData);
+
+    /** @brief Update nvme max temp sensor */
+    void nvmeMaxTempSensor();
+
+    std::string nvmeSerialFormat(std::vector<uint8_t> serial);
+    std::string nvmeNameFormat(uint16_t vendorId);
 };
 } // namespace nic
 } // namespace phosphor

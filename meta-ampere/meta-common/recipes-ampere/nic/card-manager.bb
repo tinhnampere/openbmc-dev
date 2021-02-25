@@ -26,7 +26,7 @@ SRC_URI += " \
             file://smbus.cpp \
             file://smbus.hpp \
             file://main.cpp \
-            file://ocp_config.json \
+            file://config.json \
             file://meson.build \
             file://xyz.openbmc_project.card.manager.service.in \
            "
