@@ -101,7 +101,7 @@ static int open_i2c_dev(char *i2c_device)
 static int bus_arg_handler(int argc, char **argv, int index)
 {
 	ctl.i2c_bus = (uint8_t)strtol(argv[index + 1], NULL, 10);
-	if (ctl.i2c_bus > 32)
+	if (ctl.i2c_bus > 128)
 	{
 		printf("Invalid I2C bus %d\n", ctl.i2c_bus);
 		return -EINVAL;
