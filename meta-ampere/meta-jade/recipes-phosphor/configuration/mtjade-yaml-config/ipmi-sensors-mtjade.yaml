@@ -478,13 +478,15 @@
 240:
     <<: *power
     entityInstance: 55
-    multiplierM: 250
+    multiplierM: 80
+    rExp: -1
     path: /xyz/openbmc_project/sensors/power/PSU0_POUT
 
 241:
     <<: *power
     entityInstance: 56
-    multiplierM: 250
+    multiplierM: 80
+    rExp: -1
     path: /xyz/openbmc_project/sensors/power/PSU1_POUT
 
 158:
