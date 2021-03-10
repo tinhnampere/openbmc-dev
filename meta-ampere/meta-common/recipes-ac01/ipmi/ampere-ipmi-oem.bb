@@ -14,22 +14,9 @@ EXTRA_OECMAKE="-DENABLE_TEST=0 -DYOCTO=1"
 
 LIBRARY_NAMES = "libzampoemcmds.so"
 
-
-SRC_URI += " \
-  file://LICENSE \
-  file://CMakeLists.txt \
-  file://CMakeLists.txt.in \
-  file://generate-whitelist.py \
-  file://ipmi-whitelist.conf \
-  file://cmake-format.json \
-  file://src/ipmi_to_redfish_hooks.cpp \
-  file://src/storagecommands.cpp \
-  file://include/commandutils.hpp \
-  file://include/ipmi_to_redfish_hooks.hpp \
-  file://include/sdrutils.hpp \
-  file://include/storagecommands.hpp \
-  file://include/types.hpp \
-  "
+S = "${WORKDIR}/git"
+SRC_URI = "git://github.com/ampere-openbmc/ampere-ipmi-oem;protocol=git;branch=ampere"
+SRCREV = "dd7c6b3c568c18d8c76111170377277c0e441ba3"
 
 HOSTIPMI_PROVIDER_LIBRARY += "${LIBRARY_NAMES}"
 NETIPMI_PROVIDER_LIBRARY += "${LIBRARY_NAMES}"
