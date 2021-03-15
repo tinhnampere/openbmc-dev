@@ -1,0 +1,8 @@
+{
+       "number_socket": 2,
+       "s0_misc_path": "/sys/bus/i2c/devices/2-004f/1e78a0c0.i2c-bus:smpro@4f:misc/",
+       "s1_misc_path": "/sys/bus/i2c/devices/2-004e/1e78a0c0.i2c-bus:smpro@4e:misc/",
+       "s0_errmon_path": "/sys/bus/i2c/devices/2-004f/1e78a0c0.i2c-bus:smpro@4f:errmon/",
+       "s1_errmon_path": "/sys/bus/i2c/devices/2-004e/1e78a0c0.i2c-bus:smpro@4e:errmon/"
+}
+

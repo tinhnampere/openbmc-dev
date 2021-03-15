@@ -28,7 +28,6 @@ RDEPENDS_${PN}-chassis = " \
 	obmc-phosphor-buttons-handler \
 	obmc-op-control-power \
         ampere-hostctrl \
-        tempevent-log \
         phosphor-hostlogger \
         phosphor-sel-logger \
         phosphor-logging \
@@ -45,7 +44,6 @@ RDEPENDS_${PN}-fans = " \
 SUMMARY_${PN}-system = "Ampere System"
 RDEPENDS_${PN}-system = " \
         ampere-ipmi-oem \
-        ampere-boot-progress \
         openocd \
         ampere-power-logger \
         "
