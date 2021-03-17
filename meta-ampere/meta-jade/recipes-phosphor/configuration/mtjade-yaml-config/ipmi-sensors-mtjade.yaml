@@ -496,18 +496,6 @@
     rExp: -1
     path: /xyz/openbmc_project/sensors/power/total_power
 
-158:
-    <<: *power
-    entityInstance: 53
-    multiplierM: 250
-    path: /xyz/openbmc_project/sensors/power/S0_SOC_TDP
-
-159:
-    <<: *power
-    entityInstance: 54
-    multiplierM: 250
-    path: /xyz/openbmc_project/sensors/power/S1_SOC_TDP
-
 169: &current
     sensorType: 0x03
     path: /xyz/openbmc_project/sensors/current/S0_Core_VRD_Curr
