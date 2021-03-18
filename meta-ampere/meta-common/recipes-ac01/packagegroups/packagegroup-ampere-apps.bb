@@ -32,6 +32,7 @@ SUMMARY_${PN}-system = "Ampere System"
 RDEPENDS_${PN}-system = " \
         openocd \
         ampere-ipmi-oem \
+        ampere-state-logger \
         "
 
 SUMMARY_${PN}-flash = "Ampere Flash"
