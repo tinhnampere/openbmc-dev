@@ -33,6 +33,7 @@ RDEPENDS:${PN}-chassis = " \
 SUMMARY:${PN}-system = "Ampere System"
 RDEPENDS:${PN}-system = " \
         smbios-mdr \
+        ampere-state-logger \
         "
 
 SUMMARY:${PN}-flash = "Ampere Flash"
