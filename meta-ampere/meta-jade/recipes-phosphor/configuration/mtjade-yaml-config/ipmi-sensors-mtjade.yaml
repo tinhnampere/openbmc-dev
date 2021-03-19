@@ -489,6 +489,13 @@
     rExp: -1
     path: /xyz/openbmc_project/sensors/power/PSU1_POUT
 
+242:
+    <<: *power
+    entityInstance: 57
+    multiplierM: 80
+    rExp: -1
+    path: /xyz/openbmc_project/sensors/power/total_power
+
 158:
     <<: *power
     entityInstance: 53
