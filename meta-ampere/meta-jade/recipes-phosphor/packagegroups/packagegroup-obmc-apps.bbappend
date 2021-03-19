@@ -16,3 +16,4 @@ RDEPENDS:${PN}-inventory:append:mtjade = " \
                                         "
 RDEPENDS:${PN}-extras:remove:mtjade = " phosphor-hwmon"
 VIRTUAL-RUNTIME_obmc-sensors-hwmon ?= "dbus-sensors"
+RDEPENDS:${PN}-extras:append:mtjade = " phosphor-virtual-sensor"
