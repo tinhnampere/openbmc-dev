@@ -24,11 +24,14 @@ RPROVIDES_${PN}-fans += "virtual-obmc-fan-mgmt"
 
 SUMMARY_${PN}-chassis = "Ampere Chassis"
 RDEPENDS_${PN}-chassis = " \
+        obmc-phosphor-buttons-signals \
+        obmc-phosphor-buttons-handler \
         obmc-op-control-power \
         ampere-hostctrl \
         phosphor-hostlogger \
         phosphor-sel-logger \
         phosphor-logging \
+        virtual/obmc-gpio-presence \
         "
 
 SUMMARY_${PN}-system = "Ampere System"
