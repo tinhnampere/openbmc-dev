@@ -45,5 +45,5 @@ SUMMARY_${PN}-system = "Ampere System"
 RDEPENDS_${PN}-system = " \
         ampere-ipmi-oem \
         openocd \
-        ampere-power-logger \
+        ampere-state-logger \
         "
