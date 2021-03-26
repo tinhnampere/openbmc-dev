@@ -3,7 +3,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
 inherit systemd meson pkgconfig
 
-DEPENDS = "boost sdbusplus systemd phosphor-dbus-interfaces phosphor-logging nlohmann-json"
+DEPENDS = "boost sdbusplus systemd phosphor-dbus-interfaces phosphor-logging nlohmann-json gpioplus"
 
 RDEPENDS_${PN} += "libsystemd bash"
 
@@ -12,12 +12,13 @@ EXTRA_OEMESON_append = " \
     -Derror-monitor=enabled \
     -Dpower-limit=enabled \
     -Dtemp-event-log=enabled \
+    -Dscp-failover=enabled \
     "
 
 S = "${WORKDIR}/git"
 
 SRC_URI = "git://github.com/ampere-openbmc/ampere-platform-mgmt.git;protocol=https;branch=ampere"
-SRCREV = "ffbb5670b08cadb1407ce4de86c4df5439213554"
+SRCREV = "272aa12e89c9258e5c031ff3aae0de6701fac654"
 SRC_URI += " file://platform-config.json"
 
 
@@ -30,6 +31,7 @@ FMT_MNT = "../${TMPL_HOST_MNT}:${POWERON_TGT}.requires/${INSTFMT_MNT}"
 SYSTEMD_SERVICE_${PN} += "${TMPL_HOST_MNT}"
 SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.ampere_host_error_monitor.service"
 SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.AmpSocPower.service"
+SYSTEMD_SERVICE_${PN} += "ampere-scp-failover.service"
 SYSTEMD_LINK_${PN} += "${@compose_list(d, 'FMT_MNT', 'OBMC_CHASSIS_INSTANCES')}"
 
 do_install_append_mtjade() {
