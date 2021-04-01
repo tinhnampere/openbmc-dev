@@ -8,6 +8,10 @@ EXTRA_OECONF_mtjade = " \
     "
 FILESEXTRAPATHS_prepend_mtjade := "${THISDIR}/${PN}:"
 
+SRC_URI +="file://0001-writefrudata-validate-multi-record-data.patch \
+           file://0002-Support-polulate-and-parser-Multirecord.patch \
+          "
+
 EEPROM_NAMES = "motherboard"
 
 EEPROMFMT = "system/chassis/{0}"
