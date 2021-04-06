@@ -1,6 +1,7 @@
 [Unit]
 Description=Updating MAC Address Service From FRU inventory
-After=xyz.openbmc_project.Inventory.Manager.service
+Wants=obmc-read-eeprom@system-chassis-motherboard.service
+After=obmc-read-eeprom@system-chassis-motherboard.service
 
 [Service]
 ExecStart=/usr/sbin/ampere_update_mac.sh
