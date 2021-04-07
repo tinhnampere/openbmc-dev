@@ -1,0 +1,9 @@
+/xyz/openbmc_project/control/host0/soc_power:
+    - Interface: xyz.openbmc_project.Control.Power.Soc
+      Properties:
+          SocPowerLimit:
+              Default: 90
+              Validation:
+                  Type: "range"
+                  Validator: "90..500"
+                  Unit: "Watts"
