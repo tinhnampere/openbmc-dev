@@ -5,7 +5,7 @@ POWER_SERVICE_PACKAGES = " \
 
 RDEPENDS_${PN}-extras_append_mtjade = " \
                                         ${POWER_SERVICE_PACKAGES} \
-                                        phosphor-webui \
+                                        webui-vue \
                                         phosphor-image-signing \
                                         phosphor-virtual-sensor \
                                       "
