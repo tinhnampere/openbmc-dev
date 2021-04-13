@@ -15,7 +15,7 @@ ifconfig ${ETHERNET_NCSI} up
 
 # Check if BMC MAC address is exported
 if [[ $ENV_MAC_ADDR =~ $ENV_ETH ]]; then
-    echo "WARNING: BMC MAC address is already updated!"
+    echo "WARNING: BMC MAC address is alread updated!"
     exit 0
 fi
 
