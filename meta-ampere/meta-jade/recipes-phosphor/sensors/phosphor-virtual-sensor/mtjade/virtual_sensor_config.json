@@ -190,7 +190,7 @@
                 }
             ]
         },
-        "Expression": "max(S0_DIMM_CH0_Temp,S0_DIMM_CH1_Temp,S0_DIMM_CH2_Temp,S0_DIMM_CH3_Temp)"
+        "Expression": "max(0,S0_DIMM_CH0_Temp,S0_DIMM_CH1_Temp,S0_DIMM_CH2_Temp,S0_DIMM_CH3_Temp)"
     },
     {
         "Desc": {
@@ -236,7 +236,7 @@
                 }
             ]
         },
-        "Expression": "max(S1_DIMM_CH0_Temp,S1_DIMM_CH1_Temp,S1_DIMM_CH2_Temp,S1_DIMM_CH3_Temp)"
+        "Expression": "max(0,S1_DIMM_CH0_Temp,S1_DIMM_CH1_Temp,S1_DIMM_CH2_Temp,S1_DIMM_CH3_Temp)"
     },
     {
         "Desc": {
@@ -261,7 +261,7 @@
                 }
             ]
         },
-        "Expression": "max(S1_DIMM_VR1_Volt,S1_DIMM_VR2_Volt)"
+        "Expression": "max(0,S1_DIMM_VR1_Volt,S1_DIMM_VR2_Volt)"
     },
     {
         "Desc": {
@@ -286,7 +286,7 @@
                 }
             ]
         },
-        "Expression": "max(S0_DIMM_VR1_Volt,S0_DIMM_VR2_Volt)"
+        "Expression": "max(0,S0_DIMM_VR1_Volt,S0_DIMM_VR2_Volt)"
     }
 ]
 
