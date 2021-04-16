@@ -1,7 +1,7 @@
 {
        "hostDrivers" :
        {
-              "bindDelay" : 1500,
+              "bindDelay" : 3000,
               "unbindDelay" : 0,
               "drivers" :
               [
