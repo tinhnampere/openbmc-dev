@@ -288,6 +288,16 @@
     multiplierM: 18
     path: /xyz/openbmc_project/sensors/voltage/VBAT_RTC
 
+105:
+    <<: *TEMP_DEFAULTS
+    entityInstance: 19
+    path: /xyz/openbmc_project/sensors/temperature/S0_DIMMG1_Temp
+
+106:
+    <<: *TEMP_DEFAULTS
+    entityInstance: 19
+    path: /xyz/openbmc_project/sensors/temperature/S1_DIMMG1_Temp
+
 107:
     <<: *TEMP_DEFAULTS
     entityInstance: 15

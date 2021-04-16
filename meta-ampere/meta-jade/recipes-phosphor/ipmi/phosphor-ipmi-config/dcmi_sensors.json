@@ -23,6 +23,8 @@
         { "instance": 9, "dbus": "/xyz/openbmc_project/sensors/temperature/S1_DIMM_VRD_Temp", "record_id": 125 },
         { "instance": 10, "dbus": "/xyz/openbmc_project/sensors/temperature/S1_Core_VRD_Temp", "record_id": 126 },
         { "instance": 11, "dbus": "/xyz/openbmc_project/sensors/temperature/S1_DIMMG0_Temp", "record_id": 127 },
-        { "instance": 12, "dbus": "/xyz/openbmc_project/sensors/temperature/S1_RCA_VR_Temp", "record_id": 157 }
+        { "instance": 12, "dbus": "/xyz/openbmc_project/sensors/temperature/S1_RCA_VR_Temp", "record_id": 157 },
+        { "instance": 13, "dbus": "/xyz/openbmc_project/sensors/temperature/S0_DIMMG1_Temp", "record_id": 105 },
+        { "instance": 14, "dbus": "/xyz/openbmc_project/sensors/temperature/S1_DIMMG1_Temp", "record_id": 106 }
     ]
 }

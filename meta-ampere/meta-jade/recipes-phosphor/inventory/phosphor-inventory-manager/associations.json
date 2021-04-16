@@ -46,6 +46,9 @@
                     "/xyz/openbmc_project/sensors/temperature/S1_RCA_VR_Temp",
                     "/xyz/openbmc_project/sensors/temperature/S1_SOC_Temp",
                     "/xyz/openbmc_project/sensors/temperature/S1_SOC_VRD_Temp",
+                    "/xyz/openbmc_project/sensors/temperature/S0_DIMMG1_Temp",
+                    "/xyz/openbmc_project/sensors/temperature/S1_DIMMG1_Temp",
+
                     "/xyz/openbmc_project/sensors/voltage/S0_0V8_VDDC_SOC",
                     "/xyz/openbmc_project/sensors/voltage/S0_0V75_PCP",
                     "/xyz/openbmc_project/sensors/voltage/S0_1V2_VDDQ0123",

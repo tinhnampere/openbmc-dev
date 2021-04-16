@@ -240,6 +240,98 @@
     },
     {
         "Desc": {
+            "Name": "S0_DIMMG1_Temp",
+            "SensorType": "temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 85,
+            "CriticalLow": 1,
+            "WarningHigh": 82,
+            "WarningLow": 4
+        },
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "S0_DIMM_CH4_Temp",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH4_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "S0_DIMM_CH5_Temp",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH5_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "S0_DIMM_CH6_Temp",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH6_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "S0_DIMM_CH7_Temp",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH7_Temp",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,S0_DIMM_CH4_Temp,S0_DIMM_CH5_Temp,S0_DIMM_CH6_Temp,S0_DIMM_CH7_Temp)"
+    },
+    {
+        "Desc": {
+            "Name": "S1_DIMMG1_Temp",
+            "SensorType": "temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 85,
+            "CriticalLow": 1,
+            "WarningHigh": 82,
+            "WarningLow": 4
+        },
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "S1_DIMM_CH4_Temp",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH4_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "S1_DIMM_CH5_Temp",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH5_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "S1_DIMM_CH6_Temp",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH6_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "S1_DIMM_CH7_Temp",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH7_Temp",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,S1_DIMM_CH4_Temp,S1_DIMM_CH5_Temp,S1_DIMM_CH6_Temp,S1_DIMM_CH7_Temp)"
+    },
+    {
+        "Desc": {
             "Name": "S1_DIMM_DDR_Volt",
             "SensorType": "voltage"
         },
