@@ -287,6 +287,26 @@
     entityInstance: 38
     multiplierM: 18
     path: /xyz/openbmc_project/sensors/voltage/VBAT_RTC
+230:
+    <<: *VOLTAGE_DEFAULTS
+    entityInstance: 37
+    multiplierM: 18
+    path: /xyz/openbmc_project/sensors/voltage/PSU0_VIN
+231:
+    <<: *VOLTAGE_DEFAULTS
+    entityInstance: 37
+    multiplierM: 18
+    path: /xyz/openbmc_project/sensors/voltage/PSU1_VIN
+232:
+    <<: *VOLTAGE_DEFAULTS
+    entityInstance: 37
+    multiplierM: 18
+    path: /xyz/openbmc_project/sensors/voltage/PSU0_VOUT
+233:
+    <<: *VOLTAGE_DEFAULTS
+    entityInstance: 37
+    multiplierM: 18
+    path: /xyz/openbmc_project/sensors/voltage/PSU1_VOUT
 
 105:
     <<: *TEMP_DEFAULTS
@@ -506,6 +526,20 @@
     rExp: -1
     path: /xyz/openbmc_project/sensors/power/total_power
 
+238:
+    <<: *power
+    entityInstance: 55
+    multiplierM: 80
+    rExp: -1
+    path: /xyz/openbmc_project/sensors/power/PSU0_PIN
+
+239:
+    <<: *power
+    entityInstance: 56
+    multiplierM: 80
+    rExp: -1
+    path: /xyz/openbmc_project/sensors/power/PSU1_PIN
+
 169: &current
     sensorType: 0x03
     path: /xyz/openbmc_project/sensors/current/S0_Core_VRD_Curr
@@ -570,3 +604,23 @@
     <<: *current
     entityInstance: 67
     path: /xyz/openbmc_project/sensors/current/S1_RCA_VRD_Curr
+
+234:
+    <<: *current
+    entityInstance: 67
+    path: /xyz/openbmc_project/sensors/current/PSU0_IIN
+
+235:
+    <<: *current
+    entityInstance: 67
+    path: /xyz/openbmc_project/sensors/current/PSU1_IIN
+
+236:
+    <<: *current
+    entityInstance: 67
+    path: /xyz/openbmc_project/sensors/current/PSU0_IOUT
+
+237:
+    <<: *current
+    entityInstance: 67
+    path: /xyz/openbmc_project/sensors/current/PSU1_IOUT
