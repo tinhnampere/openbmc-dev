@@ -1,5 +1,55 @@
 [
     {
+        "path": "system/chassis/motherboard/powersupply0",
+        "endpoints":
+        [
+            {
+                "types":
+                {
+                    "rType": "inventory",
+                    "fType": "sensors"
+                },
+                "paths":
+                [
+                    "/xyz/openbmc_project/sensors/fan_tach/PSU0_fan1",
+                    "/xyz/openbmc_project/sensors/temperature/PSU0_TEMP",
+                    "/xyz/openbmc_project/sensors/voltage/PSU0_VIN",
+                    "/xyz/openbmc_project/sensors/voltage/PSU0_VOUT",
+                    "/xyz/openbmc_project/sensors/power/PSU0_PIN",
+                    "/xyz/openbmc_project/sensors/power/PSU0_POUT",
+                    "/xyz/openbmc_project/sensors/power/PSU0_POUT",
+                    "/xyz/openbmc_project/sensors/current/PSU0_IIN",
+                    "/xyz/openbmc_project/sensors/current/PSU0_IOUT"
+                ]
+            }
+        ]
+    },
+    {
+        "path": "system/chassis/motherboard/powersupply1",
+        "endpoints":
+        [
+            {
+                "types":
+                {
+                    "rType": "inventory",
+                    "fType": "sensors"
+                },
+                "paths":
+                [
+                    "/xyz/openbmc_project/sensors/fan_tach/PSU1_fan1",
+                    "/xyz/openbmc_project/sensors/temperature/PSU1_TEMP",
+                    "/xyz/openbmc_project/sensors/voltage/PSU1_VIN",
+                    "/xyz/openbmc_project/sensors/voltage/PSU1_VOUT",
+                    "/xyz/openbmc_project/sensors/power/PSU1_PIN",
+                    "/xyz/openbmc_project/sensors/power/PSU1_POUT",
+                    "/xyz/openbmc_project/sensors/power/PSU1_POUT",
+                    "/xyz/openbmc_project/sensors/current/PSU1_IIN",
+                    "/xyz/openbmc_project/sensors/current/PSU1_IOUT"
+                ]
+            }
+        ]
+    },
+    {
         "path": "system/chassis",
         "endpoints":
         [
