@@ -4,4 +4,4 @@ SRC_URI = "git://github.com/ampere-openbmc/linux;protocol=git;branch=ampere"
 SRC_URI += " file://defconfig"
 SRC_URI += " file://${MACHINE}.cfg"
 
-SRCREV="8505a666c21553a88379ce866ee4cc37194ef751"
+SRCREV="da13a4838915cbb8d09be227e6ef299a323f7b20"
