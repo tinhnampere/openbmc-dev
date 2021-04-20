@@ -9,7 +9,7 @@ RDEPENDS_${PN} = "bash"
 DEPENDS = "zlib"
 
 SRC_URI = "git://github.com/ampere-openbmc/ampere-platform-mgmt.git;protocol=https;branch=ampere"
-SRCREV = "0d289c6125cbfc5f3e09c31a5658800cfe243912"
+SRCREV = "6a4fb5236d4f413c1c5828c5f7511303c335de26"
 
 SRC_URI += "\
             file://ampere_firmware_upgrade.sh \
