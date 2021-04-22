@@ -16,6 +16,8 @@ INVENTORY_SERVICE='xyz.openbmc_project.Inventory.Manager'
 INVENTORY_OBJECT='/xyz/openbmc_project/inventory'
 INVENTORY_PATH='xyz.openbmc_project.Inventory.Manager'
 OBJECT_PATH="/system/chassis/motherboard/powersupply$1"
+IVENTORY_IFACE="xyz.openbmc_project.Inventory.Item"
+DRIVER_PATH="/sys/bus/i2c/drivers/pmbus/"
 
 pmbus_read() {
 
@@ -25,60 +27,60 @@ pmbus_read() {
   #         $3 is Data Address
   #         $4 is Data Length
 
-  add=$3
   len=$4
-
-  # The I2C block data reading support read block by block with
-  # the block size is 8 bytes
-
-  add_base=$(( $add / 8 ))
-  add_offset=$(( $add % 8 ))
-  len=$(( $len + $add_offset ))
 
   while [ $len -gt 0 ]
   do
+
     # The I2C block data reading just support the max length is 32 bytes
     if [ $len -lt 32 ]; then
-      data_tmp=$(i2cget -f -y $1 $2 $add_base i $len)
+      data_tmp=$(i2cget -f -y $1 $2 $3 i $len)
       data+=$(echo ${data_tmp} | sed -e "s/$len\: //")
     else
-      data_tmp=$(i2cget -f -y $1 $2 $add_base i 32)
+      data_tmp=$(i2cget -f -y $1 $2 $3 i 32)
       data+=$(echo ${data_tmp} | sed -e "s/32\: //")
     fi
 
-    if [[ $? -ne 0 ]]; then
-      echo "ERROR: i2c$1 device $2 command $3 error. Also check if the PSU presence?"
+    if [[ -z "$data" ]]; then
+      echo "i2c$1 device $2 command $3 error" >&2
       exit 1
     fi
 
     len=$(( $len - 32 ))
     data+=' '
-    add_base=$(( $add_base + 1 ))
   done
 
-  i=0
+  arry=$(echo ${data} | sed -e "s/$4\: //" | sed -e "s/\0x00//g" | sed -e "s/\0xff//g" | sed -e "s/\0x7f//g" | sed -e "s/\0x0f//g" | sed -e "s/\0x14//g")
+
   string=''
-  for d in ${data}
+  for d in ${arry}
   do
-    # Split the data, which was read as a redundancy data
-    if [ $i -ge $add_offset ]; then
-      hex=$(echo $d | sed -e "s/0\x//")
-      string+=$(echo -e "\x${hex}");
-    fi
-    ((i++))
+    hex=$(echo $d | sed -e "s/0\x//")
+    string+=$(echo -e "\x${hex}");
   done
 
+  # Return a result string
   echo $string
 }
 
 update_inventory() {
-  busctl call \
+  if [ -z "$6" ]; then
+      busctl call \
+      ${INVENTORY_SERVICE} \
+      ${INVENTORY_OBJECT} \
+      ${INVENTORY_PATH} \
+      Notify a{oa{sa{sv}}} 1 \
+      ${OBJECT_PATH} 1 $2 $3 \
+      $4 $5 ""
+  else
+      busctl call \
       ${INVENTORY_SERVICE} \
       ${INVENTORY_OBJECT} \
       ${INVENTORY_PATH} \
       Notify a{oa{sa{sv}}} 1 \
       ${OBJECT_PATH} 1 $2 $3 \
       $4 $5 $6
+  fi
 }
 
 
@@ -89,8 +91,10 @@ fi
 
 if [ $1 -eq 0 ]; then
   i2c_addr=0x50
+  driver_name="${i2c_chan}-0058"
 elif [ $1 -eq 1 ]; then
   i2c_addr=0x51
+  driver_name="${i2c_chan}-0059"
 else
   echo "ERROR: The PSU $1 device is not correctly"
   exit 1
@@ -103,14 +107,24 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-result=$( pmbus_read $i2c_chan $i2c_addr 0x24 12)
-update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "Manufacturer" "s" $result
+# Check if the powersupply present
+if [ -e ${DRIVER_PATH}${driver_name} ]; then
+  result=$( pmbus_read $i2c_chan $i2c_addr 0x24 12)
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "Manufacturer" "s" $result
 
-result=$( pmbus_read $i2c_chan $i2c_addr 0x31 36)
-update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "Model" "s" $result
+  result=$( pmbus_read $i2c_chan $i2c_addr 0x31 36)
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "Model" "s" $result
 
-result=$( pmbus_read $i2c_chan $i2c_addr 0x56 16)
-update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "PartNumber" "s" $result
+  result=$( pmbus_read $i2c_chan $i2c_addr 0x56 16)
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "PartNumber" "s" $result
 
-result=$( pmbus_read $i2c_chan $i2c_addr 0x78 14)
-update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "SerialNumber" "s" $result
+  result=$( pmbus_read $i2c_chan $i2c_addr 0x78 14)
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "SerialNumber" "s" $result
+else
+  echo "WARNING: The powersupply$1 is not present"
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "Manufacturer" "s" ""
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "Model" "s" ""
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "PartNumber" "s" ""
+  update_inventory $1 "xyz.openbmc_project.Inventory.Decorator.Asset" 1 "SerialNumber" "s" ""
+fi
+
