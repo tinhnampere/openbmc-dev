@@ -18,6 +18,7 @@ function set_gpio_active_low() {
 
 GPIO_OCP_AUX_PWREN=139
 GPIO_OCP_MAIN_PWREN=140
+GPIO_SPI0_BACKUP_SEL=227
 
 GPIO_BASE=$(cat /sys/class/gpio/gpio*/base)
 
@@ -36,6 +37,7 @@ power_on() {
   echo "Powering on Server $2"
   set_gpio_active_low $((${GPIO_BASE} + ${GPIO_OCP_AUX_PWREN})) high
   set_gpio_active_low $((${GPIO_BASE} + ${GPIO_OCP_MAIN_PWREN})) high
+  set_gpio_active_low $((${GPIO_BASE} + ${GPIO_SPI0_BACKUP_SEL})) low
   busctl set-property xyz.openbmc_project.State.Chassis /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis RequestedPowerTransition s xyz.openbmc_project.State.Chassis.Transition.On
 }
 
