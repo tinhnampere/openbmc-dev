@@ -7,4 +7,5 @@ SRC_URI += " \
             file://0004-aspeed-add-gpio-support.patch \
             file://0005-aspeed-Enable-SPI-master-mode.patch \
             file://0006-aspeed-support-Mt.Jade-platform-init.patch \
+            file://0007-aspeed-support-init-GPIOAC2-GPIOAC3-GPIOB0.patch \
            "
