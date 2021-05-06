@@ -6,6 +6,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 inherit obmc-phosphor-systemd
 inherit allarch
 
+RDEPENDS_${PN} += "bash"
+
 DEPENDS += "virtual/obmc-gpio-monitor"
 RDEPENDS_${PN} += "virtual/obmc-gpio-monitor"
 
@@ -20,6 +22,14 @@ SYSTEMD_ENVIRONMENT_FILE_${PN} +="obmc/gpio/overtemp_S0 \
                                   obmc/gpio/hightemp_start_S1 \
                                   obmc/gpio/hightemp_stop_S1 \
                                  "
+
+SRC_URI += " file://tempevent_log.sh"
+
+do_install() {
+        install -d ${D}${bindir}
+        install -m 0755 ${WORKDIR}/tempevent_log.sh \
+        ${D}${bindir}/tempevent_log.sh
+}
 
 SYSTEMD_SERVICE_${PN} ?= "ampere_hightemp_start.service ampere_hightemp_stop.service ampere_overtemp.service"
 

@@ -4,4 +4,4 @@ Conflicts=obmc-host-stop@%i.target
 
 [Service]
 Restart=no
-ExecStart=/usr/bin/tempevent_log Hightemp Start
+ExecStart=/usr/bin/tempevent_log.sh Hightemp Start
