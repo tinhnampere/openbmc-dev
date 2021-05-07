@@ -5,6 +5,7 @@ SRC_URI += " \
             file://0003-ADCSensor-Add-support-DevName-option.patch \
             file://0004-Dbus-sensors-restructure-the-code-handle-PowerState-.patch \
             file://0005-ADCSensor-FanSensor-Support-ChassisState-attribute.patch \
+            file://0006-FanSensor-Add-xyz.openbmc_project.Control.FanPwm-to-.patch \
            "
 PACKAGECONFIG_mtjade = " \
                         adcsensor \
