@@ -5,6 +5,8 @@ SRC_URI += " \
             file://0003-amperecpu-Add-Ampere-CPU-daemon.patch \
             file://0004-amperecpu-Scan-CPU-sensors-in-the-first-power-on.patch \
             file://0005-amperecpu-Support-PresenceGpio-option.patch \
+            file://0006-Dbus-sensors-restructure-the-code-handle-PowerState-.patch \
+            file://0007-ADCSensor-FanSensor-Support-ChassisState-attribute.patch \
            "
 PACKAGECONFIG:mtjade = " \
                         adcsensor \

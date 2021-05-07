@@ -1,0 +1,963 @@
+From a86407b45cc99920f663907595947d11b70a8813 Mon Sep 17 00:00:00 2001
+From: ThuBaNguyen <thu@os.amperecomputing.com>
+Date: Tue, 28 Sep 2021 07:46:55 +0000
+Subject: [PATCH 6/8] Dbus-sensors: restructure the code handle PowerState
+ attribute
+
+There are some below issues with the code handle PowerState attribute:
+1. Use difference properties to the "PowerState" configuration.
+    + If the PowerState is "On" the CurrentHostState value of
+      xyz.openbmc_project.State.Host interface will be matched with "Running".
+    + If PowerState is "BiosPost" the OperatingSystemState value of
+      xyz.openbmc_project.State.OperatingSystem.Status interface will be
+      matched with "BiosPost".
+    + If PowerState is "Always" don't match with any property, the sensors
+      are always read.
+2. Matching CurrentHostState with Running and OperatingSystemState
+   with BiosPost are merged in the same code.
+3. The abstract class such as sensor, utils have to changed when support new
+   matching state.
+4. It is hard to support new match condition option such as ChassisState with
+   currentPowerState or any kind of the property matching.
+5. The code is quite messy.
+
+This commit restructures the code of PowerState matching.
+1. Use the common ReadState name for PowerState class. ReadState can
+   be the host state, chassis state, OS State, Boot progress state or any dbus
+   property which have string value.
+2. Include dbus object, path, interface, property and match string in
+   ReadState. The readState will be sent from Fan, Cpu, Temp class to sensor
+   class. Eliminate the requirement of the updating sensor code and util code
+   when supports new state matching.
+3. Separate the OS state and the host state matching.
+
+Tested:
+        1. Setting the sensor with PowerState="On".
+        2. Make sure the value of sensor is nan when the CurrentHostState is
+           is not Running.
+        3. Setting the sensor with PowerState="BiosPost"
+        4. Make sure the value of sensor is nan when the OperatingSystemState
+           is not BiosPost.
+        5. Setting the sensor with PowerState="Always"
+        6. The sensor always have the value.
+
+Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
+---
+ include/ADCSensor.hpp       |   2 +-
+ include/AmpereCPU.hpp       |   2 +-
+ include/ExternalSensor.hpp  |   2 +-
+ include/HwmonTempSensor.hpp |   2 +-
+ include/PSUEvent.hpp        |   6 +-
+ include/PSUSensor.hpp       |   2 +-
+ include/TachSensor.hpp      |   2 +-
+ include/Utils.hpp           |  68 ++++++++++++++---
+ include/sensor.hpp          |  17 ++---
+ src/ADCSensor.cpp           |   2 +-
+ src/ADCSensorMain.cpp       |  10 ++-
+ src/AmpereCPU.cpp           |   2 +-
+ src/AmpereCPUMain.cpp       |  11 ++-
+ src/CPUSensor.cpp           |   6 +-
+ src/ExitAirTempSensor.cpp   |   7 +-
+ src/ExternalSensor.cpp      |   2 +-
+ src/ExternalSensorMain.cpp  |   9 ++-
+ src/FanMain.cpp             |  12 +--
+ src/HwmonTempMain.cpp       |   9 ++-
+ src/HwmonTempSensor.cpp     |   2 +-
+ src/IpmbSensor.cpp          |  10 ++-
+ src/NVMeSensor.cpp          |   4 +-
+ src/PSUEvent.cpp            |   4 +-
+ src/PSUSensor.cpp           |   2 +-
+ src/PSUSensorMain.cpp       |  13 +++-
+ src/TachSensor.cpp          |   2 +-
+ src/Utils.cpp               | 146 ++++++++++++------------------------
+ 27 files changed, 189 insertions(+), 167 deletions(-)
+
+diff --git a/include/ADCSensor.hpp b/include/ADCSensor.hpp
+index 9e58139..121893b 100644
+--- a/include/ADCSensor.hpp
++++ b/include/ADCSensor.hpp
+@@ -71,7 +71,7 @@ class ADCSensor : public Sensor, public std::enable_shared_from_this<ADCSensor>
+               boost::asio::io_service& io, const std::string& sensorName,
+               std::vector<thresholds::Threshold>&& thresholds,
+               const double scaleFactor, const float pollRate,
+-              PowerState readState, const std::string& sensorConfiguration,
++              const ReadState& readState, const std::string& sensorConfiguration,
+               std::optional<BridgeGpio>&& bridgeGpio);
+     ~ADCSensor() override;
+     void setupRead(void);
+diff --git a/include/AmpereCPU.hpp b/include/AmpereCPU.hpp
+index a7d02e6..aaacf4f 100644
+--- a/include/AmpereCPU.hpp
++++ b/include/AmpereCPU.hpp
+@@ -23,7 +23,7 @@ class AmpereCPUSensor :
+                     const std::string& sensorConfiguration,
+                     std::string& sensorTypeName, unsigned int factor,
+                     double max, double min, const std::string& label,
+-                    size_t tSize, PowerState readState);
++                    size_t tSize, const ReadState& readState);
+     ~AmpereCPUSensor() override;
+     void setupRead(void);
+ 
+diff --git a/include/ExternalSensor.hpp b/include/ExternalSensor.hpp
+index a8b48e5..66c9691 100644
+--- a/include/ExternalSensor.hpp
++++ b/include/ExternalSensor.hpp
+@@ -22,7 +22,7 @@ class ExternalSensor :
+                    std::vector<thresholds::Threshold>&& thresholdsIn,
+                    const std::string& sensorConfiguration, double maxReading,
+                    double minReading, double timeoutSecs,
+-                   const PowerState& powerState);
++                   const ReadState& powerState);
+     virtual ~ExternalSensor();
+ 
+     // Call this immediately after calling the constructor
+diff --git a/include/HwmonTempSensor.hpp b/include/HwmonTempSensor.hpp
+index 159e9b5..0e111df 100644
+--- a/include/HwmonTempSensor.hpp
++++ b/include/HwmonTempSensor.hpp
+@@ -20,7 +20,7 @@ class HwmonTempSensor :
+                     std::vector<thresholds::Threshold>&& thresholds,
+                     const float pollRate,
+                     const std::string& sensorConfiguration,
+-                    const PowerState powerState);
++                    const ReadState& powerState);
+     ~HwmonTempSensor() override;
+     void setupRead(void);
+ 
+diff --git a/include/PSUEvent.hpp b/include/PSUEvent.hpp
+index 0821d3f..7fd3cb5 100644
+--- a/include/PSUEvent.hpp
++++ b/include/PSUEvent.hpp
+@@ -34,7 +34,7 @@ class PSUSubEvent : public std::enable_shared_from_this<PSUSubEvent>
+     PSUSubEvent(std::shared_ptr<sdbusplus::asio::dbus_interface> eventInterface,
+                 const std::string& path,
+                 std::shared_ptr<sdbusplus::asio::connection>& conn,
+-                boost::asio::io_service& io, const PowerState& readState,
++                boost::asio::io_service& io, const ReadState& readState,
+                 const std::string& groupEventName, const std::string& eventName,
+                 std::shared_ptr<std::set<std::string>> asserts,
+                 std::shared_ptr<std::set<std::string>> combineEvent,
+@@ -55,7 +55,7 @@ class PSUSubEvent : public std::enable_shared_from_this<PSUSubEvent>
+     std::string path;
+     std::string eventName;
+ 
+-    PowerState readState;
++    ReadState readState;
+     boost::asio::deadline_timer waitTimer;
+     std::shared_ptr<boost::asio::streambuf> readBuf;
+     void restartRead();
+@@ -82,7 +82,7 @@ class PSUCombineEvent
+         sdbusplus::asio::object_server& objectSever,
+         std::shared_ptr<sdbusplus::asio::connection>& conn,
+         boost::asio::io_service& io, const std::string& psuName,
+-        const PowerState& powerState,
++        const ReadState& powerState,
+         boost::container::flat_map<std::string, std::vector<std::string>>&
+             eventPathList,
+         boost::container::flat_map<
+diff --git a/include/PSUSensor.hpp b/include/PSUSensor.hpp
+index af24396..4555321 100644
+--- a/include/PSUSensor.hpp
++++ b/include/PSUSensor.hpp
+@@ -19,7 +19,7 @@ class PSUSensor : public Sensor, public std::enable_shared_from_this<PSUSensor>
+               boost::asio::io_service& io, const std::string& sensorName,
+               std::vector<thresholds::Threshold>&& thresholds,
+               const std::string& sensorConfiguration,
+-              const PowerState& powerState, const std::string& sensorUnits,
++              const ReadState& powerState, const std::string& sensorUnits,
+               unsigned int factor, double max, double min, double offset,
+               const std::string& label, size_t tSize, double pollRate);
+     ~PSUSensor() override;
+diff --git a/include/TachSensor.hpp b/include/TachSensor.hpp
+index 344e518..06f145d 100644
+--- a/include/TachSensor.hpp
++++ b/include/TachSensor.hpp
+@@ -70,7 +70,7 @@ class TachSensor : public Sensor
+                std::vector<thresholds::Threshold>&& thresholds,
+                const std::string& sensorConfiguration,
+                const std::pair<size_t, size_t>& limits,
+-               const PowerState& powerState,
++               const ReadState& powerState,
+                const std::optional<std::string>& led);
+     ~TachSensor() override;
+ 
+diff --git a/include/Utils.hpp b/include/Utils.hpp
+index 61fcdf5..d235b2e 100644
+--- a/include/Utils.hpp
++++ b/include/Utils.hpp
+@@ -51,9 +51,6 @@ bool findFiles(const std::filesystem::path& dirPath,
+                const std::string& matchString,
+                std::vector<std::filesystem::path>& foundPaths,
+                int symlinkDepth = 1);
+-bool isPowerOn(void);
+-bool hasBiosPost(void);
+-void setupPowerMatch(const std::shared_ptr<sdbusplus::asio::connection>& conn);
+ bool getSensorConfiguration(
+     const std::string& type,
+     const std::shared_ptr<sdbusplus::asio::connection>& dbusConnection,
+@@ -79,8 +76,6 @@ enum class PowerState
+     always
+ };
+ 
+-bool readingStateGood(const PowerState& powerState);
+-
+ namespace mapper
+ {
+ constexpr const char* busName = "xyz.openbmc_project.ObjectMapper";
+@@ -102,7 +97,10 @@ const static constexpr char* busname = "xyz.openbmc_project.State.Host";
+ const static constexpr char* interface = "xyz.openbmc_project.State.Host";
+ const static constexpr char* path = "/xyz/openbmc_project/state/host0";
+ const static constexpr char* property = "CurrentHostState";
++const static constexpr char* sOn = ".Running";
++const static constexpr char* sAlways = "Always";
+ } // namespace power
++
+ namespace post
+ {
+ const static constexpr char* busname =
+@@ -111,6 +109,7 @@ const static constexpr char* interface =
+     "xyz.openbmc_project.State.OperatingSystem.Status";
+ const static constexpr char* path = "/xyz/openbmc_project/state/os";
+ const static constexpr char* property = "OperatingSystemState";
++const static constexpr char* sBiosPost = "BiosPost";
+ } // namespace post
+ 
+ namespace association
+@@ -119,6 +118,35 @@ const static constexpr char* interface =
+     "xyz.openbmc_project.Association.Definitions";
+ } // namespace association
+ 
++class ReadState
++{
++  public:
++    ReadState(std::string busname = power::busname,
++              std::string path = power::path,
++              std::string intf = power::interface,
++              std::string prop = power::property,
++              std::string match = power::sAlways) :
++        busname(std::move(busname)),
++        path(std::move(path)), intf(std::move(intf)), prop(std::move(prop)),
++        match(std::move(match))
++    {}
++    ~ReadState() = default;
++    std::string busname;
++    std::string path;
++    std::string intf;
++    std::string prop;
++    std::string match;
++
++    std::string getKey(void)
++    {
++        return busname + path + intf + prop + match;
++    }
++};
++
++bool isReadStateMatch(ReadState readState);
++void setupStateMatch(const std::shared_ptr<sdbusplus::asio::connection>& conn,
++                     ReadState readState);
++
+ template <typename T>
+ inline T loadVariant(
+     const boost::container::flat_map<std::string, BasicVariantType>& data,
+@@ -148,20 +176,35 @@ inline T loadVariant(
+     }
+ }
+ 
+-inline void setReadState(const std::string& str, PowerState& val)
++inline void setMatchString(const std::string& str, ReadState* val)
++{
++    if (!val)
++    {
++        std::cerr << "Invalid ReadState option!" << std::endl;
++        return;
++    }
++    val->match = str;
++
++    return;
++}
++
++inline ReadState initReadState(PowerState state)
+ {
+ 
+-    if (str == "On")
++    if (state == PowerState::on)
+     {
+-        val = PowerState::on;
++        return ReadState(power::busname, power::path, power::interface,
++                         power::property, power::sOn);
+     }
+-    else if (str == "BiosPost")
++    else if (state == PowerState::biosPost)
+     {
+-        val = PowerState::biosPost;
++        return ReadState(post::busname, post::path, post::interface,
++                         post::property, post::sBiosPost);
+     }
+-    else if (str == "Always")
++    else
+     {
+-        val = PowerState::always;
++        return ReadState(power::busname, power::path, power::interface,
++                         power::property, power::sAlways);
+     }
+ }
+ 
+@@ -320,3 +363,4 @@ std::optional<double> readFile(const std::string& thresholdFile,
+                                const double& scaleFactor);
+ void setupManufacturingModeMatch(sdbusplus::asio::connection& conn);
+ bool getManufacturingMode();
++bool readingStateGood(ReadState readState);
+diff --git a/include/sensor.hpp b/include/sensor.hpp
+index 3df7118..f310e22 100644
+--- a/include/sensor.hpp
++++ b/include/sensor.hpp
+@@ -42,7 +42,7 @@ struct Sensor
+            const std::string& configurationPath, const std::string& objectType,
+            bool isSettable, const double max, const double min,
+            std::shared_ptr<sdbusplus::asio::connection>& conn,
+-           PowerState readState = PowerState::always) :
++           const ReadState& readState = initReadState(PowerState::always)) :
+         name(sensor_paths::escapePathForDbus(name)),
+         configurationPath(configurationPath), objectType(objectType),
+         isSensorSettable(isSettable), maxValue(max), minValue(min),
+@@ -76,7 +76,7 @@ struct Sensor
+     double hysteresisTrigger;
+     double hysteresisPublish;
+     std::shared_ptr<sdbusplus::asio::connection> dbusConnection;
+-    PowerState readState;
++    ReadState readState;
+     size_t errCount;
+     std::unique_ptr<SensorInstrumentation> instrumentation;
+ 
+@@ -214,9 +214,9 @@ struct Sensor
+                              const std::string& label = std::string(),
+                              size_t thresholdSize = 0)
+     {
+-        if (readState == PowerState::on || readState == PowerState::biosPost)
++        if (!std::empty(readState.match) && (readState.match != power::sAlways))
+         {
+-            setupPowerMatch(conn);
++            setupStateMatch(conn, readState);
+         }
+ 
+         createAssociation(association, configurationPath);
+@@ -350,12 +350,9 @@ struct Sensor
+ 
+     bool readingStateGood()
+     {
+-        if (readState == PowerState::on && !isPowerOn())
+-        {
+-            return false;
+-        }
+-        if (readState == PowerState::biosPost &&
+-            (!hasBiosPost() || !isPowerOn()))
++        /* Have read state match and read state don't match continue */
++        if (!std::empty(readState.match) &&
++            (readState.match != power::sAlways) && !isReadStateMatch(readState))
+         {
+             return false;
+         }
+diff --git a/src/ADCSensor.cpp b/src/ADCSensor.cpp
+index 8c335e5..d48e6bb 100644
+--- a/src/ADCSensor.cpp
++++ b/src/ADCSensor.cpp
+@@ -47,7 +47,7 @@ ADCSensor::ADCSensor(const std::string& path,
+                      boost::asio::io_service& io, const std::string& sensorName,
+                      std::vector<thresholds::Threshold>&& thresholdsIn,
+                      const double scaleFactor, const float pollRate,
+-                     PowerState readState,
++                     const ReadState& readState,
+                      const std::string& sensorConfiguration,
+                      std::optional<BridgeGpio>&& bridgeGpio) :
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+diff --git a/src/ADCSensorMain.cpp b/src/ADCSensorMain.cpp
+index 1789d47..a11074a 100644
+--- a/src/ADCSensorMain.cpp
++++ b/src/ADCSensorMain.cpp
+@@ -233,14 +233,18 @@ void createSensors(
+                         pollRate = pollRateDefault; // polling time too short
+                     }
+                 }
+-
+                 auto findPowerOn = baseConfiguration->second.find("PowerState");
+-                PowerState readState = PowerState::always;
++                ReadState readState = initReadState(PowerState::always);
+                 if (findPowerOn != baseConfiguration->second.end())
+                 {
+                     std::string powerState = std::visit(
+                         VariantToStringVisitor(), findPowerOn->second);
+-                    setReadState(powerState, readState);
++                    /* PowerState is "On" but match string is Running */
++                    if (powerState == "On")
++                    {
++                        powerState = power::sOn;
++                    }
++                    setMatchString(powerState, &readState);
+                 }
+ 
+                 auto findCPU = baseConfiguration->second.find("CPURequired");
+diff --git a/src/AmpereCPU.cpp b/src/AmpereCPU.cpp
+index 266b0a2..497a0ff 100644
+--- a/src/AmpereCPU.cpp
++++ b/src/AmpereCPU.cpp
+@@ -43,7 +43,7 @@ AmpereCPUSensor::AmpereCPUSensor(
+     std::vector<thresholds::Threshold>&& thresholdsIn,
+     const std::string& sensorConfiguration, std::string& sensorTypeName,
+     unsigned int factor, double max, double min, const std::string& label,
+-    size_t tSize, PowerState readState) :
++    size_t tSize, const ReadState& readState) :
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdsIn), sensorConfiguration, objectType, false, max,
+            min, conn, readState),
+diff --git a/src/AmpereCPUMain.cpp b/src/AmpereCPUMain.cpp
+index c2821b2..9f17327 100644
+--- a/src/AmpereCPUMain.cpp
++++ b/src/AmpereCPUMain.cpp
+@@ -144,7 +144,7 @@ static bool matchSensor(
+         baseConfig,
+     SensorData* sensorData, const std::string& interfacePath,
+     const std::string& devType, const fs::path& sensorPath,
+-    const std::vector<std::string>& findLabels, PowerState readState)
++    const std::vector<std::string>& findLabels, ReadState readState)
+ {
+     bool maxLabel = false;
+     std::regex sensorNameRegEx("([A-Za-z]+)[0-9]*_");
+@@ -432,12 +432,17 @@ static bool parseSensorConfig(
+     }
+ 
+     auto findPowerOn = baseConfig->second.find("PowerState");
+-    PowerState readState = PowerState::always;
++    ReadState readState = initReadState(PowerState::always);
+     if (findPowerOn != baseConfig->second.end())
+     {
+         std::string powerState =
+             std::visit(VariantToStringVisitor(), findPowerOn->second);
+-        setReadState(powerState, readState);
++        /* PowerState is "On" but match string is Running */
++        if (powerState == "On")
++        {
++            powerState = power::sOn;
++        }
++        setMatchString(powerState, &readState);
+     }
+ 
+     /* Find array of labels to be exposed if it is defined in config */
+diff --git a/src/CPUSensor.cpp b/src/CPUSensor.cpp
+index f12a0b7..a88cedd 100644
+--- a/src/CPUSensor.cpp
++++ b/src/CPUSensor.cpp
+@@ -42,7 +42,7 @@ CPUSensor::CPUSensor(const std::string& path, const std::string& objectType,
+                      bool show, double dtsOffset) :
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdsIn), sensorConfiguration, objectType, false, 0,
+-           0, conn, PowerState::on),
++           0, conn, initReadState(PowerState::on)),
+     objServer(objectServer), inputDev(io), waitTimer(io), path(path),
+     privTcontrol(std::numeric_limits<double>::quiet_NaN()),
+     dtsOffset(dtsOffset), show(show), pollTime(CPUSensor::sensorPollMs),
+@@ -95,7 +95,7 @@ CPUSensor::CPUSensor(const std::string& path, const std::string& objectType,
+     }
+ 
+     // call setup always as not all sensors call setInitialProperties
+-    setupPowerMatch(conn);
++    setupStateMatch(conn, readState);
+     setupRead();
+ }
+ 
+@@ -183,7 +183,7 @@ void CPUSensor::updateMinMaxValues(void)
+                 }
+                 else
+                 {
+-                    if (isPowerOn())
++                    if (isReadStateMatch(readState))
+                     {
+                         updateProperty(sensorInterface, oldValue, 0, dbusName);
+                     }
+diff --git a/src/ExitAirTempSensor.cpp b/src/ExitAirTempSensor.cpp
+index 0165ffc..f254bbf 100644
+--- a/src/ExitAirTempSensor.cpp
++++ b/src/ExitAirTempSensor.cpp
+@@ -165,7 +165,7 @@ CFMSensor::CFMSensor(std::shared_ptr<sdbusplus::asio::connection>& conn,
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdData), sensorConfiguration,
+            "xyz.openbmc_project.Configuration.ExitAirTemp", false,
+-           cfmMaxReading, cfmMinReading, conn, PowerState::on),
++           cfmMaxReading, cfmMinReading, conn, initReadState(PowerState::on)),
+     std::enable_shared_from_this<CFMSensor>(), parent(parent),
+     objServer(objectServer)
+ {
+@@ -513,7 +513,8 @@ ExitAirTempSensor::ExitAirTempSensor(
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdData), sensorConfiguration,
+            "xyz.openbmc_project.Configuration.ExitAirTemp", false,
+-           exitAirMaxReading, exitAirMinReading, conn, PowerState::on),
++           exitAirMaxReading, exitAirMinReading, conn,
++           initReadState(PowerState::on)),
+     std::enable_shared_from_this<ExitAirTempSensor>(), objServer(objectServer)
+ {
+     sensorInterface = objectServer.add_interface(
+@@ -728,7 +729,7 @@ bool ExitAirTempSensor::calculate(double& val)
+     }
+ 
+     // if fans are off, just make the exit temp equal to inlet
+-    if (!isPowerOn())
++    if (!isReadStateMatch(readState))
+     {
+         val = inletTemp;
+         return true;
+diff --git a/src/ExternalSensor.cpp b/src/ExternalSensor.cpp
+index 745c65b..65997d1 100644
+--- a/src/ExternalSensor.cpp
++++ b/src/ExternalSensor.cpp
+@@ -26,7 +26,7 @@ ExternalSensor::ExternalSensor(
+     const std::string& sensorName, const std::string& sensorUnits,
+     std::vector<thresholds::Threshold>&& thresholdsIn,
+     const std::string& sensorConfiguration, double maxReading,
+-    double minReading, double timeoutSecs, const PowerState& powerState) :
++    double minReading, double timeoutSecs, const ReadState& powerState) :
+     // TODO(): When the Mutable feature is integrated,
+     // make sure all ExternalSensor instances are mutable,
+     // because that is the entire point of ExternalSensor,
+diff --git a/src/ExternalSensorMain.cpp b/src/ExternalSensorMain.cpp
+index 1ced726..e69f30c 100644
+--- a/src/ExternalSensorMain.cpp
++++ b/src/ExternalSensorMain.cpp
+@@ -312,12 +312,17 @@ void createSensors(
+                 }
+ 
+                 auto findPowerOn = baseConfiguration.second.find("PowerState");
+-                PowerState readState = PowerState::always;
++                ReadState readState = initReadState(PowerState::always);
+                 if (findPowerOn != baseConfiguration.second.end())
+                 {
+                     std::string powerState = std::visit(
+                         VariantToStringVisitor(), findPowerOn->second);
+-                    setReadState(powerState, readState);
++                    /* PowerState is "On" but match string is Running */
++                    if (powerState == "On")
++                    {
++                        powerState = power::sOn;
++                    }
++                    setMatchString(powerState, &readState);
+                 }
+ 
+                 auto& sensorEntry = sensors[sensorName];
+diff --git a/src/FanMain.cpp b/src/FanMain.cpp
+index cb0afd3..48833dd 100644
+--- a/src/FanMain.cpp
++++ b/src/FanMain.cpp
+@@ -355,16 +355,18 @@ void createSensors(
+                     redundancy = &systemRedundancy;
+                 }
+ 
+-                PowerState powerState = PowerState::on;
++                ReadState powerState = initReadState(PowerState::on);
+                 auto findPower = baseConfiguration->second.find("PowerState");
+                 if (findPower != baseConfiguration->second.end())
+                 {
+-                    auto ptrPower =
+-                        std::get_if<std::string>(&(findPower->second));
+-                    if (ptrPower)
++                    std::string sPower =
++                        std::visit(VariantToStringVisitor(), findPower->second);
++                    /* PowerState is "On" but match string is Running */
++                    if (sPower == "On")
+                     {
+-                        setReadState(*ptrPower, powerState);
++                        sPower = power::sOn;
+                     }
++                    setMatchString(sPower, &powerState);
+                 }
+ 
+                 constexpr double defaultMaxReading = 25000;
+diff --git a/src/HwmonTempMain.cpp b/src/HwmonTempMain.cpp
+index dbc0d2d..d42367d 100644
+--- a/src/HwmonTempMain.cpp
++++ b/src/HwmonTempMain.cpp
+@@ -227,12 +227,17 @@ void createSensors(
+                 }
+ 
+                 auto findPowerOn = baseConfiguration->second.find("PowerState");
+-                PowerState readState = PowerState::always;
++                ReadState readState = initReadState(PowerState::always);
+                 if (findPowerOn != baseConfiguration->second.end())
+                 {
+                     std::string powerState = std::visit(
+                         VariantToStringVisitor(), findPowerOn->second);
+-                    setReadState(powerState, readState);
++                    /* PowerState is "On" but match string is Running */
++                    if (powerState == "On")
++                    {
++                        powerState = power::sOn;
++                    }
++                    setMatchString(powerState, &readState);
+                 }
+ 
+                 auto permitSet = getPermitSet(*baseConfigMap);
+diff --git a/src/HwmonTempSensor.cpp b/src/HwmonTempSensor.cpp
+index 9e2d845..0ca2032 100644
+--- a/src/HwmonTempSensor.cpp
++++ b/src/HwmonTempSensor.cpp
+@@ -52,7 +52,7 @@ HwmonTempSensor::HwmonTempSensor(
+     std::shared_ptr<sdbusplus::asio::connection>& conn,
+     boost::asio::io_service& io, const std::string& sensorName,
+     std::vector<thresholds::Threshold>&& thresholdsIn, const float pollRate,
+-    const std::string& sensorConfiguration, const PowerState powerState) :
++    const std::string& sensorConfiguration, const ReadState& powerState) :
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdsIn), sensorConfiguration, objectType, false,
+            maxReading, minReading, conn, powerState),
+diff --git a/src/IpmbSensor.cpp b/src/IpmbSensor.cpp
+index edbe05f..9d96c9d 100644
+--- a/src/IpmbSensor.cpp
++++ b/src/IpmbSensor.cpp
+@@ -68,7 +68,7 @@ IpmbSensor::IpmbSensor(std::shared_ptr<sdbusplus::asio::connection>& conn,
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdData), sensorConfiguration,
+            "xyz.openbmc_project.Configuration.ExitAirTemp", false,
+-           ipmbMaxReading, ipmbMinReading, conn, PowerState::on),
++           ipmbMaxReading, ipmbMinReading, conn, initReadState(PowerState::on)),
+     deviceAddress(deviceAddress), hostSMbusIndex(hostSMbusIndex),
+     sensorPollMs(static_cast<int>(pollRate * 1000)), objectServer(objectServer),
+     waitTimer(io)
+@@ -511,8 +511,12 @@ void createSensors(
+                     {
+                         std::string powerState = std::visit(
+                             VariantToStringVisitor(), findPowerState->second);
+-
+-                        setReadState(powerState, sensor->readState);
++                        /* PowerState is "On" but match string is Running */
++                        if (powerState == "On")
++                        {
++                            powerState = power::sOn;
++                        }
++                        setMatchString(powerState, &(sensor->readState));
+                     }
+ 
+                     if (sensorClass == "PxeBridgeTemp")
+diff --git a/src/NVMeSensor.cpp b/src/NVMeSensor.cpp
+index 7fa966d..4133a2d 100644
+--- a/src/NVMeSensor.cpp
++++ b/src/NVMeSensor.cpp
+@@ -32,8 +32,8 @@ NVMeSensor::NVMeSensor(sdbusplus::asio::object_server& objectServer,
+     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
+            std::move(thresholdsIn), sensorConfiguration,
+            "xyz.openbmc_project.Configuration.NVMe", false, maxReading,
+-           minReading, conn, PowerState::on),
+-    bus(busNumber), objServer(objectServer)
++           minReading, conn, initReadState(PowerState::on)),
++    objServer(objectServer), bus(busNumber)
+ {
+     sensorInterface = objectServer.add_interface(
+         "/xyz/openbmc_project/sensors/temperature/" + name,
+diff --git a/src/PSUEvent.cpp b/src/PSUEvent.cpp
+index b02816f..844eea6 100644
+--- a/src/PSUEvent.cpp
++++ b/src/PSUEvent.cpp
+@@ -35,7 +35,7 @@ PSUCombineEvent::PSUCombineEvent(
+     sdbusplus::asio::object_server& objectServer,
+     std::shared_ptr<sdbusplus::asio::connection>& conn,
+     boost::asio::io_service& io, const std::string& psuName,
+-    const PowerState& powerState,
++    const ReadState& powerState,
+     boost::container::flat_map<std::string, std::vector<std::string>>&
+         eventPathList,
+     boost::container::flat_map<
+@@ -141,7 +141,7 @@ static boost::container::flat_map<std::string,
+ PSUSubEvent::PSUSubEvent(
+     std::shared_ptr<sdbusplus::asio::dbus_interface> eventInterface,
+     const std::string& path, std::shared_ptr<sdbusplus::asio::connection>& conn,
+-    boost::asio::io_service& io, const PowerState& powerState,
++    boost::asio::io_service& io, const ReadState& powerState,
+     const std::string& groupEventName, const std::string& eventName,
+     std::shared_ptr<std::set<std::string>> asserts,
+     std::shared_ptr<std::set<std::string>> combineEvent,
+diff --git a/src/PSUSensor.cpp b/src/PSUSensor.cpp
+index dec02ab..0205eb8 100644
+--- a/src/PSUSensor.cpp
++++ b/src/PSUSensor.cpp
+@@ -42,7 +42,7 @@ PSUSensor::PSUSensor(const std::string& path, const std::string& objectType,
+                      boost::asio::io_service& io, const std::string& sensorName,
+                      std::vector<thresholds::Threshold>&& thresholdsIn,
+                      const std::string& sensorConfiguration,
+-                     const PowerState& powerState,
++                     const ReadState& powerState,
+                      const std::string& sensorUnits, unsigned int factor,
+                      double max, double min, double offset,
+                      const std::string& label, size_t tSize, double pollRate) :
+diff --git a/src/PSUSensorMain.cpp b/src/PSUSensorMain.cpp
+index e979189..cc41b90 100644
+--- a/src/PSUSensorMain.cpp
++++ b/src/PSUSensorMain.cpp
+@@ -442,13 +442,18 @@ static void createSensorsCallback(
+         checkGroupEvent(directory.string(), groupEventMatch,
+                         groupEventPathList);
+ 
+-        PowerState readState = PowerState::always;
+         auto findPowerOn = baseConfig->second.find("PowerState");
++        ReadState readState = initReadState(PowerState::always);
+         if (findPowerOn != baseConfig->second.end())
+         {
+-            std::string powerState =
+-                std::visit(VariantToStringVisitor(), findPowerOn->second);
+-            setReadState(powerState, readState);
++            std::string powerState = std::visit(
++                VariantToStringVisitor(), findPowerOn->second);
++            /* PowerState is "On" but match string is Running */
++            if (powerState == "On")
++            {
++                powerState = power::sOn;
++            }
++            setMatchString(powerState, &readState);
+         }
+ 
+         /* Check if there are more sensors in the same interface */
+diff --git a/src/TachSensor.cpp b/src/TachSensor.cpp
+index d2afba7..c8f5608 100644
+--- a/src/TachSensor.cpp
++++ b/src/TachSensor.cpp
+@@ -48,7 +48,7 @@ TachSensor::TachSensor(const std::string& path, const std::string& objectType,
+                        std::vector<thresholds::Threshold>&& thresholdsIn,
+                        const std::string& sensorConfiguration,
+                        const std::pair<size_t, size_t>& limits,
+-                       const PowerState& powerState,
++                       const ReadState& powerState,
+                        const std::optional<std::string>& ledIn) :
+     Sensor(boost::replace_all_copy(fanName, " ", "_"), std::move(thresholdsIn),
+            sensorConfiguration, objectType, false, limits.second, limits.first,
+diff --git a/src/Utils.cpp b/src/Utils.cpp
+index 1a14911..e9a023a 100644
+--- a/src/Utils.cpp
++++ b/src/Utils.cpp
+@@ -35,12 +35,12 @@
+ 
+ namespace fs = std::filesystem;
+ 
+-static bool powerStatusOn = false;
+-static bool biosHasPost = false;
+ static bool manufacturingMode = false;
+ 
+-static std::unique_ptr<sdbusplus::bus::match::match> powerMatch = nullptr;
+-static std::unique_ptr<sdbusplus::bus::match::match> postMatch = nullptr;
++boost::container::flat_map<std::string, bool> isStateMatch;
++boost::container::flat_map<std::string,
++                           std::unique_ptr<sdbusplus::bus::match::match>>
++    stateMatch;
+ 
+ /**
+  * return the contents of a file
+@@ -222,31 +222,22 @@ bool findFiles(const fs::path& dirPath, const std::string& matchString,
+     return true;
+ }
+ 
+-bool isPowerOn(void)
++bool isReadStateMatch(ReadState readState)
+ {
+-    if (!powerMatch)
++    std::string key = readState.getKey();
++    if (stateMatch.find(key) == stateMatch.end())
+     {
+         throw std::runtime_error("Power Match Not Created");
+     }
+-    return powerStatusOn;
+-}
+ 
+-bool hasBiosPost(void)
+-{
+-    if (!postMatch)
+-    {
+-        throw std::runtime_error("Post Match Not Created");
+-    }
+-    return biosHasPost;
++    return isStateMatch[key];
+ }
+ 
+-bool readingStateGood(const PowerState& powerState)
++bool readingStateGood(ReadState readState)
+ {
+-    if (powerState == PowerState::on && !isPowerOn())
+-    {
+-        return false;
+-    }
+-    if (powerState == PowerState::biosPost && (!hasBiosPost() || !isPowerOn()))
++    /* Have read state match and read state don't match continue */
++    if (!std::empty(readState.match) &&
++        (readState.match != power::sAlways) && !isReadStateMatch(readState))
+     {
+         return false;
+     }
+@@ -255,12 +246,15 @@ bool readingStateGood(const PowerState& powerState)
+ }
+ 
+ static void
+-    getPowerStatus(const std::shared_ptr<sdbusplus::asio::connection>& conn,
+-                   size_t retries = 2)
++    getStateStatus(const std::shared_ptr<sdbusplus::asio::connection>& conn,
++                   std::string busname, std::string path, std::string intf,
++                   std::string prop, std::string match, size_t retries = 2)
+ {
+     conn->async_method_call(
+-        [conn, retries](boost::system::error_code ec,
+-                        const std::variant<std::string>& state) {
++        [conn, retries, busname, path, intf, prop,
++         match](boost::system::error_code ec,
++                const std::variant<std::string>& state) {
++            std::string key = busname + path + intf + prop + match;
+             if (ec)
+             {
+                 if (retries)
+@@ -268,10 +262,12 @@ static void
+                     auto timer = std::make_shared<boost::asio::steady_timer>(
+                         conn->get_io_context());
+                     timer->expires_after(std::chrono::seconds(15));
+-                    timer->async_wait(
+-                        [timer, conn, retries](boost::system::error_code) {
+-                            getPowerStatus(conn, retries - 1);
+-                        });
++                    timer->async_wait([timer, conn, retries, busname, path,
++                                       intf, prop,
++                                       match](boost::system::error_code) {
++                        getStateStatus(conn, busname, path, intf, prop, match,
++                                       retries - 1);
++                    });
+                     return;
+                 }
+ 
+@@ -281,79 +277,52 @@ static void
+                           << "\n";
+                 return;
+             }
+-            powerStatusOn =
+-                boost::ends_with(std::get<std::string>(state), ".Running");
++            isStateMatch[key] =
++                boost::ends_with(std::get<std::string>(state), match);
+         },
+-        power::busname, power::path, properties::interface, properties::get,
+-        power::interface, power::property);
++        busname, path, properties::interface, properties::get, intf, prop);
+ }
+ 
+-static void
+-    getPostStatus(const std::shared_ptr<sdbusplus::asio::connection>& conn,
+-                  size_t retries = 2)
+-{
+-    conn->async_method_call(
+-        [conn, retries](boost::system::error_code ec,
+-                        const std::variant<std::string>& state) {
+-            if (ec)
+-            {
+-                if (retries)
+-                {
+-                    auto timer = std::make_shared<boost::asio::steady_timer>(
+-                        conn->get_io_context());
+-                    timer->expires_after(std::chrono::seconds(15));
+-                    timer->async_wait(
+-                        [timer, conn, retries](boost::system::error_code) {
+-                            getPostStatus(conn, retries - 1);
+-                        });
+-                    return;
+-                }
+-                // we commonly come up before power control, we'll capture the
+-                // property change later
+-                std::cerr << "error getting post status " << ec.message()
+-                          << "\n";
+-                return;
+-            }
+-            biosHasPost = std::get<std::string>(state) != "Inactive";
+-        },
+-        post::busname, post::path, properties::interface, properties::get,
+-        post::interface, post::property);
+-}
+-
+-void setupPowerMatch(const std::shared_ptr<sdbusplus::asio::connection>& conn)
++void setupStateMatch(const std::shared_ptr<sdbusplus::asio::connection>& conn,
++                     ReadState matchState)
+ {
+     static boost::asio::steady_timer timer(conn->get_io_context());
+-    // create a match for powergood changes, first time do a method call to
++    std::string key = matchState.getKey();
++    std::string prop = matchState.prop;
++    std::string match = matchState.match;
++
++    // create a match for read state changes, first time do a method call to
+     // cache the correct value
+-    if (powerMatch)
++    if (stateMatch.find(key) != stateMatch.end())
+     {
+         return;
+     }
+ 
+-    powerMatch = std::make_unique<sdbusplus::bus::match::match>(
++    stateMatch[key] = std::make_unique<sdbusplus::bus::match::match>(
+         static_cast<sdbusplus::bus::bus&>(*conn),
+         "type='signal',interface='" + std::string(properties::interface) +
+-            "',path='" + std::string(power::path) + "',arg0='" +
+-            std::string(power::interface) + "'",
+-        [](sdbusplus::message::message& message) {
++            "',path='" + std::string(matchState.path) + "',arg0='" +
++            std::string(matchState.intf) + "'",
++        [prop, match, key](sdbusplus::message::message& message) {
+             std::string objectName;
+             boost::container::flat_map<std::string, std::variant<std::string>>
+                 values;
+             message.read(objectName, values);
+-            auto findState = values.find(power::property);
++            auto findState = values.find(prop);
+             if (findState != values.end())
+             {
+                 bool on = boost::ends_with(
+-                    std::get<std::string>(findState->second), ".Running");
++                    std::get<std::string>(findState->second), match);
++
+                 if (!on)
+                 {
+                     timer.cancel();
+-                    powerStatusOn = false;
++                    isStateMatch[key] = false;
+                     return;
+                 }
+                 // on comes too quickly
+                 timer.expires_after(std::chrono::seconds(10));
+-                timer.async_wait([](boost::system::error_code ec) {
++                timer.async_wait([key](boost::system::error_code ec) {
+                     if (ec == boost::asio::error::operation_aborted)
+                     {
+                         return;
+@@ -363,31 +332,12 @@ void setupPowerMatch(const std::shared_ptr<sdbusplus::asio::connection>& conn)
+                         std::cerr << "Timer error " << ec.message() << "\n";
+                         return;
+                     }
+-                    powerStatusOn = true;
++                    isStateMatch[key] = true;
+                 });
+             }
+         });
+-
+-    postMatch = std::make_unique<sdbusplus::bus::match::match>(
+-        static_cast<sdbusplus::bus::bus&>(*conn),
+-        "type='signal',interface='" + std::string(properties::interface) +
+-            "',path='" + std::string(post::path) + "',arg0='" +
+-            std::string(post::interface) + "'",
+-        [](sdbusplus::message::message& message) {
+-            std::string objectName;
+-            boost::container::flat_map<std::string, std::variant<std::string>>
+-                values;
+-            message.read(objectName, values);
+-            auto findState = values.find(post::property);
+-            if (findState != values.end())
+-            {
+-                biosHasPost =
+-                    std::get<std::string>(findState->second) != "Inactive";
+-            }
+-        });
+-
+-    getPowerStatus(conn);
+-    getPostStatus(conn);
++    getStateStatus(conn, matchState.busname, matchState.path, matchState.intf,
++                   matchState.prop, matchState.match, 2);
+ }
+ 
+ // replaces limits if MinReading and MaxReading are found.
+-- 
+2.25.1
+
