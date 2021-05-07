@@ -1159,6 +1159,318 @@
                 }
             ],
             "Type": "pmbus"
+        },
+        {
+            "Address":"0x4f",
+            "Bus":2,
+            "TempScaleFactor":1,
+            "CurrScaleFactor":1,
+            "InScaleFactor":1,
+            "PowerScaleFactor":1000,
+            "Name":"CPU 1",
+            "CpuID": 1,
+            "PowerState": "On",
+            "Labels":[
+               "temp1",
+               "temp2",
+               "temp3",
+               "temp4",
+               "temp5",
+               "temp6",
+               "temp7",
+               "temp8",
+               "temp9",
+               "temp10",
+               "temp11",
+               "temp12",
+               "temp13",
+               "power1",
+               "power2",
+               "power3",
+               "power4",
+               "power5",
+               "vout0",
+               "vout1",
+               "vout2",
+               "vout3",
+               "vout4",
+               "iout1",
+               "iout2",
+               "iout3",
+               "iout4",
+               "iout5"
+            ],
+            "temp1_Name":"S0_SOC_Temp",
+            "temp2_Name":"S0_SOC_VRD_Temp",
+            "temp3_Name":"S0_DIMM_VRD_Temp",
+            "temp4_Name":"S0_Core_VRD_Temp",
+            "temp5_Name":"S0_DIMM_CH0_Temp",
+            "temp6_Name":"S0_DIMM_CH1_Temp",
+            "temp7_Name":"S0_DIMM_CH2_Temp",
+            "temp8_Name":"S0_DIMM_CH3_Temp",
+            "temp9_Name":"S0_DIMM_CH4_Temp",
+            "temp10_Name":"S0_DIMM_CH5_Temp",
+            "temp11_Name":"S0_DIMM_CH6_Temp",
+            "temp12_Name":"S0_DIMM_CH7_Temp",
+            "temp13_Name":"S0_RCA_VR_Temp",
+            "power1_Name":"S0_Core_VRD_Pwr",
+            "power2_Name":"S0_SOC_VRD_Pwr",
+            "power3_Name":"S0_DIMM_VR1_Pwr",
+            "power4_Name":"S0_DIMM_VR2_Pwr",
+            "power5_Name":"S0_RCA_VR_Pwr",
+            "vout0_Name":"S0_CPU_VCORE",
+            "vout1_Name":"S0_SOC_Volt",
+            "vout2_Name":"S0_DIMM_VR1_Volt",
+            "vout3_Name":"S0_DIMM_VR2_Volt",
+            "vout4_Name":"S0_RCA_VR_Volt",
+            "iout1_Name":"S0_Core_VRD_Curr",
+            "iout2_Name":"S0_SOC_VRD_Curr",
+            "iout3_Name":"S0_DIMM_VR1_Curr",
+            "iout4_Name":"S0_DIMM_VR2_Curr",
+            "iout5_Name":"S0_RCA_VRD_Curr",
+            "Thresholds": [
+                {
+                    "Direction": "greater than",
+                    "Label": "temp1",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "temp2",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "temp3",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "temp4",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "power3",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 79.95
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "power4",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 79.95
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout0",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 1.12
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout0",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 0.72
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout1",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 0.96
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout1",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 0.56
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout2",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 1.26
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout2",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 1.141
+                }
+            ],
+            "Type":"smpro_hwmon"
+        },
+        {
+            "Address":"0x4e",
+            "Bus":2,
+            "Name":"CPU 2",
+            "CpuID": 2,
+            "TempScaleFactor":1,
+            "CurrScaleFactor":1,
+            "InScaleFactor":1,
+            "PowerScaleFactor":1000,
+            "PowerState": "On",
+            "Labels":[
+               "temp1",
+               "temp2",
+               "temp3",
+               "temp4",
+               "temp5",
+               "temp6",
+               "temp7",
+               "temp8",
+               "temp9",
+               "temp10",
+               "temp11",
+               "temp12",
+               "temp13",
+               "power1",
+               "power2",
+               "power3",
+               "power4",
+               "power5",
+               "vout0",
+               "vout1",
+               "vout2",
+               "vout3",
+               "vout4",
+               "iout1",
+               "iout2",
+               "iout3",
+               "iout4",
+               "iout5"
+            ],
+            "temp1_Name":"S1_SOC_Temp",
+            "temp2_Name":"S1_SOC_VRD_Temp",
+            "temp3_Name":"S1_DIMM_VRD_Temp",
+            "temp4_Name":"S1_Core_VRD_Temp",
+            "temp5_Name":"S1_DIMM_CH0_Temp",
+            "temp6_Name":"S1_DIMM_CH1_Temp",
+            "temp7_Name":"S1_DIMM_CH2_Temp",
+            "temp8_Name":"S1_DIMM_CH3_Temp",
+            "temp9_Name":"S1_DIMM_CH4_Temp",
+            "temp10_Name":"S1_DIMM_CH5_Temp",
+            "temp11_Name":"S1_DIMM_CH6_Temp",
+            "temp12_Name":"S1_DIMM_CH7_Temp",
+            "temp13_Name":"S1_RCA_VR_Temp",
+            "power1_Name":"S1_Core_VRD_Pwr",
+            "power2_Name":"S1_SOC_VRD_Pwr",
+            "power3_Name":"S1_DIMM_VR1_Pwr",
+            "power4_Name":"S1_DIMM_VR2_Pwr",
+            "power5_Name":"S1_RCA_VR_Pwr",
+            "vout0_Name":"S1_CPU_VCORE",
+            "vout1_Name":"S1_SOC_Volt",
+            "vout2_Name":"S1_DIMM_VR1_Volt",
+            "vout3_Name":"S1_DIMM_VR2_Volt",
+            "vout4_Name":"S1_RCA_VR_Volt",
+            "iout1_Name":"S1_Core_VRD_Curr",
+            "iout2_Name":"S1_SOC_VRD_Curr",
+            "iout3_Name":"S1_DIMM_VR1_Curr",
+            "iout4_Name":"S1_DIMM_VR2_Curr",
+            "iout5_Name":"S1_RCA_VRD_Curr",
+            "Thresholds": [
+                {
+                    "Direction": "greater than",
+                    "Label": "temp1",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "temp2",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "temp3",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "temp4",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 105
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "power3",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 79.95
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "power4",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 79.95
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout0",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 1.12
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout0",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 0.72
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout1",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 0.96
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout1",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 0.56
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout2",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 1.26
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout2",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 1.141
+                }
+            ],
+            "Type":"smpro_hwmon"
         }
     ],
     "Name": "Mt.Jade",
