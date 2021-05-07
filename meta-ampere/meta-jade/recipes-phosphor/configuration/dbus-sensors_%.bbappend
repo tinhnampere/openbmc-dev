@@ -6,10 +6,19 @@ SRC_URI += " \
             file://0004-Dbus-sensors-restructure-the-code-handle-PowerState-.patch \
             file://0005-ADCSensor-FanSensor-Support-ChassisState-attribute.patch \
             file://0006-FanSensor-Add-xyz.openbmc_project.Control.FanPwm-to-.patch \
+            file://0007-AmpereSoc-Add-AmpereSoC-daemon-to-public-AmpereSoC-d.patch \
+            file://0008-AmpereSoc-Rescan-SoC-sensors-in-the-chassis-host-pow.patch \
+            file://0009-AmpereSoc-Handle-PowerState-option.patch \
+            file://0010-AmpereSoc-Support-CPU-Present-properties-in-socsenso.patch \
            "
 PACKAGECONFIG_mtjade = " \
                         adcsensor \
                         fansensor \
                         hwmontempsensor \
                         psusensor \
+                        socsensor \
                         "
+PACKAGECONFIG[socsensor] = "-Dsoc=enabled, -Dsoc=disabled"
+SYSTEMD_SERVICE_${PN} += "${@bb.utils.contains('PACKAGECONFIG', 'socsensor', \
+                                               'xyz.openbmc_project.socsensor.service', \
+                                               '', d)}"
