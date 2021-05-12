@@ -3,6 +3,7 @@ SRC_URI += "file://Mt_Jade.json"
 SRC_URI += " \
             file://0001-EntityManager-Add-new-platform-Mt.Jade.patch \
             file://xyz.openbmc_project.FruDevice.service \
+            file://0002-FruDevice-Support-parsing-Mt.Jade-motherboard-EEPROM.patch \
            "
 
 do_install_append_mtjade() {
