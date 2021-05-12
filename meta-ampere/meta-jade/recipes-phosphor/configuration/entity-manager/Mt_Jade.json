@@ -1321,6 +1321,12 @@
             "Bus":2,
             "Name":"CPU 2",
             "CpuID": 2,
+            "PresenceGpio": [
+                {
+                    "Name": "SLAVE_PRESENT_L",
+                    "Polarity": "Low"
+                }
+            ],
             "TempScaleFactor":1,
             "CurrScaleFactor":1,
             "InScaleFactor":1,
