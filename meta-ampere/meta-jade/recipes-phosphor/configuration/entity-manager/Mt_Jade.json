@@ -52,6 +52,7 @@
         },
         {
             "Index": 0,
+            "CPURequired": 1,
             "Name": "S0_0V8_VDDC_SOC",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -75,6 +76,7 @@
         },
         {
             "Index": 1,
+            "CPURequired": 2,
             "Name": "S1_0V8_VDDC_SOC",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -98,6 +100,7 @@
         },
         {
             "Index": 2,
+            "CPURequired": 1,
             "Name": "S0_0V75_PCP",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -121,6 +124,7 @@
         },
         {
             "Index": 3,
+            "CPURequired": 2,
             "Name": "S1_0V75_PCP",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -144,6 +148,7 @@
         },
         {
             "Index": 4,
+            "CPURequired": 1,
             "Name": "S0_1V2_VDDQ0123",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -167,6 +172,7 @@
         },
         {
             "Index": 5,
+            "CPURequired": 2,
             "Name": "S1_1V2_VDDQ0123",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -190,6 +196,7 @@
         },
         {
             "Index": 6,
+            "CPURequired": 1,
             "Name": "S0_0V6_VTT0123",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -213,6 +220,7 @@
         },
         {
             "Index": 7,
+            "CPURequired": 2,
             "Name": "S1_0V6_VTT0123",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -236,6 +244,7 @@
         },
         {
             "Index": 8,
+            "CPURequired": 1,
             "Name": "S0_2V5_VPP0123",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -259,6 +268,7 @@
         },
         {
             "Index": 9,
+            "CPURequired": 2,
             "Name": "S1_2V5_VPP0123",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -282,6 +292,7 @@
         },
         {
             "Index": 10,
+            "CPURequired": 1,
             "Name": "S0_1V2_VDDQ4567",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -305,6 +316,7 @@
         },
         {
             "Index": 11,
+            "CPURequired": 2,
             "Name": "S1_1V2_VDDQ4567",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -328,6 +340,7 @@
         },
         {
             "Index": 12,
+            "CPURequired": 1,
             "Name": "S0_0V6_VTT4567",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -351,6 +364,7 @@
         },
         {
             "Index": 13,
+            "CPURequired": 2,
             "Name": "S1_0V6_VTT4567",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -374,6 +388,7 @@
         },
         {
             "Index": 14,
+            "CPURequired": 1,
             "Name": "S0_2V5_VPP4567",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -397,6 +412,7 @@
         },
         {
             "Index": 15,
+            "CPURequired": 2,
             "Name": "S1_2V5_VPP4567",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -420,6 +436,7 @@
         },
         {
             "Index": 16,
+            "CPURequired": 1,
             "Name": "S0_0V85_RCA",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -443,6 +460,7 @@
         },
         {
             "Index": 17,
+            "CPURequired": 2,
             "Name": "S1_0V85_RCA",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -466,6 +484,7 @@
         },
         {
             "Index": 18,
+            "CPURequired": 1,
             "Name": "S0_1V8_VDDH",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -489,6 +508,7 @@
         },
         {
             "Index": 19,
+            "CPURequired": 2,
             "Name": "S1_1V8_VDDH",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -512,6 +532,7 @@
         },
         {
             "Index": 20,
+            "CPURequired": 1,
             "Name": "S0_1V5_VDDH",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -535,6 +556,7 @@
         },
         {
             "Index": 21,
+            "CPURequired": 2,
             "Name": "S1_1V5_VDDH",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -558,6 +580,7 @@
         },
         {
             "Index": 22,
+            "CPURequired": 1,
             "Name": "S0_1V8_SOC",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -581,6 +604,7 @@
         },
         {
             "Index": 23,
+            "CPURequired": 2,
             "Name": "S1_1V8_SOC",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -604,6 +628,7 @@
         },
         {
             "Index": 24,
+            "CPURequired": 1,
             "Name": "S0_1V8_PCP",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -627,6 +652,7 @@
         },
         {
             "Index": 25,
+            "CPURequired": 2,
             "Name": "S1_1V8_PCP",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -650,6 +676,7 @@
         },
         {
             "Index": 26,
+            "CPURequired": 1,
             "Name": "S0_3V3_SOC",
             "DevName":"iio-hwmon",
             "PollRate":1,
@@ -673,6 +700,7 @@
         },
         {
             "Index": 27,
+            "CPURequired": 2,
             "Name": "S1_3V3_SOC",
             "DevName":"iio-hwmon",
             "PollRate":1,
