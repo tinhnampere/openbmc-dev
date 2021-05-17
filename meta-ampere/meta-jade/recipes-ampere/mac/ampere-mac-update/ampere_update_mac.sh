@@ -20,7 +20,7 @@ if [[ $ENV_MAC_ADDR =~ $ENV_ETH ]]; then
 fi
 
 # Read FRU Board Custom Field 1 to get the MAC address
-CUSTOM_FIELD_1=`busctl get-property xyz.openbmc_project.Inventory.Manager /xyz/openbmc_project/inventory/system/chassis/motherboard xyz.openbmc_project.Inventory.Item.NetworkInterface MACAddress`
+CUSTOM_FIELD_1=`busctl get-property xyz.openbmc_project.FruDevice /xyz/openbmc_project/FruDevice/Mt_Jade_Motherboard xyz.openbmc_project.FruDevice BOARD_INFO_AM1`
 MAC_ADDR=`echo $CUSTOM_FIELD_1 | cut -d "\"" -f 2`
 
 # Check if BMC MAC address is exported
