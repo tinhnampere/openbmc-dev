@@ -18,7 +18,7 @@ EXTRA_OEMESON_append = " \
 S = "${WORKDIR}/git"
 
 SRC_URI = "git://github.com/ampere-openbmc/ampere-platform-mgmt.git;protocol=https;branch=ampere"
-SRCREV = "0d289c6125cbfc5f3e09c31a5658800cfe243912"
+SRCREV = "84f2e34622d41600ccd1cb6762f2d27dbc01372a"
 SRC_URI += " file://platform-config.json"
 
 
