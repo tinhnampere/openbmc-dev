@@ -1340,6 +1340,20 @@
                     "Name": "lower critical",
                     "Severity": 1,
                     "Value": 1.141
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout3",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 1.26
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout3",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 1.141
                 }
             ],
             "Type":"smpro_hwmon"
@@ -1499,6 +1513,20 @@
                 {
                     "Direction": "less than",
                     "Label": "vout2",
+                    "Name": "lower critical",
+                    "Severity": 1,
+                    "Value": 1.141
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "vout3",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 1.26
+                },
+                {
+                    "Direction": "less than",
+                    "Label": "vout3",
                     "Name": "lower critical",
                     "Severity": 1,
                     "Value": 1.141
