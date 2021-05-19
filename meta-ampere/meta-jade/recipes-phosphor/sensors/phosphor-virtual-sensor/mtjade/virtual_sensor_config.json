@@ -18,7 +18,8 @@
                     {
                         "Name": "PSU0_POUT",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "PSU1_POUT",
@@ -26,7 +27,8 @@
                     {
                         "Name": "PSU1_POUT",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
@@ -51,14 +53,16 @@
                     "Desc": {
                         "Name": "S1_Core_VRD_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_SOC_VRD_Pwr",
                     "Desc": {
                         "Name": "S1_SOC_VRD_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
@@ -83,14 +87,16 @@
                     "Desc": {
                         "Name": "S0_Core_VRD_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_SOC_VRD_Pwr",
                     "Desc": {
                         "Name": "S0_SOC_VRD_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
@@ -108,14 +114,16 @@
                     "Desc": {
                         "Name": "S0_DIMM_VR1_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_VR2_Pwr",
                     "Desc": {
                         "Name": "S0_DIMM_VR2_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
@@ -133,14 +141,16 @@
                     "Desc": {
                         "Name": "S1_DIMM_VR1_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_VR2_Pwr",
                     "Desc": {
                         "Name": "S1_DIMM_VR2_Pwr",
                         "SensorType": "power"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
@@ -165,32 +175,36 @@
                     "Desc": {
                         "Name": "S0_DIMM_CH0_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_CH1_Temp",
                     "Desc": {
                         "Name": "S0_DIMM_CH1_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_CH2_Temp",
                     "Desc": {
                         "Name": "S0_DIMM_CH2_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_CH3_Temp",
                     "Desc": {
                         "Name": "S0_DIMM_CH3_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "max(0,S0_DIMM_CH0_Temp,S0_DIMM_CH1_Temp,S0_DIMM_CH2_Temp,S0_DIMM_CH3_Temp)"
+        "Expression": "max(S0_DIMM_CH0_Temp,S0_DIMM_CH1_Temp,S0_DIMM_CH2_Temp,S0_DIMM_CH3_Temp)"
     },
     {
         "Desc": {
@@ -211,32 +225,36 @@
                     "Desc": {
                         "Name": "S1_DIMM_CH0_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_CH1_Temp",
                     "Desc": {
                         "Name": "S1_DIMM_CH1_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_CH2_Temp",
                     "Desc": {
                         "Name": "S1_DIMM_CH2_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_CH3_Temp",
                     "Desc": {
                         "Name": "S1_DIMM_CH3_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "max(0,S1_DIMM_CH0_Temp,S1_DIMM_CH1_Temp,S1_DIMM_CH2_Temp,S1_DIMM_CH3_Temp)"
+        "Expression": "max(S1_DIMM_CH0_Temp,S1_DIMM_CH1_Temp,S1_DIMM_CH2_Temp,S1_DIMM_CH3_Temp)"
     },
     {
         "Desc": {
@@ -257,32 +275,36 @@
                     "Desc": {
                         "Name": "S0_DIMM_CH4_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_CH5_Temp",
                     "Desc": {
                         "Name": "S0_DIMM_CH5_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_CH6_Temp",
                     "Desc": {
                         "Name": "S0_DIMM_CH6_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_CH7_Temp",
                     "Desc": {
                         "Name": "S0_DIMM_CH7_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "max(0,S0_DIMM_CH4_Temp,S0_DIMM_CH5_Temp,S0_DIMM_CH6_Temp,S0_DIMM_CH7_Temp)"
+        "Expression": "max(S0_DIMM_CH4_Temp,S0_DIMM_CH5_Temp,S0_DIMM_CH6_Temp,S0_DIMM_CH7_Temp)"
     },
     {
         "Desc": {
@@ -303,32 +325,36 @@
                     "Desc": {
                         "Name": "S1_DIMM_CH4_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_CH5_Temp",
                     "Desc": {
                         "Name": "S1_DIMM_CH5_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_CH6_Temp",
                     "Desc": {
                         "Name": "S1_DIMM_CH6_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_CH7_Temp",
                     "Desc": {
                         "Name": "S1_DIMM_CH7_Temp",
                         "SensorType": "temperature"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "max(0,S1_DIMM_CH4_Temp,S1_DIMM_CH5_Temp,S1_DIMM_CH6_Temp,S1_DIMM_CH7_Temp)"
+        "Expression": "max(S1_DIMM_CH4_Temp,S1_DIMM_CH5_Temp,S1_DIMM_CH6_Temp,S1_DIMM_CH7_Temp)"
     },
     {
         "Desc": {
@@ -342,18 +368,20 @@
                     "Desc": {
                         "Name": "S1_DIMM_VR1_Volt",
                         "SensorType": "voltage"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S1_DIMM_VR2_Volt",
                     "Desc": {
                         "Name": "S1_DIMM_VR2_Volt",
                         "SensorType": "voltage"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "max(0,S1_DIMM_VR1_Volt,S1_DIMM_VR2_Volt)"
+        "Expression": "max(S1_DIMM_VR1_Volt,S1_DIMM_VR2_Volt)"
     },
     {
         "Desc": {
@@ -367,18 +395,20 @@
                     "Desc": {
                         "Name": "S0_DIMM_VR1_Volt",
                         "SensorType": "voltage"
-                    }
+                    },
+                    "DefaultValue": 0
                 },
                 {
                     "ParamName": "S0_DIMM_VR2_Volt",
                     "Desc": {
                         "Name": "S0_DIMM_VR2_Volt",
                         "SensorType": "voltage"
-                    }
+                    },
+                    "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "max(0,S0_DIMM_VR1_Volt,S0_DIMM_VR2_Volt)"
+        "Expression": "max(S0_DIMM_VR1_Volt,S0_DIMM_VR2_Volt)"
     }
 ]
 
