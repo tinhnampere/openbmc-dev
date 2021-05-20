@@ -1,12 +1,12 @@
 SUMMARY = "Free and Open On-Chip Debugging, In-System Programming and Boundary-Scan Testing"
 LICENSE = "GPLv2"
-LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
+LIC_FILES_CHKSUM = "file://COPYING;md5=599d2d1ee7fc84c0467b3d19801db870"
 DEPENDS = "libusb-compat libftdi"
 RDEPENDS_${PN} = "libusb1"
 
 #Remote Git Repository
-SRC_URI = "git://github.com/AmpereComputing/ampere-openocd.git;protocol=https"
-SRCREV = "48b4d06598991b07165111a6ad5a3293e4579212"
+SRC_URI = "git://github.com/AmpereComputing/ampere-openocd.git;protocol=https;branch=ampere_openocd_v1.2.0"
+SRCREV = "32a2a48bbf323977bc09f720476fcfbad0ee46be"
 
 S = "${WORKDIR}/git"
 
