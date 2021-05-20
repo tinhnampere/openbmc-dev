@@ -546,7 +546,7 @@
     entityID: 19
     entityInstance: 67
     sensorReadingType: 0x01
-    multiplierM: 80
+    multiplierM: 160
     offsetB: 0
     bExp: 0
     unit: xyz.openbmc_project.Sensor.Value.Unit.Amperes
@@ -563,64 +563,77 @@
 170:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S0_SOC_VRD_Curr
 
 171:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S0_DIMM_VR1_Curr
 
 172:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S0_DIMM_VR2_Curr
 
 173:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S0_RCA_VRD_Curr
 
 174:
     <<: *current
     entityInstance: 67
+    multiplierM: 160
     path: /xyz/openbmc_project/sensors/current/S1_Core_VRD_Curr
 
 175:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S1_SOC_VRD_Curr
 
 176:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S1_DIMM_VR1_Curr
 
 177:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S1_DIMM_VR2_Curr
 
 178:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/S1_RCA_VRD_Curr
 
 234:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/PSU0_IIN
 
 235:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/PSU1_IIN
 
 236:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/PSU0_IOUT
 
 237:
     <<: *current
     entityInstance: 67
+    multiplierM: 80
     path: /xyz/openbmc_project/sensors/current/PSU1_IOUT
