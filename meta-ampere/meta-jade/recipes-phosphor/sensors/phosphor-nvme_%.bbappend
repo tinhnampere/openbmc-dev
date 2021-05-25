@@ -4,6 +4,7 @@ SRC_URI += " file://nvme_config.json"
 
 SRC_URI += " \
              file://0001-Ampere-phosphor-nvme-Remove-reading-VPD-device.patch \
+             file://0002-nvme_manager-Add-checking-the-changing-before-set-in.patch \
            "
 
 do_install_append() {
