@@ -5,6 +5,7 @@ SRC_URI += " file://nvme_config.json"
 SRC_URI += " \
              file://0001-Ampere-phosphor-nvme-Remove-reading-VPD-device.patch \
              file://0002-nvme_manager-Add-checking-the-changing-before-set-in.patch \
+             file://0003-sdbusplus-Remove-the-Error-log-in-SMBus-command-send.patch \
            "
 
 do_install_append() {
