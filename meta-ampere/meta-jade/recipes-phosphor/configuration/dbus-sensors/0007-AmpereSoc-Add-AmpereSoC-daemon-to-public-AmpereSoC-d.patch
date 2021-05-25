@@ -1,4 +1,4 @@
-From a74fd72b7aeecda12a7e4bca5d0832a13f401f68 Mon Sep 17 00:00:00 2001
+From 262c8dcbba03108d45ad3624b308c8b863bd3958 Mon Sep 17 00:00:00 2001
 From: ThuBaNguyen <thu@os.amperecomputing.com>
 Date: Sat, 24 Apr 2021 21:40:05 +0700
 Subject: [PATCH] AmpereSoc: Add AmpereSoC daemon to public AmpereSoC dbus
@@ -24,16 +24,18 @@ Tested:
 Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
 
 %% original patch: 0007-AmpereSoc-Add-AmpereSoC-daemon-to-public-AmpereSoC-d.patch
+
+%% original patch: 0007-AmpereSoc-Add-AmpereSoC-daemon-to-public-AmpereSoC-d.patch
 ---
  include/AmpereSoC.hpp                         |  59 ++
  meson_options.txt                             |   1 +
  service_files/meson.build                     |   1 +
  .../xyz.openbmc_project.adcsensor.service     |   1 +
  .../xyz.openbmc_project.socsensor.service     |  15 +
- src/AmpereSoC.cpp                             | 230 +++++
+ src/AmpereSoC.cpp                             | 219 +++++
  src/AmpereSoCMain.cpp                         | 865 ++++++++++++++++++
  src/meson.build                               |  20 +
- 8 files changed, 1192 insertions(+)
+ 8 files changed, 1181 insertions(+)
  create mode 100644 include/AmpereSoC.hpp
  create mode 100644 service_files/xyz.openbmc_project.socsensor.service
  create mode 100644 src/AmpereSoC.cpp
@@ -162,10 +164,10 @@ index 0000000..b7be086
 +WantedBy=multi-user.target
 diff --git a/src/AmpereSoC.cpp b/src/AmpereSoC.cpp
 new file mode 100644
-index 0000000..e665d2c
+index 0000000..eb58eff
 --- /dev/null
 +++ b/src/AmpereSoC.cpp
-@@ -0,0 +1,230 @@
+@@ -0,0 +1,219 @@
 +/*
 +// Copyright 2021 Ampere Computing LLC
 +//
@@ -331,18 +333,12 @@ index 0000000..e665d2c
 +
 +void SoCSensor::handleResponse(const boost::system::error_code& err)
 +{
-+    if ((err == boost::system::errc::bad_file_descriptor) ||
-+        (err == boost::asio::error::misc_errors::not_found))
-+    {
-+        std::cerr << "Bad file descriptor from\n";
-+        return;
-+    }
-+    std::istream responseStream(readBuf.get());
 +    if (!err)
 +    {
 +        std::string response;
 +        try
 +        {
++            std::istream responseStream(readBuf.get());
 +            std::getline(responseStream, response);
 +            rawValue = std::stod(response);
 +            responseStream.clear();
@@ -359,24 +355,19 @@ index 0000000..e665d2c
 +        catch (const std::invalid_argument&)
 +        {
 +            std::cerr << "Could not parse " << response << "\n";
-+            incrementError();
 +        }
 +    }
-+    else
-+    {
-+        std::cerr << "System error " << err << "\n";
-+        incrementError();
-+    }
 +    std::weak_ptr<SoCSensor> weakRef = weak_from_this();
-+    responseStream.clear();
-+    inputDev.close();
 +    int fd = open(path.c_str(), O_RDONLY);
 +    if (fd < 0)
 +    {
-+        std::cerr << "socsensor " << name << " failed to open " << path << "\n";
-+        return; // we're no longer valid
++        updateValue(std::numeric_limits<double>::quiet_NaN());
 +    }
-+    inputDev.assign(fd);
++    else
++    {
++        inputDev.close();
++        inputDev.assign(fd);
++    }
 +    waitTimer.expires_from_now(boost::posix_time::milliseconds(sensorPollMs));
 +    waitTimer.async_wait([weakRef](const boost::system::error_code& ec) {
 +        std::shared_ptr<SoCSensor> self = weakRef.lock();
