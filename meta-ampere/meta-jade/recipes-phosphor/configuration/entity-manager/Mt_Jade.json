@@ -728,7 +728,7 @@
                 "PwmName":"PWM3"
             },
             "Index": 4,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN3_1",
             "ChassisState": "On",
             "Thresholds": [
@@ -742,7 +742,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -753,7 +753,7 @@
                 "PwmName":"PWM3"
             },
             "Index": 5,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN3_2",
             "ChassisState": "On",
             "Thresholds": [
@@ -767,7 +767,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -778,7 +778,7 @@
                 "PwmName":"PWM4"
             },
             "Index": 6,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN4_1",
             "ChassisState": "On",
             "Thresholds": [
@@ -792,7 +792,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -803,7 +803,7 @@
                 "PwmName":"PWM4"
             },
             "Index": 7,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN4_2",
             "ChassisState": "On",
             "Thresholds": [
@@ -817,7 +817,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -828,7 +828,7 @@
                 "PwmName":"PWM5"
             },
             "Index": 8,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN5_1",
             "ChassisState": "On",
             "Thresholds": [
@@ -842,7 +842,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -853,7 +853,7 @@
                 "PwmName":"PWM5"
             },
             "Index": 9,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN5_2",
             "ChassisState": "On",
             "Thresholds": [
@@ -867,7 +867,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -878,7 +878,7 @@
                 "PwmName":"PWM6"
             },
             "Index": 10,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN6_1",
             "ChassisState": "On",
             "Thresholds": [
@@ -892,7 +892,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -903,7 +903,7 @@
                 "PwmName":"PWM6"
             },
             "Index": 11,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN6_2",
             "ChassisState": "On",
             "Thresholds": [
@@ -917,7 +917,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -928,7 +928,7 @@
                 "PwmName":"PWM7"
             },
             "Index": 12,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN7_1",
             "ChassisState": "On",
             "Thresholds": [
@@ -942,7 +942,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -953,7 +953,7 @@
                 "PwmName":"PWM7"
             },
             "Index": 13,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN7_2",
             "ChassisState": "On",
             "Thresholds": [
@@ -967,7 +967,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -978,7 +978,7 @@
                 "PwmName":"PWM8"
             },
             "Index": 14,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN8_1",
             "ChassisState": "On",
             "Thresholds": [
@@ -992,7 +992,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
@@ -1003,7 +1003,7 @@
                 "PwmName":"PWM8"
             },
             "Index": 15,
-            "MaxReading": 22000,
+            "MaxReading": 23100,
             "Name": "FAN8_2",
             "ChassisState": "On",
             "Thresholds": [
@@ -1017,7 +1017,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 22000
+                    "Value": 23100
                 }
             ],
             "Type": "AspeedFan"
