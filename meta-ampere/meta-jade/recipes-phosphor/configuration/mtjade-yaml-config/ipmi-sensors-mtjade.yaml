@@ -291,21 +291,25 @@
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
+    rExp: -1
     path: /xyz/openbmc_project/sensors/voltage/PSU0_VIN
 231:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
+    rExp: -1
     path: /xyz/openbmc_project/sensors/voltage/PSU1_VIN
 232:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
+    rExp: -2
     path: /xyz/openbmc_project/sensors/voltage/PSU0_VOUT
 233:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
+    rExp: -2
     path: /xyz/openbmc_project/sensors/voltage/PSU1_VOUT
 
 105:
