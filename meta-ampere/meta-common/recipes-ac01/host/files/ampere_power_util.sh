@@ -142,8 +142,9 @@ if [ ! -d "/run/openbmc/" ]; then
 fi
 
 if [ $2 = "on" ]; then
-  rm -rf /run/openbmc/*
   if [ $(power_status) == "off" ]; then
+    rm -rf /run/openbmc/chassis@*-on
+    rm -rf /run/openbmc/host@*-on
     power_on
   fi
 elif [ $2 = "off" ]; then
