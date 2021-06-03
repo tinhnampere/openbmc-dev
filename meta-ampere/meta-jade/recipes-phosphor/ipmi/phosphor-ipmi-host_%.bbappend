@@ -12,6 +12,8 @@ EXTRA_OECONF_mtjade = " \
 SRC_URI += "file://0001-mtjade-FRU-Updated-the-phosphor-host-ipmid-to-handle.patch \
             file://0002-Implement-the-set-get-system-boot-option-parameters.patch \
             file://0003-Correct-ipmitool-get-system-guid.patch \
+            file://0004-Add-the-user_mgmt.hpp-to-Makefile.am-file-for-access.patch \
+            file://0005-correct-the-hard-reset-command.patch \
             "
 
 do_install_append_mtjade(){
