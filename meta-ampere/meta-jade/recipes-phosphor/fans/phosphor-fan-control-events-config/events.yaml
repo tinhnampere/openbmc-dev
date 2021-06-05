@@ -31,9 +31,9 @@ groups:
       type: /xyz/openbmc_project/sensors
       members:
           - /temperature/S0_DIMMG0_Temp
-          - /temperature/S0_DIMM_VRD_Temp
+          - /temperature/S0_DIMMG1_Temp
           - /temperature/S1_DIMMG0_Temp
-          - /temperature/S1_DIMM_VRD_Temp
+          - /temperature/S1_DIMMG1_Temp
     - name: zone0_ocp
       description: Group of ocp temperature sensors for zone 0
       type: /xyz/openbmc_project/sensors
