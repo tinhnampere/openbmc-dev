@@ -1,0 +1,19 @@
+[Unit]
+Description=Check Host%i status on power on
+Before=obmc-host-starting@%i.target
+Before=obmc-host-started@%i.target
+Wants=obmc-power-on@%i.target
+After=obmc-power-on@%i.target
+Conflicts=obmc-host-stop@%i.target
+Conflicts=phosphor-reset-host-check@.service
+OnFailure=obmc-host-quiesce@%i.target
+OnFailureJobMode=flush
+ConditionPathExists=!/run/openbmc/host@%i-on
+
+[Service]
+RemainAfterExit=yes
+Type=oneshot
+ExecStart=/usr/sbin/ampere_host_check.sh 1 0
+
+[Install]
+WantedBy=obmc-host-start@%i.target
