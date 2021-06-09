@@ -37,6 +37,7 @@ do
             echo "Creating /run/openbmc/host@0-on"
             touch /run/openbmc/host@0-on
         fi
+	gpio_configure_output $BMC_I2C_BACKUP_SEL 1
         exit 0
     fi
     sleep 1
