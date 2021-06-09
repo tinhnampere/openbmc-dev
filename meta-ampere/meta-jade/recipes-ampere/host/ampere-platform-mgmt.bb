@@ -12,7 +12,6 @@ EXTRA_OEMESON_append = " \
     -Derror-monitor=enabled \
     -Dpower-limit=enabled \
     -Dtemp-event-log=enabled \
-    -Dscp-failover=enabled \
     "
 
 S = "${WORKDIR}/git"
@@ -31,7 +30,6 @@ FMT_MNT = "../${TMPL_HOST_MNT}:${POWERON_TGT}.requires/${INSTFMT_MNT}"
 SYSTEMD_SERVICE_${PN} += "${TMPL_HOST_MNT}"
 SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.ampere_host_error_monitor.service"
 SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.AmpSocPower.service"
-SYSTEMD_SERVICE_${PN} += "ampere-scp-failover.service"
 SYSTEMD_LINK_${PN} += "${@compose_list(d, 'FMT_MNT', 'OBMC_CHASSIS_INSTANCES')}"
 
 do_install_append_mtjade() {
