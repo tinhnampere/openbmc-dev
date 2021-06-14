@@ -11,6 +11,7 @@ SRC_URI += " \
             file://0009-AmpereSoc-Handle-PowerState-option.patch \
             file://0010-AmpereSoc-Support-CPU-Present-properties-in-socsenso.patch \
             file://0011-AmpereSoC-Remove-propertyChanged-signal-handling-for.patch \
+            file://0012-Change-the-matched-string-of-the-host-running-state-.patch \
            "
 PACKAGECONFIG_mtjade = " \
                         adcsensor \
