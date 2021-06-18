@@ -292,25 +292,25 @@
     entityInstance: 37
     multiplierM: 18
     rExp: -1
-    path: /xyz/openbmc_project/sensors/voltage/PSU0_VIN
+    path: /xyz/openbmc_project/sensors/voltage/PSU0_VINPUT
 231:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
     rExp: -1
-    path: /xyz/openbmc_project/sensors/voltage/PSU1_VIN
+    path: /xyz/openbmc_project/sensors/voltage/PSU1_VINPUT
 232:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
     rExp: -2
-    path: /xyz/openbmc_project/sensors/voltage/PSU0_VOUT
+    path: /xyz/openbmc_project/sensors/voltage/PSU0_VOUTPUT
 233:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 37
     multiplierM: 18
     rExp: -2
-    path: /xyz/openbmc_project/sensors/voltage/PSU1_VOUT
+    path: /xyz/openbmc_project/sensors/voltage/PSU1_VOUTPUT
 
 105:
     <<: *TEMP_DEFAULTS
@@ -514,14 +514,14 @@
     entityInstance: 55
     multiplierM: 80
     rExp: -1
-    path: /xyz/openbmc_project/sensors/power/PSU0_POUT
+    path: /xyz/openbmc_project/sensors/power/PSU0_POUTPUT
 
 241:
     <<: *power
     entityInstance: 56
     multiplierM: 80
     rExp: -1
-    path: /xyz/openbmc_project/sensors/power/PSU1_POUT
+    path: /xyz/openbmc_project/sensors/power/PSU1_POUTPUT
 
 242:
     <<: *power
@@ -535,14 +535,14 @@
     entityInstance: 55
     multiplierM: 80
     rExp: -1
-    path: /xyz/openbmc_project/sensors/power/PSU0_PIN
+    path: /xyz/openbmc_project/sensors/power/PSU0_PINPUT
 
 239:
     <<: *power
     entityInstance: 56
     multiplierM: 80
     rExp: -1
-    path: /xyz/openbmc_project/sensors/power/PSU1_PIN
+    path: /xyz/openbmc_project/sensors/power/PSU1_PINPUT
 
 169: &current
     sensorType: 0x03
@@ -622,22 +622,22 @@
     <<: *current
     entityInstance: 67
     multiplierM: 80
-    path: /xyz/openbmc_project/sensors/current/PSU0_IIN
+    path: /xyz/openbmc_project/sensors/current/PSU0_IINPUT
 
 235:
     <<: *current
     entityInstance: 67
     multiplierM: 80
-    path: /xyz/openbmc_project/sensors/current/PSU1_IIN
+    path: /xyz/openbmc_project/sensors/current/PSU1_IINPUT
 
 236:
     <<: *current
     entityInstance: 67
     multiplierM: 80
-    path: /xyz/openbmc_project/sensors/current/PSU0_IOUT
+    path: /xyz/openbmc_project/sensors/current/PSU0_IOUTPUT
 
 237:
     <<: *current
     entityInstance: 67
     multiplierM: 80
-    path: /xyz/openbmc_project/sensors/current/PSU1_IOUT
+    path: /xyz/openbmc_project/sensors/current/PSU1_IOUTPUT

@@ -13,26 +13,26 @@
             "DbusParam":
             [
                 {
-                    "ParamName": "PSU0_POUT",
+                    "ParamName": "PSU0_POUTPUT",
                     "Desc":
                     {
-                        "Name": "PSU0_POUT",
+                        "Name": "PSU0_POUTPUT",
                         "SensorType": "power"
                     },
                     "DefaultValue": 0
                 },
                 {
-                    "ParamName": "PSU1_POUT",
+                    "ParamName": "PSU1_POUTPUT",
                     "Desc":
                     {
-                        "Name": "PSU1_POUT",
+                        "Name": "PSU1_POUTPUT",
                         "SensorType": "power"
                     },
                     "DefaultValue": 0
                 }
             ]
         },
-        "Expression": "PSU0_POUT + PSU1_POUT"
+        "Expression": "PSU0_POUTPUT + PSU1_POUTPUT"
     },
     {
         "Desc": {

@@ -13,13 +13,12 @@
                 [
                     "/xyz/openbmc_project/sensors/fan_tach/PSU0_fan1",
                     "/xyz/openbmc_project/sensors/temperature/PSU0_TEMP",
-                    "/xyz/openbmc_project/sensors/voltage/PSU0_VIN",
-                    "/xyz/openbmc_project/sensors/voltage/PSU0_VOUT",
-                    "/xyz/openbmc_project/sensors/power/PSU0_PIN",
-                    "/xyz/openbmc_project/sensors/power/PSU0_POUT",
-                    "/xyz/openbmc_project/sensors/power/PSU0_POUT",
-                    "/xyz/openbmc_project/sensors/current/PSU0_IIN",
-                    "/xyz/openbmc_project/sensors/current/PSU0_IOUT"
+                    "/xyz/openbmc_project/sensors/voltage/PSU0_VINPUT",
+                    "/xyz/openbmc_project/sensors/voltage/PSU0_VOUTPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU0_PINPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU0_POUTPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU0_IINPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU0_IOUTPUT"
                 ]
             }
         ]
@@ -38,13 +37,12 @@
                 [
                     "/xyz/openbmc_project/sensors/fan_tach/PSU1_fan1",
                     "/xyz/openbmc_project/sensors/temperature/PSU1_TEMP",
-                    "/xyz/openbmc_project/sensors/voltage/PSU1_VIN",
-                    "/xyz/openbmc_project/sensors/voltage/PSU1_VOUT",
-                    "/xyz/openbmc_project/sensors/power/PSU1_PIN",
-                    "/xyz/openbmc_project/sensors/power/PSU1_POUT",
-                    "/xyz/openbmc_project/sensors/power/PSU1_POUT",
-                    "/xyz/openbmc_project/sensors/current/PSU1_IIN",
-                    "/xyz/openbmc_project/sensors/current/PSU1_IOUT"
+                    "/xyz/openbmc_project/sensors/voltage/PSU1_VINPUT",
+                    "/xyz/openbmc_project/sensors/voltage/PSU1_VOUTPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU1_PINPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU1_POUTPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU1_IINPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU1_IOUTPUT"
                 ]
             }
         ]
@@ -141,10 +139,10 @@
                     "/xyz/openbmc_project/sensors/voltage/S1_SOC_Volt",
                     "/xyz/openbmc_project/sensors/voltage/3V3_SB",
                     "/xyz/openbmc_project/sensors/voltage/VBAT_RTC",
-                    "/xyz/openbmc_project/sensors/voltage/PSU0_VIN",
-                    "/xyz/openbmc_project/sensors/voltage/PSU0_VOUT",
-                    "/xyz/openbmc_project/sensors/voltage/PSU1_VIN",
-                    "/xyz/openbmc_project/sensors/voltage/PSU1_VOUT",
+                    "/xyz/openbmc_project/sensors/voltage/PSU0_VINPUT",
+                    "/xyz/openbmc_project/sensors/voltage/PSU0_VOUTPUT",
+                    "/xyz/openbmc_project/sensors/voltage/PSU1_VINPUT",
+                    "/xyz/openbmc_project/sensors/voltage/PSU1_VOUTPUT",
 
                     "/xyz/openbmc_project/sensors/power/S0_CPU_Pwr",
                     "/xyz/openbmc_project/sensors/power/S0_DIMM_VR1_Pwr",
@@ -156,10 +154,10 @@
                     "/xyz/openbmc_project/sensors/power/S1_MEM_Pwr",
                     "/xyz/openbmc_project/sensors/power/S0_RCA_VR_Pwr",
                     "/xyz/openbmc_project/sensors/power/S1_RCA_VR_Pwr",
-                    "/xyz/openbmc_project/sensors/power/PSU0_PIN",
-                    "/xyz/openbmc_project/sensors/power/PSU1_PIN",
-                    "/xyz/openbmc_project/sensors/power/PSU0_POUT",
-                    "/xyz/openbmc_project/sensors/power/PSU1_POUT",
+                    "/xyz/openbmc_project/sensors/power/PSU0_PINPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU1_PINPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU0_POUTPUT",
+                    "/xyz/openbmc_project/sensors/power/PSU1_POUTPUT",
                     "/xyz/openbmc_project/sensors/power/total_power",
 
                     "/xyz/openbmc_project/sensors/current/S0_Core_VRD_Curr",
@@ -172,10 +170,10 @@
                     "/xyz/openbmc_project/sensors/current/S1_DIMM_VR1_Curr",
                     "/xyz/openbmc_project/sensors/current/S1_DIMM_VR2_Curr",
                     "/xyz/openbmc_project/sensors/current/S1_RCA_VRD_Curr",
-                    "/xyz/openbmc_project/sensors/current/PSU0_IIN",
-                    "/xyz/openbmc_project/sensors/current/PSU0_IOUT",
-                    "/xyz/openbmc_project/sensors/current/PSU1_IIN",
-                    "/xyz/openbmc_project/sensors/current/PSU1_IOUT"
+                    "/xyz/openbmc_project/sensors/current/PSU0_IINPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU0_IOUTPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU1_IINPUT",
+                    "/xyz/openbmc_project/sensors/current/PSU1_IOUTPUT"
                 ]
             }
         ]
