@@ -1,0 +1,20 @@
+[Unit]
+Description=Check Host%i status on BMC reset
+Wants=phosphor-ipmi-host.service
+After=phosphor-ipmi-host.service
+Wants=obmc-host-reset-running@%i.target
+Before=obmc-host-reset-running@%i.target
+Wants=op-reset-chassis-on@%i.service
+After=op-reset-chassis-on@%i.service
+Conflicts=obmc-host-stop@%i.target
+OnFailure=obmc-host-quiesce@%i.target
+OnFailureJobMode=flush
+ConditionPathExists=!/run/openbmc/host@%i-on
+
+[Service]
+RemainAfterExit=yes
+Type=oneshot
+ExecStart=/usr/sbin/ampere_host_check.sh 1 0
+
+[Install]
+WantedBy=obmc-host-reset@%i.target
