@@ -33,13 +33,13 @@
     }
   },
   "3" : {
-    "name" : "ipmi_ssif",
+    "name" : "usb0",
     "is_valid" : true,
     "active_sessions" : 0,
     "channel_info" : {
-      "medium_type" : "smbus-v2.0",
-      "protocol_type" : "ipmi-smbus",
-      "session_supported" : "session-less",
+      "medium_type" : "lan-802.3",
+      "protocol_type" : "ipmb-1.0",
+      "session_supported" : "multi-session",
       "is_ipmi" : true
     }
   },
@@ -165,12 +165,12 @@
     }
   },
   "15" : {
-    "name" : "ipmi_kcs3",
+    "name" : "ipmi_ssif",
     "is_valid" : true,
     "active_sessions" : 0,
     "channel_info" : {
-      "medium_type" : "system-interface",
-      "protocol_type" : "kcs",
+      "medium_type" : "smbus-v2.0",
+      "protocol_type" : "ipmi-smbus",
       "session_supported" : "session-less",
       "is_ipmi" : true
     }
