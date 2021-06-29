@@ -8,6 +8,7 @@ RDEPENDS_${PN}-extras_append_mtjade = " \
                                         webui-vue \
                                         phosphor-image-signing \
                                         phosphor-virtual-sensor \
+                                        entity-manager \
                                       "
 
 RDEPENDS_${PN}-inventory_append_mtjade = " \
