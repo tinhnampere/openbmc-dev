@@ -1,0 +1,13 @@
+[Unit]
+Description=Ampere Delete Bootstrap Account Handling
+After=obmc-host-started@%i.target
+Conflicts=obmc-host-stop@%i.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/sbin/ampere_delete_bootstrap_account.sh
+RemainAfterExit=no
+
+[Install]
+WantedBy=obmc-host-start@%i.target
+
