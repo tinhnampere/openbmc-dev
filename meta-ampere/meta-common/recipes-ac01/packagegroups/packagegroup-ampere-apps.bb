@@ -35,6 +35,7 @@ RDEPENDS_${PN}-chassis = " \
         phosphor-post-code-manager \
         phosphor-host-postd \
         virtual/obmc-gpio-presence \
+        bootstrap-account \
         "
 
 SUMMARY_${PN}-system = "Ampere System"
