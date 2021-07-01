@@ -105,7 +105,7 @@
             "DevName":"iio-hwmon",
             "PollRate":1,
             "ScaleFactor": 1,
-            "ChassisState": "On",
+            "PowerState": "On",
             "Thresholds": [
                 {
                     "Direction": "greater than",
@@ -129,7 +129,7 @@
             "DevName":"iio-hwmon",
             "PollRate":1,
             "ScaleFactor": 1,
-            "ChassisState": "On",
+            "PowerState": "On",
             "Thresholds": [
                 {
                     "Direction": "greater than",
@@ -633,7 +633,7 @@
             "DevName":"iio-hwmon",
             "PollRate":1,
             "ScaleFactor": 0.5,
-            "ChassisState": "On",
+            "PowerState": "On",
             "Thresholds": [
                 {
                     "Direction": "greater than",
@@ -657,7 +657,7 @@
             "DevName":"iio-hwmon",
             "PollRate":1,
             "ScaleFactor": 0.5,
-            "ChassisState": "On",
+            "PowerState": "On",
             "Thresholds": [
                 {
                     "Direction": "greater than",
