@@ -48,13 +48,8 @@ S0_FW_BOOT_OK=48
 #query S0_FW_BOOT_OK Pin
 gpio_export_pin $S0_FW_BOOT_OK
 
-# Time out is 5 seconds when check the host state in BMC reboot
-# and 60 seconds when check the host state in powering on the host
+# Time out to check S0_FW_BOOT_OK is 60 seconds
 cnt=60
-if [ ! -f "/run/ampere/fistboot" ]; then
-    cnt=5
-fi
-
 val=0
 while [ true ];
 do
@@ -65,6 +60,9 @@ do
         # Sleep 5 second before the host is ready
         sleep 5
         if [ $createFile == 1 ]; then
+            if [ ! -d "/run/openbmc" ]; then
+                mkdir -p /run/openbmc
+            fi
             echo "Creating /run/openbmc/host@0-on"
             touch /run/openbmc/host@0-on
         fi
@@ -77,19 +75,8 @@ do
 done
 
 gpio_unexport_pin $S0_FW_BOOT_OK
-# Return the error when the host is failed to boot
-if [ -f "/run/ampere/fistboot" ]; then
-    if [ $val == 0 ]; then
-        error=1
-    fi
-fi
-
-# Create fistboot at BMC reboot
-if [ ! -f "/run/ampere/fistboot" ]; then
-    if [ ! -d "/run/ampere" ]; then
-        mkdir -p /run/ampere
-    fi
-    touch /run/ampere/fistboot
+if [ $val == 0 ]; then
+    error=1
 fi
 
 exit $error

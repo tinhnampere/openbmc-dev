@@ -19,7 +19,7 @@ SRC_URI = " \
 
 HOST_ON_RESET_HOSTTMPL = "ampere-host-on-host-check@.service"
 HOST_ON_RESET_HOSTINSTMPL = "ampere-host-on-host-check@{0}.service"
-HOST_ON_RESET_HOSTTGTFMT = "obmc-host-start@{0}.target"
+HOST_ON_RESET_HOSTTGTFMT = "obmc-host-startmin@{0}.target"
 HOST_ON_RESET_HOSTFMT = "../${HOST_ON_RESET_HOSTTMPL}:${HOST_ON_RESET_HOSTTGTFMT}.requires/${HOST_ON_RESET_HOSTINSTMPL}"
 SYSTEMD_LINK_${PN} += "${@compose_list_zip(d, 'HOST_ON_RESET_HOSTFMT', 'OBMC_HOST_INSTANCES')}"
 

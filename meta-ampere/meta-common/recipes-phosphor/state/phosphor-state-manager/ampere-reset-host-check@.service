@@ -7,9 +7,7 @@ Before=obmc-host-reset-running@%i.target
 Wants=op-reset-chassis-on@%i.service
 After=op-reset-chassis-on@%i.service
 Conflicts=obmc-host-stop@%i.target
-OnFailure=obmc-host-quiesce@%i.target
-OnFailureJobMode=flush
-ConditionPathExists=!/run/openbmc/host@%i-on
+ConditionPathExists=/run/openbmc/chassis@%i-on
 
 [Service]
 RemainAfterExit=yes
