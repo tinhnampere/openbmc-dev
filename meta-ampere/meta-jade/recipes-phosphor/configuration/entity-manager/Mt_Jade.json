@@ -1031,7 +1031,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 50
+                    "Value": 65
                 }
             ],
             "Type": "TMP175"
@@ -1045,7 +1045,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 50
+                    "Value": 65
                 }
             ],
             "Type": "TMP175"
@@ -1059,7 +1059,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 50
+                    "Value": 65
                 }
             ],
             "Type": "TMP175"
@@ -1087,7 +1087,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 50
+                    "Value": 65
                 }
             ],
             "Type": "TMP175"
@@ -1101,7 +1101,7 @@
                     "Direction": "greater than",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 50
+                    "Value": 65
                 }
             ],
             "Type": "TMP175"
