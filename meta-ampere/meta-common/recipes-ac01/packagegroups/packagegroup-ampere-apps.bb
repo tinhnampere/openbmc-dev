@@ -26,6 +26,9 @@ RDEPENDS:${PN}-chassis = " \
         phosphor-hostlogger \
         phosphor-sel-logger \
         phosphor-logging \
+        boot-progress \
+        phosphor-post-code-manager \
+        phosphor-host-postd \
         virtual/obmc-gpio-presence \
         "
 
