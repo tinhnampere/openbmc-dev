@@ -6,6 +6,14 @@ boot_stage=0x00
 boot_status=0x00
 uefi_code=0x00000000
 
+function set_postcode()
+{
+	postcode=$( printf "0x%02x%02x%08x" $1 $2 $3 )
+	busctl set-property xyz.openbmc_project.State.Boot.Raw \
+		/xyz/openbmc_project/state/boot/raw0 \
+		xyz.openbmc_project.State.Boot.Raw Value \(tay\) $postcode 0
+}
+
 function update_boot_progress()
 {
 	bootprog=$1
@@ -144,6 +152,14 @@ do
 		continue
 	fi
 
+	# Check if the Host is already ON or not. If Host is already boot, update boot progress and break.
+	if ([ ${boot_stage} == "0x00" ] && [ ${bg[0]} == "0x08" ]);
+	then
+		update_boot_progress "OSStart"
+		break
+	fi
+	host_booted=0
+
 	# Update current boot progress
 	boot_stage=${bg[0]}
 	boot_status=${bg[1]}
@@ -154,22 +170,19 @@ do
 	if [ ${boot_status} == "0x03" ]; then
 		# Log Redfish Event if failure.
 		log_redfish_bios_panic_event $boot_stage $uefi_code
-		host_booted=0
 	elif [ ${boot_status} == "0x01" ]; then
 		# Check and set boot progress to dbus
 		set_boot_progress $boot_stage $uefi_code
-		host_booted=0
 	fi
+
+	# Log POST Code to dbus.
+	set_postcode $boot_stage $boot_status $uefi_code
 
 	# Stop the service when booting to OS
 	if ([ ${boot_stage} == "0x08" ] && [ ${boot_status} == "0x02" ]);
 	then
 		update_boot_progress "OSStart"
-		# Not log event if running the script when the Host is already booted
-		if [ ${host_booted} == "0" ];
-		then
-			log_redfish_biosboot_ok_event
-		fi
+		log_redfish_biosboot_ok_event
 		break
 	fi
 done
