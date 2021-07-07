@@ -14,6 +14,7 @@ SRC_URI += "file://0001-mtjade-FRU-Updated-the-phosphor-host-ipmid-to-handle.pat
             file://0003-Correct-ipmitool-get-system-guid.patch \
             file://0004-Add-the-user_mgmt.hpp-to-Makefile.am-file-for-access.patch \
             file://0005-correct-the-hard-reset-command.patch \
+            file://0006-Response-the-thresholds-of-the-sensors-with-some-un-.patch \
             "
 
 do_install_append_mtjade(){
