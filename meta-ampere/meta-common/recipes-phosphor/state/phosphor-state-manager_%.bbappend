@@ -8,8 +8,6 @@ SRC_URI += " \
              file://ampere-reset-host-check@.service \
            "
 
-AMPERE_RESET_HOST_CHECK_TMPL = "ampere-reset-host-check@.service"
-
 do_install_append() {
-    install -m 0644 ${WORKDIR}/${AMPERE_RESET_HOST_CHECK_TMPL} ${D}${systemd_unitdir}/system/phosphor-reset-host-check@.service
+    install -m 0644 ${WORKDIR}/ampere-reset-host-check@.service ${D}${systemd_unitdir}/system/phosphor-reset-host-check@.service
 }
