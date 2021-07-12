@@ -20,7 +20,7 @@ S = "${WORKDIR}/git/driver-binder"
 
 SRC_URI = "git://github.com/ampere-openbmc/ampere-misc.git;protocol=https;branch=ampere"
 SRC_URI += " file://driver-binder-config.json"
-SRCREV = "60c5fa7ffb3a913c1d905af933dc39bd821644e9"
+SRCREV = "4dc7d688419b6a1cf6268e240c798eec920477eb"
 
 SYSTEMD_SERVICE_${PN} += "xyz.openbmc_project.AmpDriverBinder.service"
 
