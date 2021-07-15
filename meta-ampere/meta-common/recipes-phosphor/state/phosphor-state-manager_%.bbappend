@@ -6,6 +6,7 @@ SYSTEMD_OVERRIDE_${PN}-discover_append = "${DEPS_CFG}:${DEPS_TGT}.d/${DEPS_CFG}"
 
 SRC_URI += " \
              file://ampere-reset-host-check@.service \
+             file://0001-Limit-power-actions-when-the-host-is-off.patch \
            "
 
 do_install_append() {
