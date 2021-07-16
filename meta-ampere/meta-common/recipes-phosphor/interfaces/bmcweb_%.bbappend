@@ -12,4 +12,5 @@ SRC_URI += " \
             file://0001-Redfish-Add-message-registries-for-Ampere-event.patch \
             file://0002-Re-enable-vm-nbdproxy-for-Virtual-Media.patch \
             file://0003-Fix-build-issue-when-virtual-media-is-enabled.patch \
+            file://0004-power-control-Fix-power-cycle-issue.patch \
            "
