@@ -12,6 +12,7 @@ SRC_URI += " \
             file://0010-AmpereSoc-Support-CPU-Present-properties-in-socsenso.patch \
             file://0011-AmpereSoC-Remove-propertyChanged-signal-handling-for.patch \
             file://0012-Change-the-matched-string-of-the-host-running-state-.patch \
+            file://0013-amperesoc-Fix-the-host-sensors-are-nan-after-the-hos.patch \
            "
 PACKAGECONFIG_mtjade = " \
                         adcsensor \
