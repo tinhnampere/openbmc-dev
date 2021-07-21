@@ -151,5 +151,5 @@ if [ "$chassisstate" == 'On' ];
 then
 	sleep 5
 	echo "Turn on the Host"
-	obmcutil chassison
+	obmcutil poweron
 fi

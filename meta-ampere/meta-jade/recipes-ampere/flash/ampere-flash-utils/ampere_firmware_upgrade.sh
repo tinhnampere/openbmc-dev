@@ -144,14 +144,14 @@ if [[ $TYPE == "smpmpro" ]]; then
 	then
 		sleep 5
 		echo "Turn on the Host"
-		obmcutil chassison
+		obmcutil poweron
 	fi
 
 	# Deassert SECPRO GPIO PINs
 	if [[ $SECPRO == 1 ]]; then
 		chassisstate=$(obmcutil chassisstate | awk -F. '{print $NF}')
 		if [ "$chassisstate_off" == 'Off' ]; then
-				obmcutil chassison
+				obmcutil poweron
 		fi
 
 		sleep 30s
