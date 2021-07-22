@@ -8,6 +8,7 @@ RDEPENDS_${PN}-extras_append_mtjade = " \
                                         webui-vue \
                                         phosphor-image-signing \
                                         phosphor-virtual-sensor \
+                                        dbus-sensors \
                                         entity-manager \
                                       "
 
@@ -18,3 +19,6 @@ RDEPENDS_${PN}-inventory_append_mtjade = " \
                                         scp-failover \
                                         psu-hotswap-reset \
                                         "
+
+RDEPENDS_${PN}-extras_remove_mtjade = " phosphor-hwmon"
+VIRTUAL-RUNTIME_obmc-sensors-hwmon ?= "dbus-sensors"
