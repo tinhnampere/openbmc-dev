@@ -10,13 +10,12 @@ RDEPENDS_${PN} += "libsystemd bash"
 EXTRA_OEMESON_append = " \
     -Derror-monitor=enabled \
     -Dpower-limit=enabled \
-    -Dtemp-event-log=enabled \
     "
 
 S = "${WORKDIR}/git"
 
 SRC_URI = "git://github.com/ampere-openbmc/ampere-platform-mgmt.git;protocol=https;branch=ampere"
-SRCREV = "2ccf690375596c2f8586ef5d00e2912aca16325c"
+SRCREV = "da90b88ebb5a0cb47aca7565f583f3218c07bc27"
 SRC_URI += " file://platform-config.json"
 
 
