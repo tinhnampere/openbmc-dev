@@ -18,6 +18,7 @@ SRC_URI += "file://0001-mtjade-FRU-Updated-the-phosphor-host-ipmid-to-handle.pat
             file://0006-Response-the-thresholds-of-the-sensors-with-some-un-.patch \
             file://ampere-phosphor-softpoweroff \
             file://ampere.xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service \
+            file://0007-sensor-Response-thresholds-for-Get-SDR-command.patch \
             "
 
 AMPERE_SOFTPOWEROFF_TMPL = "ampere.xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service"
