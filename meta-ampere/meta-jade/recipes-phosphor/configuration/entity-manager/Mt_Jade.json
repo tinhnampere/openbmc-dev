@@ -261,7 +261,7 @@
                     "Direction": "less than",
                     "Name": "lower critical",
                     "Severity": 1,
-                    "Value": 1.785
+                    "Value": 1.755
                 }
             ],
             "Type": "ADC"
@@ -285,7 +285,7 @@
                     "Direction": "less than",
                     "Name": "lower critical",
                     "Severity": 1,
-                    "Value": 1.785
+                    "Value": 1.755
                 }
             ],
             "Type": "ADC"
@@ -405,7 +405,7 @@
                     "Direction": "less than",
                     "Name": "lower critical",
                     "Severity": 1,
-                    "Value": 1.785
+                    "Value": 1.755
                 }
             ],
             "Type": "ADC"
@@ -429,7 +429,7 @@
                     "Direction": "less than",
                     "Name": "lower critical",
                     "Severity": 1,
-                    "Value": 1.785
+                    "Value": 1.755
                 }
             ],
             "Type": "ADC"
@@ -549,7 +549,7 @@
                     "Direction": "less than",
                     "Name": "lower critical",
                     "Severity": 1,
-                    "Value": 1.083
+                    "Value": 1.053
                 }
             ],
             "Type": "ADC"
