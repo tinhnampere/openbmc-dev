@@ -1,6 +1,4 @@
 #!/bin/bash
-
-
 # Initialize variables
 boot_stage=0x00
 boot_status=0x00
@@ -170,6 +168,11 @@ do
 	if [ ${boot_status} == "0x03" ]; then
 		# Log Redfish Event if failure.
 		log_redfish_bios_panic_event $boot_stage $uefi_code
+		# Dimm training failed, check errors
+		if [ ${boot_stage} == "0x04" ]; then
+			/usr/sbin/dimm_train_fail_log.sh 0
+			/usr/sbin/dimm_train_fail_log.sh 1
+		fi
 	elif [ ${boot_status} == "0x01" ]; then
 		# Check and set boot progress to dbus
 		set_boot_progress $boot_stage $uefi_code
