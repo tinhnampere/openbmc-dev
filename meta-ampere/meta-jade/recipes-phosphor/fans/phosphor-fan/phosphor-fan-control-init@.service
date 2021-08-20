@@ -7,6 +7,7 @@ Conflicts=obmc-chassis-powered-off@%i.target
 
 [Service]
 Restart=on-failure
+RestartSec=10
 StartLimitBurst=0
 ExecStart=/usr/bin/env phosphor-fan-control --init
 SyslogIdentifier=phosphor-fan-control
