@@ -271,6 +271,12 @@
             "Name":"nvme_m2_max",
             "SensorType":"temperature"
         },
+        "Threshold":{
+            "CriticalHigh": 80,
+            "CriticalLow": 0,
+            "WarningHigh": 70,
+            "WarningLow": 5
+        },
         "Params":{
             "DbusParam": [
                 {
