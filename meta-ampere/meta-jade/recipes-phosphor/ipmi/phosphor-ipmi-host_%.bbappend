@@ -8,6 +8,10 @@ RDEPENDS:${PN} += "bash"
 SRC_URI += " \
             file://ampere-phosphor-softpoweroff \
             file://ampere.xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service \
+            file://0001-Correct-ipmitool-get-system-guid.patch \
+            file://0002-Add-the-user_mgmt.hpp-to-Makefile.am-file-for-access.patch \
+            file://0003-Change-revision-to-decimal-number.patch \
+            file://0004-dbus-sdr-allow-retrieving-FRU-ID-zero.patch \
             "
 
 EXTRA_OECONF:mtjade = " \

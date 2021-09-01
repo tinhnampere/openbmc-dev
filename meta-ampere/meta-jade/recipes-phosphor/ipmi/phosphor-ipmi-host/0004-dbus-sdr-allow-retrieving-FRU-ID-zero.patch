@@ -1,0 +1,42 @@
+From 52db31976ad77ae5a723fc6b023f3a059db98b1c Mon Sep 17 00:00:00 2001
+From: Zev Weiss <zev@bewilderbeest.net>
+Date: Fri, 21 May 2021 13:24:47 -0500
+Subject: [PATCH] dbus-sdr: allow retrieving FRU ID zero
+
+The getFru() function had been unconditionally translating attempts to
+access FRU ID 0 to instead access FRU ID 1, making it impossible to
+retrieve baseboard FRU information via IPMI:
+
+  $ ipmitool -C17 -I lanplus -U root -P 0penBmc -H $bmc fru print 0
+   Device not present (Requested sensor, data, or record not found)
+
+By removing this substitution, IPMI clients can now access baseboard FRU
+info.
+
+Tested: 'ipmitool fru print 0' displays the expected baseboard FRU data.
+
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Change-Id: I87b8c299f7bbf4f10bac25484e03cb6df97241a6
+---
+ dbus-sdr/storagecommands.cpp | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/dbus-sdr/storagecommands.cpp b/dbus-sdr/storagecommands.cpp
+index 5926615..33c7510 100644
+--- a/dbus-sdr/storagecommands.cpp
++++ b/dbus-sdr/storagecommands.cpp
+@@ -251,11 +251,6 @@ ipmi::Cc getFru(ipmi::Context::ptr ctx, uint8_t devId)
+         return ipmi::ccSuccess;
+     }
+ 
+-    // Set devId to 1 if devId is 0.
+-    // 0 is reserved for baseboard and set to 1 in recalculateHashes().
+-    if (!devId)
+-        devId = 1;
+-
+     auto deviceFind = deviceHashes.find(devId);
+     if (deviceFind == deviceHashes.end())
+     {
+-- 
+2.17.1
+
