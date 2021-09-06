@@ -1,0 +1,145 @@
+From d79d0070625f2f7a33decb8e13b191fc8e59bcbf Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Wed, 28 Sep 2022 10:13:54 +0000
+Subject: [PATCH] Fix fail to Insert and Eject media
+
+This patch makes the following changes:
+- Use C++20
+- Use rm command to remove USB config file as current fs::remove_all
+function does not work correctly.
+- Remove nolock option when mounting media.
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ CMakeLists.txt        |  2 +-
+ src/smb.hpp           |  2 +-
+ src/state_machine.hpp |  7 -----
+ src/system.hpp        | 49 ++++++++++-------------------
+ 4 files changed, 18 insertions(+), 42 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c9fd7bd..86f1016 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,7 +5,7 @@ project(VirtualMedia CXX)
+ cmake_policy(SET CMP0054 NEW)
+ 
+ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+-set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD 20)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+ 
+diff --git a/src/smb.hpp b/src/smb.hpp
+index 62c3a44..01d74eb 100644
+--- a/src/smb.hpp
++++ b/src/smb.hpp
+@@ -22,7 +22,7 @@ class SmbShare
+     {
+         LogMsg(Logger::Debug, "Trying to mount remote : ", remote);
+ 
+-        const std::string params = "nolock,sec=ntlmsspi,seal,vers=3.0";
++        const std::string params = "sec=ntlmsspi,seal,vers=3.0";
+         const std::string perm = rw ? "rw" : "ro";
+         auto options = params + "," + perm;
+         LogMsg(Logger::Debug, "Mounting with options: ", options);
+diff --git a/src/state_machine.hpp b/src/state_machine.hpp
+index 6711401..1218c2a 100644
+--- a/src/state_machine.hpp
++++ b/src/state_machine.hpp
+@@ -159,13 +159,6 @@ struct MountPointStateMachine
+ 
+                 auto now = std::chrono::steady_clock::now();
+ 
+-                auto stats = UsbGadget::getStats(machine.name);
+-                if (stats && (*stats != lastStats))
+-                {
+-                    lastStats = std::move(*stats);
+-                    lastAccess = now;
+-                }
+-
+                 auto timeSinceLastAccess =
+                     std::chrono::duration_cast<std::chrono::seconds>(
+                         now - lastAccess);
+diff --git a/src/system.hpp b/src/system.hpp
+index 500630f..454a08d 100644
+--- a/src/system.hpp
++++ b/src/system.hpp
+@@ -9,6 +9,7 @@
+ #include <boost/process.hpp>
+ #include <filesystem>
+ #include <sdbusplus/asio/object_server.hpp>
++#include <fstream>
+ 
+ namespace fs = std::filesystem;
+ 
+@@ -501,6 +502,7 @@ struct UsbGadget
+                ", path=", path, ", State=", static_cast<uint32_t>(change), ")");
+         bool success = true;
+         std::error_code ec;
++        std::string cmd;
+         if (change == StateChange::unknown)
+         {
+             LogMsg(Logger::Critical,
+@@ -565,22 +567,20 @@ struct UsbGadget
+                 success = false;
+             }
+         }
+-        // StateChange: unknown, notMonitored, inserted were handler
+-        // earlier. We'll get here only for removed, or cleanup
+-
+-        const std::array<const char*, 6> dirs = {
+-            massStorageDir.c_str(),   funcMassStorageDir.c_str(),
+-            configStringsDir.c_str(), configDir.c_str(),
+-            stringsDir.c_str(),       gadgetDir.c_str()};
+-        for (const char* dir : dirs)
+-        {
+-            fs::remove_all(dir, ec);
+-            if (ec)
+-            {
+-                success = false;
+-                LogMsg(Logger::Error, "[App]: UsbGadget ", ec.message());
+-            }
+-        }
++
++        cmd = "rm " + massStorageDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + funcMassStorageDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + configStringsDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + configDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + stringsDir.string();
++        system(cmd.c_str());
++        cmd = "rmdir " + gadgetDir.string();
++        system(cmd.c_str());
++
+ 
+         if (success)
+         {
+@@ -588,21 +588,4 @@ struct UsbGadget
+         }
+         return -1;
+     }
+-
+-    static std::optional<std::string> getStats(const std::string& name)
+-    {
+-        const fs::path statsPath =
+-            "/sys/kernel/config/usb_gadget/mass-storage-" + name +
+-            "/functions/mass_storage.usb0/lun.0/stats";
+-
+-        std::ifstream ifs(statsPath);
+-        if (!ifs.is_open())
+-        {
+-            LogMsg(Logger::Error, name, "Failed to open ", statsPath);
+-            return {};
+-        }
+-
+-        return std::string{std::istreambuf_iterator<char>(ifs),
+-                           std::istreambuf_iterator<char>()};
+-    }
+ };
+-- 
+2.25.1
+
