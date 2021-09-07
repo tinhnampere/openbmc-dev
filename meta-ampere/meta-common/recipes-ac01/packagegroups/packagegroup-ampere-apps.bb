@@ -48,6 +48,7 @@ RDEPENDS_${PN}-system = " \
 SUMMARY_${PN}-flash = "Ampere Flash"
 RDEPENDS_${PN}-flash = " \
         ampere-flash-utils \
+        phosphor-software-manager \
         "
 SUMMARY_${PN}-fans = "Ampere Fans"
 RDEPENDS_${PN}-fans = " \
