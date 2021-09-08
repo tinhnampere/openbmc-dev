@@ -12,6 +12,7 @@ SRC_URI += " \
             file://0002-Add-the-user_mgmt.hpp-to-Makefile.am-file-for-access.patch \
             file://0003-Change-revision-to-decimal-number.patch \
             file://0004-dbus-sdr-allow-retrieving-FRU-ID-zero.patch \
+            file://0005-dbus-sdr-add-prioDbusSdrBase-for-custom-handler-priority.patch \
             "
 
 EXTRA_OECONF:mtjade = " \
