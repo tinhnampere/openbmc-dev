@@ -1,0 +1,80 @@
+From c78fc781042d5f3b914a91d5442197026cefbbb4 Mon Sep 17 00:00:00 2001
+From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+Date: Tue, 5 Oct 2021 01:33:53 +0000
+Subject: [PATCH 3/3] power-control: Fix power cycle issue
+
+In power cycle, the expected power actions is power off then power on.
+In the current code of redfish core, the power sequence is soft power
+off then power off then power on.
+This commit remove soft power off step.
+
+Tested:
+        1. Trigger "power cycle" action in Redfish.
+        2. The power sequence should be power off then power on.
+
+Signed-off-by: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+Change-Id: I8cd5ba0587138331f46b1815ef13ced60cfb364e
+---
+ redfish-core/lib/systems.hpp | 39 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+
+diff --git a/redfish-core/lib/systems.hpp b/redfish-core/lib/systems.hpp
+index 3e27241..0c7cf17 100644
+--- a/redfish-core/lib/systems.hpp
++++ b/redfish-core/lib/systems.hpp
+@@ -31,6 +31,36 @@
+ namespace redfish
+ {
+ 
++/* Directory to store host initiated shutdown file */
++#define HOST_INBAND_REQUEST_DIR "/run/openbmc/"
++
++/* File to create if host has initiated shutdown or reboot */
++#define HOST_INBAND_REQUEST_FILE "host@%u-request"
++
++/**
++ * Create file to indicate there is no need for softoff notification to host
++ */
++void indicate_no_softoff_needed()
++{
++    fs::path path{HOST_INBAND_REQUEST_DIR};
++    if (!fs::is_directory(path))
++    {
++        fs::create_directory(path);
++    }
++
++    // Add the host instance (default 0 for now) to the file name
++    std::string file{HOST_INBAND_REQUEST_FILE};
++    auto size = static_cast<size_t>(std::snprintf(nullptr, 0,
++                                    file.c_str(), 0));
++    size++; // null
++    std::unique_ptr<char[]> buf(new char[size]);
++    std::snprintf(buf.get(), size, file.c_str(), 0);
++
++    // Append file name to directory and create it
++    path /= buf.get();
++    std::ofstream(path.c_str());
++}
++
+ /**
+  * @brief Updates the Functional State of DIMMs
+  *
+@@ -2565,6 +2595,15 @@ inline void requestRoutesSystemActionsReset(App& app)
+             {
+                 command = "xyz.openbmc_project.State.Host.Transition.Reboot";
+                 hostCommand = true;
++                // SPEC has a section that says certain implementations can trigger
++                // PowerOn if power is Off when a command to power cycle is
++                // requested
++
++                // First create a file to indicate to the soft off application
++                // that it should not run since this is a direct user initiated
++                // power reboot request (i.e. a reboot request that is not
++                // originating via a soft power off SMS request)
++                indicate_no_softoff_needed();
+             }
+             else if (resetType == "Nmi")
+             {
+-- 
+2.25.1
+
