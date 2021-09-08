@@ -1,0 +1,95 @@
+From 376639912e09790dd19df12e142d7286909c8c8b Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Fri, 24 Jun 2022 10:32:35 +0000
+Subject: [PATCH 2/3] Redfish: Add message registries for Ampere event
+
+Add Ampere defined registries for events that have not defined by
+OpenBMC.
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ .../registries/openbmc_message_registry.hpp   | 68 +++++++++++++++++++
+ 1 file changed, 68 insertions(+)
+
+diff --git a/redfish-core/include/registries/openbmc_message_registry.hpp b/redfish-core/include/registries/openbmc_message_registry.hpp
+index 80d30c3..b32551c 100644
+--- a/redfish-core/include/registries/openbmc_message_registry.hpp
++++ b/redfish-core/include/registries/openbmc_message_registry.hpp
+@@ -30,6 +30,74 @@ const Header header = {
+     "OpenBMC",
+ };
+ constexpr std::array registry = {
++    MessageEntry{
++        "AmpereEvent",
++        {
++            "Indicates an Ampere OK event",
++            "%1",
++            "OK",
++            1,
++            {
++                "string",
++            },
++            "None.",
++        }},
++    MessageEntry{
++        "AmpereCritical",
++        {
++            "Indicates an Ampere critical event",
++            "%1: %2",
++            "Critical",
++            2,
++            {
++                "string",
++                "string",
++            },
++            "None.",
++        }},
++    MessageEntry{
++        "AmpereWarning",
++        {
++            "Indicates an Ampere warning event",
++            "%1: %2",
++            "Warning",
++            2,
++            {
++                "string",
++                "string",
++            },
++            "None.",
++        }},
++    MessageEntry{
++        "MemoryExtendedECCCEData",
++        {
++            "Indicates additional Memory ECC Correctable error data.",
++             "Memory ECC Correctable Error Extended Data. bank=%1 "
++             "row=%2 column=%3.",
++             "Critical",
++             3,
++             {
++                  "number",
++                  "number",
++                  "number",
++             },
++             "None.",
++        }},
++    MessageEntry{
++        "MemoryExtendedECCUEData",
++        {
++             "Indicates additional Memory ECC Uncorrectable error data.",
++             "Memory ECC Uncorrectable Error Extended Data. bank=%1 "
++             "row=%2 column=%3.",
++             "Critical",
++             3,
++             {
++                  "number",
++                  "number",
++                  "number",
++             },
++             "None.",
++        }},
+     MessageEntry{
+         "ADDDCCorrectable",
+         {
+-- 
+2.34.1
+
