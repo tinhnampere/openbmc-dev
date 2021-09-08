@@ -1,0 +1,55 @@
+From 9cd57d8ac521d3b0dc8ba3ec8f0c49ae75c3b43c Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Tue, 12 Jul 2022 10:08:41 +0700
+Subject: [PATCH 1/6] Re-enable vm-nbdproxy for Virtual Media
+
+Community complains that no active support for virtual media and no
+backend codes were implemented. This make the vm-nbdproxy option becomes
+redundant and should be removed.
+Refer to https://github.com/openbmc/bmcweb/issues/188.
+However, we need this option for Virtual Media support so re-enable it
+locally.
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ meson.build       |  2 +-
+ meson_options.txt | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index 8c86fa9e..2c46626c 100644
+--- a/meson.build
++++ b/meson.build
+@@ -89,7 +89,7 @@ feature_map = {
+   'static-hosting'                              : '-DBMCWEB_ENABLE_STATIC_HOSTING',
+   'vm-websocket'                                : '-DBMCWEB_ENABLE_VM_WEBSOCKET',
+   'xtoken-auth'                                 : '-DBMCWEB_ENABLE_XTOKEN_AUTHENTICATION',
+-  #'vm-nbdproxy'                                : '-DBMCWEB_ENABLE_VM_NBDPROXY',
++  'vm-nbdproxy'                                : '-DBMCWEB_ENABLE_VM_NBDPROXY',
+ }
+ 
+ # Get the options status and build a project summary to show which flags are
+diff --git a/meson_options.txt b/meson_options.txt
+index ecc7aebc..016e8d69 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -35,11 +35,11 @@ option(
+ # this interface, so for the moment this appears to be dead code;  In leiu of
+ # removing it, it has been disabled to try to give those that use it the
+ # opportunity to upstream their backend implementation
+-#option(
+-#    'vm-nbdproxy',
+-#    type: 'feature', value: 'disabled',
+-#    description: 'Enable the Virtual Media WebSocket.'
+-#)
++option(
++   'vm-nbdproxy',
++   type: 'feature', value: 'disabled',
++   description: 'Enable the Virtual Media WebSocket.'
++)
+ 
+ option(
+     'rest',
+-- 
+2.25.1
+
