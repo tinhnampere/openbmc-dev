@@ -1,0 +1,99 @@
+From 780bcce258bf8f7d011df15ed84c3dfff3ce413d Mon Sep 17 00:00:00 2001
+From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+Date: Thu, 30 Sep 2021 14:18:10 +0000
+Subject: [PATCH] Support check host state using GPIO
+
+This commit support check host state use gpio pin FW_BOOT_OK.
+This is workaround solution while waiting for support host_condition
+interface.
+
+Signed-off-by: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+---
+ host_check.cpp | 35 +++++++++++++++++++++++++++++++++++
+ meson.build    |  3 ++-
+ 2 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/host_check.cpp b/host_check.cpp
+index a4f8e0d..51e612b 100644
+--- a/host_check.cpp
++++ b/host_check.cpp
+@@ -10,6 +10,9 @@
+ #include <sdbusplus/exception.hpp>
+ #include <xyz/openbmc_project/Condition/HostFirmware/server.hpp>
+ 
++#include <gpioplus/chip.hpp>
++#include <gpioplus/event.hpp>
++#include <gpioplus/handle.hpp>
+ #include <cstdio>
+ #include <cstdlib>
+ #include <fstream>
+@@ -42,6 +45,22 @@ constexpr auto CHASSIS_STATE_SVC = "xyz.openbmc_project.State.Chassis";
+ constexpr auto CHASSIS_STATE_PATH = "/xyz/openbmc_project/state/chassis0";
+ constexpr auto CHASSIS_STATE_INTF = "xyz.openbmc_project.State.Chassis";
+ constexpr auto CHASSIS_STATE_POWER_PROP = "CurrentPowerState";
++constexpr auto CHIP_ID = 0;
++constexpr auto S0_FW_BOOT_OK = 48;
++
++static int gpioGetValue(uint32_t id, uint32_t line)
++{
++    gpioplus::Chip chip(id);
++    gpioplus::HandleFlags handleflags(chip.getLineInfo(line).flags);
++    handleflags.output = false;
++    gpioplus::EventFlags eventflags;
++    eventflags.falling_edge = true;
++    eventflags.rising_edge = true;
++    gpioplus::Event event(chip, line, handleflags, eventflags,
++                            "ampere_host_state");
++
++    return event.getValue();
++}
+ 
+ // Find all implementations of Condition interface and check if host is
+ // running over it
+@@ -167,6 +186,22 @@ bool isHostRunning()
+         return false;
+     }
+ 
++    if (gpioGetValue(CHIP_ID, S0_FW_BOOT_OK) == 1)
++    {
++        info("Host is running!");
++        // Create file for host instance and create in filesystem to
++        // indicate to services that host is running
++        auto size = std::snprintf(nullptr, 0, HOST_RUNNING_FILE, 0);
++        size++; // null
++        std::unique_ptr<char[]> buf(new char[size]);
++        std::snprintf(buf.get(), size, HOST_RUNNING_FILE, 0);
++        std::ofstream outfile(buf.get());
++        outfile.close();
++        return true;
++    }
++    else
++        return false;
++
+     // This applications systemd service is setup to only run after all other
+     // application that could possibly implement the needed interface have
+     // been started. However, the use of mapper to find those interfaces means
+diff --git a/meson.build b/meson.build
+index fe898d4..da84004 100644
+--- a/meson.build
++++ b/meson.build
+@@ -56,6 +56,7 @@ if(get_option('warm-reboot').enabled())
+     add_project_arguments('-DENABLE_WARM_REBOOT',language:'cpp')
+ endif
+ 
++gpioplus = dependency('gpioplus')
+ sdbusplus = dependency('sdbusplus')
+ sdeventplus = dependency('sdeventplus')
+ phosphorlogging = dependency('phosphor-logging')
+@@ -70,7 +71,7 @@ executable('phosphor-host-state-manager',
+             'settings.cpp',
+             'host_check.cpp',
+             dependencies: [
+-            sdbusplus, sdeventplus, phosphorlogging,
++            gpioplus, sdbusplus, sdeventplus, phosphorlogging,
+             phosphordbusinterfaces, cppfs
+             ],
+     implicit_include_directories: true,
+-- 
+2.25.1
+

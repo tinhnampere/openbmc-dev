@@ -1,6 +1,6 @@
-From 346b910f464a9dd14b7e75a681bd3cf93dbe174d Mon Sep 17 00:00:00 2001
-From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
-Date: Sat, 11 Sep 2021 08:28:01 +0000
+From a0f3a130a434adbb33acfcb095a36fb4bb3c10b6 Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Mon, 25 Oct 2021 14:36:33 +0700
 Subject: [PATCH] Limit power actions when the host is off
 
 When the host is off, power reset/soft/cycle should not affect.
@@ -12,26 +12,27 @@ Tested:
         3. These action should not affect.
 
 Signed-off-by: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
-
-%% original patch: 0001-Limit-power-actions-when-the-host-is-off.patch
+Signed-off-by: Thang Tran    <thuutran@amperecomputing.com>
 ---
- host_state_manager.cpp | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ host_state_manager.cpp | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/host_state_manager.cpp b/host_state_manager.cpp
-index 00f41cb..b08edac 100644
+index 8d35a07..d246845 100644
 --- a/host_state_manager.cpp
 +++ b/host_state_manager.cpp
-@@ -136,7 +136,16 @@ void Host::determineInitialState()
+@@ -132,7 +132,18 @@ void Host::determineInitialState()
  void Host::executeTransition(Transition tranReq)
  {
      auto sysdUnit = SYSTEMD_TARGET_TABLE.find(tranReq)->second;
 -
++    auto hostState = server::Host::currentHostState();
++
 +    if ((sysdUnit == HOST_STATE_SOFT_POWEROFF_TGT ||
 +        sysdUnit == HOST_STATE_REBOOT_TGT ||
 +        sysdUnit == HOST_STATE_WARM_REBOOT ||
 +        sysdUnit == HOST_STATE_FORCE_WARM_REBOOT) &&
-+        !(stateActive(HOST_STATE_POWERON_MIN_TGT) || isHostRunning()) &&
++        !(stateActive(HOST_STATE_POWERON_MIN_TGT) || (HostState::Running == hostState)) &&
 +        !stateActive(HOST_STATE_QUIESCE_TGT))
 +    {
 +        std::remove("/run/openbmc/host@0-request");
@@ -41,5 +42,5 @@ index 00f41cb..b08edac 100644
                                              SYSTEMD_INTERFACE, "StartUnit");
  
 -- 
-2.17.1
+2.30.0
 
