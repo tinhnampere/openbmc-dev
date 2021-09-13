@@ -2,6 +2,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
              file://firmware_update.sh \
+             file://0001-BMC-Updater-Support-update-on-BMC-Alternate-device.patch \
            "
 
 PACKAGECONFIG[flash_bios] = "-Dhost-bios-upgrade=enabled, -Dhost-bios-upgrade=disabled"
