@@ -1551,5 +1551,8 @@
         "PartNumber": "$PRODUCT_PART_NUMBER",
         "SerialNumber": "$PRODUCT_SERIAL_NUMBER"
     },
+    "xyz.openbmc_project.Common.UUID": {
+        "UUID": "$MULTIRECORD_UUID"
+    },
     "Type": "Chassis"
 }
