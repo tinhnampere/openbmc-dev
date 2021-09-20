@@ -13,6 +13,7 @@ SRC_URI += " \
             file://0003-Change-revision-to-decimal-number.patch \
             file://0004-dbus-sdr-allow-retrieving-FRU-ID-zero.patch \
             file://0005-dbus-sdr-add-prioDbusSdrBase-for-custom-handler-priority.patch \
+            file://0006-Support-chassis-bootdev-clear-cmos.patch \
             "
 
 EXTRA_OECONF:mtjade = " \

@@ -1,0 +1,46 @@
+From 3015f8445cc1f1054a4139743c04836d6d431f0a Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Mon, 20 Sep 2021 11:02:42 +0000
+Subject: [PATCH] Support chassis bootdev clear-cmos
+
+Implement the set/get the CMOS clear data 2 of the boot option
+parameters boot flags(0x05).
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ chassishandler.cpp | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/chassishandler.cpp b/chassishandler.cpp
+index dfbe004..c569405 100644
+--- a/chassishandler.cpp
++++ b/chassishandler.cpp
+@@ -1907,6 +1907,7 @@ static constexpr uint8_t setInProgress = 0x1;
+ static uint8_t transferStatus = setComplete;
+ static uint8_t bootFlagValidBitClr = 0;
+ static uint5_t bootInitiatorAckData = 0x0;
++static bool cmosClear = false;
+ 
+ /** @brief implements the Get Chassis system boot option
+  *  @param ctx - context pointer
+@@ -2036,7 +2037,8 @@ ipmi::RspType<ipmi::message::Payload>
+             response.pack(bootOptionParameter, reserved1, uint5_t{},
+                           uint1_t{biosBootType}, uint1_t{permanent},
+                           uint1_t{validFlag}, uint2_t{}, uint4_t{bootOption},
+-                          uint2_t{}, uint8_t{}, uint8_t{}, uint8_t{});
++                          uint1_t{}, uint1_t{cmosClear}, uint8_t{}, uint8_t{},
++                          uint8_t{});
+             return ipmi::responseSuccess(std::move(response));
+         }
+         catch (InternalFailure& e)
+@@ -2134,7 +2136,6 @@ ipmi::RspType<> ipmiChassisSetSysBootOptions(ipmi::Context::ptr ctx,
+         bool screenBlank;
+         uint4_t bootDeviceSelector;
+         bool lockKeyboard;
+-        bool cmosClear;
+         uint8_t data3;
+         uint4_t biosInfo;
+         uint4_t rsvd1;
+-- 
+2.17.1
+
