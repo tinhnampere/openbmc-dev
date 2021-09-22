@@ -20,6 +20,7 @@ SRC_URI += "file://0001-mtjade-FRU-Updated-the-phosphor-host-ipmid-to-handle.pat
             file://ampere.xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service \
             file://0007-sensor-Response-thresholds-for-Get-SDR-command.patch \
             file://0008-Change-revision-to-decimal-number.patch \
+            file://0009-Support-chassis-bootdev-clear-cmos.patch \
             "
 
 AMPERE_SOFTPOWEROFF_TMPL = "ampere.xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service"
