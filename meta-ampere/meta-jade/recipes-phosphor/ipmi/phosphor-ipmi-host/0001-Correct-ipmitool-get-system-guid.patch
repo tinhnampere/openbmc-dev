@@ -22,9 +22,9 @@ index 90818a9..6548b36 100644
 -    static constexpr auto bmcInterface =
 -        "xyz.openbmc_project.Inventory.Item.Bmc";
 +    static constexpr auto uuidService =
-+        "xyz.openbmc_project.Inventory.Manager";
++        "xyz.openbmc_project.EntityManager";
 +    static constexpr auto uuidObject =
-+        "/xyz/openbmc_project/inventory/system/chassis/motherboard";
++        "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade";
      static constexpr auto uuidInterface = "xyz.openbmc_project.Common.UUID";
      static constexpr auto uuidProperty = "UUID";
  
