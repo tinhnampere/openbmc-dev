@@ -1,7 +1,7 @@
-From 0bf84de2a9db749bd61064cd47b96ef457725f54 Mon Sep 17 00:00:00 2001
+From de417519685507c3c4372edea15d6ee7ef7e1e8a Mon Sep 17 00:00:00 2001
 From: Chanh Nguyen <chanh@os.amperecomputing.com>
-Date: Wed, 10 Mar 2021 00:02:17 +0700
-Subject: [PATCH] aspeed: Enable SPI master mode
+Date: Tue, 1 Jun 2021 05:48:14 +0000
+Subject: [PATCH 3/3] aspeed: Enable SPI master mode
 
 Currently, some systems design the strap pin,
 which was shared pin with another function.
@@ -15,10 +15,10 @@ Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/board/aspeed/ast-g5/ast-g5.c b/board/aspeed/ast-g5/ast-g5.c
-index 9e27bce0f5..ed83d65136 100644
+index 19f2a54fec..ecc25d9346 100644
 --- a/board/aspeed/ast-g5/ast-g5.c
 +++ b/board/aspeed/ast-g5/ast-g5.c
-@@ -125,6 +125,9 @@ int board_late_init(void)
+@@ -113,6 +113,9 @@ int board_late_init(void)
  		update_bootargs_cmd("resetreason", value);
  	}
  
@@ -29,5 +29,5 @@ index 9e27bce0f5..ed83d65136 100644
  }
  #endif
 -- 
-2.17.1
+2.25.1
 

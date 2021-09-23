@@ -1,7 +1,7 @@
-From af4353ab19aaf29dc68ff89a0d581102ca5be43c Mon Sep 17 00:00:00 2001
+From 99113ccb2cb075bbbd037dc40046b0bd870371a8 Mon Sep 17 00:00:00 2001
 From: "Thang Q. Nguyen" <thang@os.amperecomputing.com>
-Date: Wed, 6 Jan 2021 06:33:36 +0000
-Subject: [PATCH] aspeed: support passing system reset status to kernel via
+Date: Tue, 1 Jun 2021 05:46:43 +0000
+Subject: [PATCH 2/3] aspeed: support passing system reset status to kernel via
  bootargs
 
 This is a backport of the patch file from
@@ -9,17 +9,16 @@ openbmc/meta-yadro/meta-nicole/recipes-bsp/u-boot/
 to add the Aspeed reset reason to bootargs so kernel applications
 can query it.
 
-Test case: /proc/cmdline must contain:
-     - resetreason=power after cold bmc boot
-     - resetreason=watchdog after warm bmc reboot
+Tested: /proc/cmdline must contain:
+  - resetreason=power after cold bmc boot
+  - resetreason=watchdog after warm bmc reboot
 
-Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
 Signed-off-by: Thang Q. Nguyen <thang@os.amperecomputing.com>
 ---
  arch/arm/include/asm/arch-aspeed/ast_scu.h |  2 +-
  arch/arm/mach-aspeed/ast-scu.c             |  6 +-
- board/aspeed/ast-g5/ast-g5.c               | 81 ++++++++++++++++++++++
- 3 files changed, 87 insertions(+), 2 deletions(-)
+ board/aspeed/ast-g5/ast-g5.c               | 83 ++++++++++++++++++++++
+ 3 files changed, 89 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/include/asm/arch-aspeed/ast_scu.h b/arch/arm/include/asm/arch-aspeed/ast_scu.h
 index d2c010a0dc..f5c9126ec0 100644
@@ -67,7 +66,7 @@ index ef90ef3805..c7ab66415f 100644
  
  u32 ast_scu_get_vga_memsize(void)
 diff --git a/board/aspeed/ast-g5/ast-g5.c b/board/aspeed/ast-g5/ast-g5.c
-index 9bf6c905fe..9e27bce0f5 100644
+index fba22a728e..19f2a54fec 100644
 --- a/board/aspeed/ast-g5/ast-g5.c
 +++ b/board/aspeed/ast-g5/ast-g5.c
 @@ -8,6 +8,8 @@
@@ -79,7 +78,7 @@ index 9bf6c905fe..9e27bce0f5 100644
  #include <netdev.h>
  
  #include <asm/arch/ast_scu.h>
-@@ -25,9 +27,76 @@ int board_init(void)
+@@ -25,11 +27,92 @@ int board_init(void)
  }
  
  #ifdef CONFIG_BOARD_LATE_INIT
@@ -151,14 +150,11 @@ index 9bf6c905fe..9e27bce0f5 100644
 +
  int board_late_init(void)
  {
- 	u32 val;
++	u32 val;
 +	u32 reset_reason = ast_scu_sys_rest_info();
- 
++
  	/* Switch PWM to GPIO mode to make FAN run in max speed */
  	ast_scu_switch_pwm_to_gpio_mode();
-@@ -44,6 +113,18 @@ int board_late_init(void)
- 	writel(0xaa, AST_SCU_BASE);
- #endif
  
 +	if (reset_reason & SCU_SYS_EXT_RESET_FLAG) {
 +		update_bootargs_cmd("resetreason", "external");
