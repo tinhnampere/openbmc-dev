@@ -10,6 +10,13 @@ as servers, top of rack switches or RAID appliances. It uses
 [D-Bus](https://www.freedesktop.org/wiki/Software/dbus/) to allow easy
 customization for your platform.
 
+This repository provides early access to Ampere Computing's BMC implementation
+for Ampere's server platform reference designs. It is the intention to submit
+all features in this repository to the OpenBMC main project (github/openbmc)
+in due course.
+
+For open questions and support, please contact support@amperecomputing.com.
+
 ## Setting up your OpenBMC project
 
 ### 1) Prerequisite
@@ -31,146 +38,108 @@ hostname file diffutils diffstat lz4 wget zstd rpcgen patch
 
 ### 2) Download the source
 ```
-git clone https://github.com/openbmc/openbmc
+git clone https://github.com/ampere-openbmc/openbmc.git
 cd openbmc
 ```
 
 ### 3) Target your hardware
-Any build requires an environment set up according to your hardware target.
-There is a special script in the root of this repository that can be used
-to configure the environment as needed. The script is called `setup` and
-takes the name of your hardware target as an argument.
+Source the setup script and use one of the following for Ampere's platform:
+- mtjade
+- mtmitchell
 
-The script needs to be sourced while in the top directory of the OpenBMC
-repository clone, and, if run without arguments, will display the list
-of supported hardware targets, see the following example:
-
+For example:
 ```
-$ . setup <machine> [build_dir]
-Target machine must be specified. Use one of:
-
-bletchley               mori                    s8036
-dl360poc                mtjade                  swift
-e3c246d4i               mtmitchell              tatlin-archive-x86
-ethanolx                nicole                  tiogapass
-evb-ast2500             olympus-nuvoton         transformers
-evb-ast2600             on5263m5                vegman-n110
-evb-npcm750             p10bmc                  vegman-rx20
-f0b                     palmetto                vegman-sx20
-fp5280g2                qcom-dc-scm-v1          witherspoon
-g220a                   quanta-q71l             witherspoon-tacoma
-gbs                     romed8hm3               x11spi
-greatlakes              romulus                 yosemitev2
-gsj                     s2600wf                 zaius
-kudo                    s6q
-lannister               s7106
-```
-
-Once you know the target (e.g. romulus), source the `setup` script as follows:
-
-```
-. setup romulus
+. setup mtjade
 ```
 
 ### 4) Build
-
 ```
 bitbake obmc-phosphor-image
 ```
 
-Additional details can be found in the [docs](https://github.com/openbmc/docs)
-repository.
+On successful build, the BMC image will be located in
+```
+tmp/work/<platform>-openbmc-linux-gnueabi/obmc-phosphor-image/1.0-r0/deploy-obmc-phosphor-image-image-complete/
+```
 
-## OpenBMC Development
+as
+```
+obmc-phosphor-image-<platform>.static.mtd
+obmc-phosphor-image-<platform>.static.mtd.tar
+```
 
-The OpenBMC community maintains a set of tutorials new users can go through
-to get up to speed on OpenBMC development out
-[here](https://github.com/openbmc/docs/blob/master/development/README.md)
+where `<platform>` = mtjade or mtmitchell
 
-## Build Validation and Testing
-Commits submitted by members of the OpenBMC GitHub community are compiled and
-tested via our [Jenkins](https://jenkins.openbmc.org/) server. Commits are run
-through two levels of testing.  At the repository level the makefile `make
-check` directive is run.  At the system level, the commit is built into a
-firmware image and run with an arm-softmmu QEMU model against a barrage of
-[CI tests](https://openpower.xyz/job/openbmc-test-qemu-ci/).
+## Installing BMC firmware
 
-Commits submitted by non-members do not automatically proceed through CI
-testing. After visual inspection of the commit, a CI run can be manually
-performed by the reviewer.
+If there is no firmware pre-installed on the system, you will need to program it to the BMC's SPI NOR using an external SPI programmer like Dediprog
+using obmc-phosphor-image-<platform>.static.mtd.
 
-Automated testing against the QEMU model along with supported systems are
-performed.  The OpenBMC project uses the
-[Robot Framework](http://robotframework.org/) for all automation.  Our
-complete test repository can be found
-[here](https://github.com/openbmc/openbmc-test-automation).
+If a previous version of Ampere's OpenBMC has been installed, perform the following steps to update BMC firmware.
 
-## Submitting Patches
-Support of additional hardware and software packages is always welcome.
-Please follow the [contributing guidelines](https://github.com/openbmc/docs/blob/master/CONTRIBUTING.md)
-when making a submission.  It is expected that contributions contain test
-cases.
+- Open new Redfish token:
+```
+$ export token=`curl -k -H "Content-Type: application/json" -X POST https://${BMC_IP}/login -d '{"username" :  "root", "password" :  "0penBmc"}' | grep token | awk '{print $2;}' | tr -d '"'`
+```
 
-## Bug Reporting
-[Issues](https://github.com/openbmc/openbmc/issues) are managed on
-GitHub.  It is recommended you search through the issues before opening
-a new one.
+- Use Redfish UpdateService to flash the BMC firmware
+```
+$ curl -k -H "X-Auth-Token: $token" \
+       -H "Content-Type: application/octet-stream" \
+       -X POST -T ${BMC_FW}.mtd.tar https://${BMC_IP}/redfish/v1/UpdateService
+```
 
-## Questions
+- Reboot BMC to start the firmware update
+```
+$ curl -c cjar -b cjar -k -H "Content-Type: application/json" -X PUT \
+       -d '{"data": "xyz.openbmc_project.State.BMC.Transition.Reboot"}' \
+        https://root:0penBmc@${BMC_IP}/xyz/openbmc_project/state/bmc0/attr/RequestedBMCTransition`
+```
 
-First, please do a search on the internet. There's a good chance your question
-has already been asked.
+## Installing SCP/SYS firmware to EEPROM
 
-For general questions, please use the openbmc tag on
-[Stack Overflow](https://stackoverflow.com/questions/tagged/openbmc).
-Please review the [discussion](https://meta.stackexchange.com/questions/272956/a-new-code-license-the-mit-this-time-with-attribution-required?cb=1)
-on Stack Overflow licensing before posting any code.
+To install SCP or SYS firmware to boot EEPROM, need to copy it (in *.slim or *.bin format) into the BMC via scp from BMC console:
 
-For technical discussions, please see [contact info](#contact) below for
-Discord and mailing list information. Please don't file an issue to ask a
-question. You'll get faster results by using the mailing list or Discord.
+```
+# scp 10.38.12.53:/tftpboot/altra/altra_scp_1.01.20201019.slim /tmp
+```
 
-## Features of OpenBMC
+Then, use the ampere_firmware_upgrade.sh utility to flash the firmware into the Boot EEPROM:
 
-**Feature List**
-* Host management: Power, Cooling, LEDs, Inventory, Events, Watchdog
-* Full IPMI 2.0 Compliance with DCMI
-* Code Update Support for multiple BMC/BIOS images
-* Web-based user interface
-* REST interfaces
-* D-Bus based interfaces
-* SSH based SOL
-* Remote KVM
-* Hardware Simulation
-* Automated Testing
-* User management
-* Virtual media
+```
+# ampere_firmware_upgrade.sh smpmpro /tmp/altra_scp_1.01.20201019.slim 1
+```
 
-**Features In Progress**
-* OpenCompute Redfish Compliance
-* Verified Boot
+## Installing UEFI firmware
 
-**Features Requested but need help**
-* OpenBMC performance monitoring
+UEFI firmware can be flashed via Redfish UpdateService interface. It uses the tar format which include the firmware image (in *.img format) and a MANIFEST file. The following steps can be used to create the tar file and install UEFI firmware via Redfish
 
+- Create MANIFEST file with the following content
 
-## Finding out more
+```
+purpose=xyz.openbmc_project.Software.Version.VersionPurpose.Host
+version= jade_tianocore_atf_1.99.20201021.img
+KeyType=OpenBMC
+HashType=RSA-SHA256
+MachineName=mtjade
+```
 
-Dive deeper into OpenBMC by opening the
-[docs](https://github.com/openbmc/docs) repository.
+- Then create tar file including the firmware image and MANIFEST file:
 
-## Technical Steering Committee
+```
+$ tar -cvf jade_tianocore_atf_1.99.20201021.tar jade_tianocore_atf_1.99.20201021.img MANIFEST
+```
 
-The Technical Steering Committee (TSC) guides the project. Members are:
+- Open new Redfish token:
 
- * Roxanne Clarke, IBM
- * Nancy Yuen, Google
- * Sai Dasari, Facebook
- * Terry Duncan, Intel
- * Sagar Dharia, Microsoft
- * Samer El-Haj-Mahmoud, Arm
+```
+$ export token=`curl -k -H "Content-Type: application/json" -X POST https://${BMC_IP}/login -d '{"username" :  "root", "password" :  "0penBmc"}' | grep token | awk '{print $2;}' | tr -d '"'`
+```
 
-## Contact
-- Mail: openbmc@lists.ozlabs.org [https://lists.ozlabs.org/listinfo/openbmc](https://lists.ozlabs.org/listinfo/openbmc)
-- Discord: https://discord.gg/69Km47zH98
-
+- Use Redfish UpdateService to flash the UEFI firmware
+```
+$ curl -k -H "X-Auth-Token: $token" \
+       -H "Content-Type: application/octet-stream" \
+       -X POST -T jade_tianocore_atf_1.99.20201021.tar \
+        https://${BMC_IP}/redfish/v1/UpdateService
+```
