@@ -14,6 +14,7 @@ SRC_URI += " \
             file://0004-dbus-sdr-allow-retrieving-FRU-ID-zero.patch \
             file://0005-dbus-sdr-add-prioDbusSdrBase-for-custom-handler-priority.patch \
             file://0006-Support-chassis-bootdev-clear-cmos.patch \
+            file://0007-Revert-Confirm-presence-of-NIC-devices-described-in-.patch \
             "
 
 EXTRA_OECONF:mtjade = " \
