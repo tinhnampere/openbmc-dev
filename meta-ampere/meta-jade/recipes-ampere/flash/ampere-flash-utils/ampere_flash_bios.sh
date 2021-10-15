@@ -15,10 +15,8 @@
 # limitations under the License.
 
 do_flash () {
-        OFFSET=$1
-
 	# Check the PNOR partition available
-	HOST_MTD=$(cat /proc/mtd | grep "pnor" | sed -n 's/^\(.*\):.*/\1/p')
+	HOST_MTD=$(cat /proc/mtd | grep "pnor-uefi" | sed -n 's/^\(.*\):.*/\1/p')
 	if [ -z "$HOST_MTD" ];
 	then
 		# If the PNOR partition is not available, then bind again driver
@@ -26,7 +24,7 @@ do_flash () {
 		echo 1e630000.spi > /sys/bus/platform/drivers/aspeed-smc/bind
 		sleep 2
 
-		HOST_MTD=$(cat /proc/mtd | grep "pnor" | sed -n 's/^\(.*\):.*/\1/p')
+		HOST_MTD=$(cat /proc/mtd | grep "pnor-uefi" | sed -n 's/^\(.*\):.*/\1/p')
 		if [ -z "$HOST_MTD" ];
 		then
 			echo "Fail to probe Host SPI-NOR device"
@@ -37,8 +35,8 @@ do_flash () {
 	echo "--- Locking power control"
 	systemctl start reboot-guard-enable.service
 
-	echo "--- Flashing firmware to @/dev/$HOST_MTD offset=$OFFSET"
-	flashcp -v $IMAGE /dev/$HOST_MTD $OFFSET
+	echo "--- Flashing firmware to @/dev/$HOST_MTD"
+	flashcp -v $IMAGE /dev/$HOST_MTD
 
 	echo "--- Unlocking power control"
 	systemctl start reboot-guard-disable.service
@@ -112,7 +110,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Flash the firmware
-do_flash 0x400000
+do_flash
 
 # Switch back to Primary Host SPI-NOR
 echo "--- Switch back to the primary Host SPI-NOR."
