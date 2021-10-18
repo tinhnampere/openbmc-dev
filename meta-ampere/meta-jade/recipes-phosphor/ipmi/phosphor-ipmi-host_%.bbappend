@@ -15,6 +15,8 @@ SRC_URI += " \
             file://0005-dbus-sdr-add-prioDbusSdrBase-for-custom-handler-priority.patch \
             file://0006-Support-chassis-bootdev-clear-cmos.patch \
             file://0007-Revert-Confirm-presence-of-NIC-devices-described-in-.patch \
+            file://0008-Set-the-thresholds-value-of-the-sensors-with-some-un.patch \
+            file://0009-Response-thresholds-for-Get-SDR-command.patch \
             "
 
 EXTRA_OECONF:mtjade = " \
