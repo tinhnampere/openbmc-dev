@@ -34,6 +34,7 @@ SUMMARY:${PN}-system = "Ampere System"
 RDEPENDS:${PN}-system = " \
         smbios-mdr \
         ampere-state-logger \
+        openocd \
         "
 
 SUMMARY:${PN}-flash = "Ampere Flash"
