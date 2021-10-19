@@ -1,0 +1,37 @@
+From e8ba4f4c09a70c06afbad33e9ec4b60a6d4f4cdf Mon Sep 17 00:00:00 2001
+From: hule <hule@amperecomputing.com>
+Date: Tue, 19 Oct 2021 14:15:37 +0700
+Subject: [PATCH] Fix wrong System Manufacturer displayed in WebUI
+
+WebUI incorrectly displays AssetTag for System Manufacturer. This commit fixes the issue by using System Manufacturer instead.
+Tested:
+1. Log in WebUI, go to Inventory and LEDs -> Check System ->
+Manufacturer.
+2. Check System Manufacturer via Redfish.
+  $ curl -X GET --user root:0penBmc -H "Content-Type: application/json" --insecure https://10.38.64.123/redfish/v1/Systems/system
+  "AssetTag": "12345",
+  "Manufacturer": "WIWYNN",
+
+Bugzilla: https://den-bugzilla.amperecomputing.com/show_bug.cgi?id=92827
+
+Signed-off-by: hule <hule@amperecomputing.com>
+---
+ src/views/HardwareStatus/Inventory/InventoryTableSystem.vue | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/views/HardwareStatus/Inventory/InventoryTableSystem.vue b/src/views/HardwareStatus/Inventory/InventoryTableSystem.vue
+index c6f425d..499de00 100644
+--- a/src/views/HardwareStatus/Inventory/InventoryTableSystem.vue
++++ b/src/views/HardwareStatus/Inventory/InventoryTableSystem.vue
+@@ -81,7 +81,7 @@
+               <dl>
+                 <!-- Manufacturer -->
+                 <dt>{{ $t('pageInventory.table.manufacturer') }}:</dt>
+-                <dd>{{ tableFormatter(item.assetTag) }}</dd>
++                <dd>{{ tableFormatter(item.manufacturer) }}</dd>
+                 <!-- Description -->
+                 <dt>{{ $t('pageInventory.table.description') }}:</dt>
+                 <dd>{{ tableFormatter(item.description) }}</dd>
+-- 
+2.17.1
+
