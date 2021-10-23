@@ -4,14 +4,12 @@ RDEPENDS:${PN}-extras:append:mtjade = " \
                                        phosphor-virtual-sensor \
                                        phosphor-misc-usb-ctrl \
                                        scp-failover \
+                                       fault-monitor \
                                        tempevent-monitor \
+                                       psu-inventory-update \
                                       "
 
 RDEPENDS:${PN}-inventory:append:mtjade = " \
-                                          fault-monitor \
-                                          id-button \
-                                          psu-hotswap-reset \
-                                          host-gpio-handling \
                                           dbus-sensors \
                                           entity-manager \
                                         "

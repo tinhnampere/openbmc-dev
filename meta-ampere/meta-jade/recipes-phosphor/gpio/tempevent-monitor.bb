@@ -11,7 +11,7 @@ RDEPENDS:${PN} += "bash"
 DEPENDS += "virtual/obmc-gpio-monitor"
 RDEPENDS:${PN} += "virtual/obmc-gpio-monitor"
 
-OBMC_HOST_MONITOR_INSTANCES = "overtemp_S0  hightemp_start_S0 hightemp_stop_S0 overtemp_S1  hightemp_start_S1 hightemp_stop_S1"
+OBMC_HOST_MONITOR_INSTANCES = "overtemp_S0 hightemp_start_S0 hightemp_stop_S0 overtemp_S1 hightemp_start_S1 hightemp_stop_S1"
 
 # Copies config file having arguments for monitoring host overtemp
 # via GPIO assertion

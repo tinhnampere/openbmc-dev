@@ -1,0 +1,42 @@
+[
+    {
+        "Name": "REBOOT_ACK",
+        "ChipId": "gpiochip0",
+        "GpioNum": 75,
+        "EventMon": "FALLING",
+        "Target": "obmc-host-force-warm-reboot@0.target",
+        "Continue": true
+    },
+    {
+        "Name": "SHUTDOWN_ACK",
+        "ChipId": "gpiochip0",
+        "GpioNum": 50,
+        "EventMon": "FALLING",
+        "Target": "ampere-host-shutdown-ack@0.service",
+        "Continue": true
+    },
+    {
+        "Name": "ID_BUTTON",
+        "ChipId": "gpiochip0",
+        "GpioNum": 133,
+        "EventMon": "FALLING",
+        "Target": "id-button-pressed.service",
+        "Continue": true
+    },
+    {
+        "Name": "PSU1_VIN_GOOD",
+        "ChipId": "gpiochip0",
+        "GpioNum": 60,
+        "EventMon": "RISING",
+        "Target": "psu1_hotswap_reset.service",
+        "Continue": true
+    },
+    {
+        "Name": "PSU2_VIN_GOOD",
+        "ChipId": "gpiochip0",
+        "GpioNum": 61,
+        "EventMon": "RISING",
+        "Target": "psu2_hotswap_reset.service",
+        "Continue": true
+    }
+]
