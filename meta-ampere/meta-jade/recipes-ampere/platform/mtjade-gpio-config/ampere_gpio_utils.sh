@@ -11,6 +11,7 @@ set_gpio_power_off() {
     gpio_configure_output $OCP_AUX_PWREN 1
     gpio_configure_output $OCP_MAIN_PWREN 0
     gpio_configure_output $SPI0_PROGRAM_SEL 0
+    rm -f /run/openbmc/host@0-on
 }
 
 set_gpio_power_on() {
