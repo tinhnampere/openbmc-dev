@@ -2,13 +2,7 @@
     "ocp": [
         {
             "Index": 0,
-            "BusId": 5,
-            "Muxes": [
-                {
-                    "MuxAddress": "0x70",
-                    "Channel": "0x0"
-                }
-            ]
+            "BusId": 82
         }
     ]
 }
