@@ -1,0 +1,221 @@
+From 9184b125a6819efd9662887d449de022cc66154e Mon Sep 17 00:00:00 2001
+From: hule <hule@amperecomputing.com>
+Date: Mon, 8 Nov 2021 17:05:21 +0700
+Subject: [PATCH] Fix wrong factory reset page at WebUI is not work on webUI.
+
+Tested:
+1> Open and login OpenBMC WebUI
+2> Navigate to "Operations" --> "Factory reset"
+3> Click "Reset" button --> "Reset BMC server setting"
+
+Bugzilla: https://den-bugzilla.amperecomputing.com/show_bug.cgi?id=87797
+
+Signed-off-by: hule <hule@amperecomputing.com>
+---
+ src/locales/en-US.json                        | 12 ++---
+ .../Operations/FactoryReset/FactoryReset.vue  | 53 +------------------
+ .../FactoryReset/FactoryResetModal.vue        | 45 +---------------
+ 3 files changed, 9 insertions(+), 101 deletions(-)
+
+diff --git a/src/locales/en-US.json b/src/locales/en-US.json
+index 35e7146..6a7935a 100644
+--- a/src/locales/en-US.json
++++ b/src/locales/en-US.json
+@@ -279,13 +279,13 @@
+     }
+   },
+   "pageFactoryReset": {
+-    "description": "These functions do not perform a secure delete of any sensitive data.",
++    "description": "Resets BMC settings, including: all BMC account data, all changed passwords, all policies, LDAP configurations, network addresses, and time of day.",
+     "form": {
+       "resetOptionsLabel": "Reset options",
+       "resetBiosOptionLabel": "Reset server settings only",
+       "resetBiosOptionHelperText": "Resets firmware settings including: Platform keystore, partition NVRAM, and partition configurations.",
+-      "resetToDefaultsOptionLabel": "Reset BMC and server settings",
+-      "resetToDefaultsOptionHelperText": "In addition to server settings, this option resets BMC settings, including: all BMC account data, all changed passwords, all policies, LDAP configurations, network addresses, and time of day."
++      "resetToDefaultsOptionLabel": "Reset BMC server setting",
++      "resetToDefaultsOptionHelperText": "Resets BMC settings, including: all BMC account data, all changed passwords, all policies, LDAP configurations, network addresses, and time of day."
+     },
+     "modal": {
+       "resetBiosTitle": "Reset server settings",
+@@ -295,9 +295,9 @@
+         "item1": "All manual settings will be deleted.",
+         "item2": "Partition configurations and the platform keystore may be recovered if backups exist."
+       },
+-      "resetToDefaultsTitle": "Reset BMC and server settings",
+-      "resetToDefaultsHeader": "Do you want to reset both the BMC and server settings?",
+-      "resetToDefaultsSubmitText": "Reset BMC and server settings",
++      "resetToDefaultsTitle": "Reset BMC server setting",
++      "resetToDefaultsHeader": "Do you want to reset BMC server setting?",
++      "resetToDefaultsSubmitText": "Reset BMC server setting",
+       "resetToDefaultsSettingsList": {
+         "item1": "All manual settings will be deleted.",
+         "item2": "Partition configurations and the platform keystore may be recovered if backups exist.",
+diff --git a/src/views/Operations/FactoryReset/FactoryReset.vue b/src/views/Operations/FactoryReset/FactoryReset.vue
+index 897348f..3c912ef 100644
+--- a/src/views/Operations/FactoryReset/FactoryReset.vue
++++ b/src/views/Operations/FactoryReset/FactoryReset.vue
+@@ -6,39 +6,6 @@
+     <b-form id="factory-reset" @submit.prevent="onResetSubmit">
+       <b-row>
+         <b-col md="8">
+-          <b-form-group :label="$t('pageFactoryReset.form.resetOptionsLabel')">
+-            <b-form-radio-group
+-              id="factory-reset-options"
+-              v-model="resetOption"
+-              stacked
+-            >
+-              <b-form-radio
+-                class="mb-1"
+-                value="resetBios"
+-                aria-describedby="reset-bios"
+-                data-test-id="factoryReset-radio-resetBios"
+-              >
+-                {{ $t('pageFactoryReset.form.resetBiosOptionLabel') }}
+-              </b-form-radio>
+-              <b-form-text id="reset-bios" class="ml-4 mb-3">
+-                {{ $t('pageFactoryReset.form.resetBiosOptionHelperText') }}
+-              </b-form-text>
+-
+-              <b-form-radio
+-                class="mb-1"
+-                value="resetToDefaults"
+-                aria-describedby="reset-to-defaults"
+-                data-test-id="factoryReset-radio-resetToDefaults"
+-              >
+-                {{ $t('pageFactoryReset.form.resetToDefaultsOptionLabel') }}
+-              </b-form-radio>
+-              <b-form-text id="reset-to-defaults" class="ml-4 mb-3">
+-                {{
+-                  $t('pageFactoryReset.form.resetToDefaultsOptionHelperText')
+-                }}
+-              </b-form-text>
+-            </b-form-radio-group>
+-          </b-form-group>
+           <b-button
+             type="submit"
+             variant="primary"
+@@ -67,7 +34,7 @@ export default {
+   mixins: [LoadingBarMixin, BVToastMixin],
+   data() {
+     return {
+-      resetOption: 'resetBios',
++      resetOption: 'resetToDefaults',
+     };
+   },
+   created() {
+@@ -78,26 +45,10 @@ export default {
+       this.$bvModal.show('modal-reset');
+     },
+     onOkConfirm() {
+-      if (this.resetOption == 'resetBios') {
+-        this.onResetBiosConfirm();
+-      } else {
++      if (this.resetOption == 'resetToDefaults') {
+         this.onResetToDefaultsConfirm();
+       }
+     },
+-    onResetBiosConfirm() {
+-      this.$store
+-        .dispatch('factoryReset/resetBios')
+-        .then((title) => {
+-          this.successToast('', {
+-            title,
+-          });
+-        })
+-        .catch(({ message }) => {
+-          this.errorToast('', {
+-            title: message,
+-          });
+-        });
+-    },
+     onResetToDefaultsConfirm() {
+       this.$store
+         .dispatch('factoryReset/resetToDefaults')
+diff --git a/src/views/Operations/FactoryReset/FactoryResetModal.vue b/src/views/Operations/FactoryReset/FactoryResetModal.vue
+index 170bf28..2109654 100644
+--- a/src/views/Operations/FactoryReset/FactoryResetModal.vue
++++ b/src/views/Operations/FactoryReset/FactoryResetModal.vue
+@@ -21,29 +21,6 @@
+       </li>
+     </ul>
+ 
+-    <!-- Warning message -->
+-    <template v-if="!isServerOff">
+-      <p class="d-flex mb-2">
+-        <status-icon status="danger" />
+-        <span id="reset-to-default-warning" class="ml-1">
+-          {{ $t(`pageFactoryReset.modal.resetWarningMessage`) }}
+-        </span>
+-      </p>
+-      <b-form-checkbox
+-        v-model="confirm"
+-        aria-describedby="reset-to-default-warning"
+-        @input="$v.confirm.$touch()"
+-      >
+-        {{ $t(`pageFactoryReset.modal.resetWarningCheckLabel`) }}
+-      </b-form-checkbox>
+-      <b-form-invalid-feedback
+-        role="alert"
+-        :state="getValidationState($v.confirm)"
+-      >
+-        {{ $t('global.form.fieldRequired') }}
+-      </b-form-invalid-feedback>
+-    </template>
+-
+     <template #modal-footer="{ cancel }">
+       <b-button
+         variant="secondary"
+@@ -64,12 +41,7 @@
+   </b-modal>
+ </template>
+ <script>
+-import StatusIcon from '@/components/Global/StatusIcon';
+-import VuelidateMixin from '@/components/Mixins/VuelidateMixin';
+-
+ export default {
+-  components: { StatusIcon },
+-  mixins: [VuelidateMixin],
+   props: {
+     resetType: {
+       type: String,
+@@ -77,35 +49,20 @@ export default {
+     },
+   },
+   data() {
+-    return {
+-      confirm: false,
+-    };
++    return {};
+   },
+   computed: {
+     serverStatus() {
+       return this.$store.getters['global/serverStatus'];
+     },
+-    isServerOff() {
+-      return this.serverStatus === 'off' ? true : false;
+-    },
+-  },
+-  validations: {
+-    confirm: {
+-      mustBeTrue: function (value) {
+-        return this.isServerOff || value === true;
+-      },
+-    },
+   },
+   methods: {
+     handleConfirm() {
+-      this.$v.$touch();
+-      if (this.$v.$invalid) return;
+       this.$emit('okConfirm');
+       this.$nextTick(() => this.$refs.modal.hide());
+       this.resetConfirm();
+     },
+     resetConfirm() {
+-      this.confirm = false;
+       this.$v.$reset();
+     },
+   },
+-- 
+2.17.1
+
