@@ -7,7 +7,7 @@ RDEPENDS:${PN} += "libsystemd bash"
 
 S = "${WORKDIR}/git/state-logger"
 
-SRC_URI = "git://github.com/ampere-openbmc/ampere-misc;protocol=git;branch=ampere"
-SRCREV = "4dc7d688419b6a1cf6268e240c798eec920477eb"
+SRC_URI = "git://github.com/ampere-openbmc/ampere-misc.git;protocol=https;branch=ampere"
+SRCREV = "677c1db1347a6c3967106d0322076509e6a1dca0"
 
 SYSTEMD_SERVICE:${PN} += "xyz.openbmc_project.state_logger.service"
