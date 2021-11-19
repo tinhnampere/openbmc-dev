@@ -7,6 +7,7 @@ SRC_URI += " \
             file://0005-amperecpu-Support-PresenceGpio-option.patch \
             file://0006-Dbus-sensors-restructure-the-code-handle-PowerState-.patch \
             file://0007-ADCSensor-FanSensor-Support-ChassisState-attribute.patch \
+            file://0008-amperecpu-Support-label-AddAssoc-option.patch \
            "
 PACKAGECONFIG:mtjade = " \
                         adcsensor \
