@@ -1,0 +1,44 @@
+From f3471a55681223ab86e08808ce8ef4f9ccd06dd3 Mon Sep 17 00:00:00 2001
+From: Chanh Nguyen <chanh@os.amperecomputing.com>
+Date: Sun, 21 Nov 2021 22:48:47 +0700
+Subject: [PATCH] log_services: Workaround to fix the URL param reading
+
+The "$skip" param can't be loaded from urlParams.
+That makes the Redfish can't load entries skip from 1000 entries before.
+
+This commit will use the req->urlView.query_params() replace with req->urlParams
+
+Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
+---
+ redfish-core/lib/log_services.hpp | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/redfish-core/lib/log_services.hpp b/redfish-core/lib/log_services.hpp
+index 2c9ae3a..4b254c4 100644
+--- a/redfish-core/lib/log_services.hpp
++++ b/redfish-core/lib/log_services.hpp
+@@ -188,8 +188,8 @@ inline static bool getEntryTimestamp(sd_journal* journal,
+ static bool getSkipParam(const std::shared_ptr<bmcweb::AsyncResp>& asyncResp,
+                          const crow::Request& req, uint64_t& skip)
+ {
+-    boost::urls::query_params_view::iterator it = req.urlParams.find("$skip");
+-    if (it != req.urlParams.end())
++    boost::urls::query_params_view::iterator it = req.urlView.query_params().find("$skip");
++    if (it != req.urlView.query_params().end())
+     {
+         std::string skipParam = it->value();
+         char* ptr = nullptr;
+@@ -209,8 +209,8 @@ static constexpr const uint64_t maxEntriesPerPage = 1000;
+ static bool getTopParam(const std::shared_ptr<bmcweb::AsyncResp>& asyncResp,
+                         const crow::Request& req, uint64_t& top)
+ {
+-    boost::urls::query_params_view::iterator it = req.urlParams.find("$top");
+-    if (it != req.urlParams.end())
++    boost::urls::query_params_view::iterator it = req.urlView.query_params().find("$top");
++    if (it != req.urlView.query_params().end())
+     {
+         std::string topParam = it->value();
+         char* ptr = nullptr;
+-- 
+2.17.1
+
