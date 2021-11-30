@@ -1,0 +1,46 @@
+From fd9c8afca3c58aec2d0324f63256d650c9a5f5f7 Mon Sep 17 00:00:00 2001
+From: hule <hule@amperecomputing.com>
+Date: Mon, 29 Nov 2021 10:20:59 +0700
+Subject: [PATCH] Fix DNS and Gateway loss information of eth1 interface
+
+Bydefault, WebUI doesn't display DNS and Gateway information
+This commit supports this.
+
+Tested:
+1. Login OpenBmc WebUI -> Settings -> Network
+2. Check
+- System Default gateway is available display
+- Static DNS -> IP address is available display
+
+Signed-off-by: hule <hule@amperecomputing.com>
+---
+ src/views/Settings/Network/Network.vue | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/views/Settings/Network/Network.vue b/src/views/Settings/Network/Network.vue
+index ab5003f..a2cef9c 100644
+--- a/src/views/Settings/Network/Network.vue
++++ b/src/views/Settings/Network/Network.vue
+@@ -515,7 +515,7 @@ export default {
+       this.getInterfaceSettings();
+     },
+     getInterfaceSettings() {
+-      this.form.gateway = this.defaultGateway;
++      this.form.gateway = this.selectedInterface.IPv4Addresses[0].Gateway;
+       this.form.hostname = this.selectedInterface.HostName;
+       this.form.macAddress = this.selectedInterface.MACAddress;
+       this.form.dhcpEnabled = this.selectedInterface.DHCPv4.DHCPEnabled;
+@@ -524,7 +524,9 @@ export default {
+       this.form.dhcpEnabled = value;
+     },
+     getDnsStaticTableItems() {
+-      const dns = this.selectedInterface.StaticNameServers || [];
++      const dnsStatic = this.selectedInterface.StaticNameServers;
++      const dnsServer = this.selectedInterface.NameServers;
++      const dns = dnsServer.concat(dnsStatic) || [];
+       this.form.dnsStaticTableItems = dns.map((server) => {
+         return {
+           address: server,
+-- 
+2.17.1
+
