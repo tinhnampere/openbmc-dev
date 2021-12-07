@@ -12,4 +12,5 @@ SRC_URI += " \
             file://0002-Redfish-Add-message-registries-for-Ampere-event.patch \
             file://0003-power-control-Fix-power-cycle-issue.patch \
             file://0004-log_services-Workaround-to-fix-the-URL-param-reading.patch \
+            file://0005-http-set-up-the-requestDataQueue-s-capacity.patch \
            "

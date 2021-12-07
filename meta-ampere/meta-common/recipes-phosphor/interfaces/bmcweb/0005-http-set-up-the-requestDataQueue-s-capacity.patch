@@ -1,0 +1,29 @@
+From 01b234306f104e49646dcc42a7d28a9a16771766 Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Tue, 7 Dec 2021 13:07:16 +0700
+Subject: [PATCH] http: set up the requestDataQueue's capacity
+
+In the sendData method, requestDataQueue can not push new data to
+the queue. Update the capacity to allow requestDataQueue push new
+data to queue.
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+---
+ http/http_client.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/http/http_client.hpp b/http/http_client.hpp
+index ab20eb0..f32b672 100644
+--- a/http/http_client.hpp
++++ b/http/http_client.hpp
+@@ -403,6 +403,7 @@ class HttpClient : public std::enable_shared_from_this<HttpClient>
+         retryPolicyAction("TerminateAfterRetries"), runningTimer(false)
+     {
+         state = ConnState::initialized;
++        requestDataQueue.set_capacity(maxRequestQueueSize);
+     }
+ 
+     void sendData(const std::string& data)
+-- 
+2.30.0
+
