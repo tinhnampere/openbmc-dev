@@ -1,0 +1,50 @@
+From 3aeeb3b004ef13b0b3bd67d9a939ceb978ff772b Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Wed, 8 Dec 2021 10:13:50 +0700
+Subject: [PATCH] dbus-sdr: Reset last device ID to 0xff when writing done
+
+Issue: when requests to write incorrect FRU data via "ipmitool fru 0
+<binFile>" command, this request returns a fail result. Request to read
+FRU information via "ipmitool fru print 0" and "busctl introspect
+xyz.openbmc_project.FruDevice <FruPath>" commands:
+    - Expect result: FRU information from 2 of commands are the same
+    - Actual result: FRU information from 2 of commnads are different
+
+Root cause: When the written data is incorrect data, it will not be
+wrote to FRU device. But dbus-sdr stored FruCache as written data.
+Therefore, when users request to read FRU information as written device
+ID, dbus-sdr returns FruCache data without reads data via dbus method
+(in this time, FruCache is including incorrect data).
+
+Solution: Reset last device ID to 0xff when writing done.
+
+Tested:
+      1. Request to read FRU information
+         ipmitool fru print 0
+      2. Request to write incorrect FRU data
+         ipmitool fru 0 write <binFile>
+      3. Request to read FRU information
+         ipmitool fru print 0
+         The result as step 1.
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+Change-Id: I5a55640d0f111a12965966588f9bbeab4aa286ba
+---
+ dbus-sdr/storagecommands.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dbus-sdr/storagecommands.cpp b/dbus-sdr/storagecommands.cpp
+index 4910aae..33be2dd 100644
+--- a/dbus-sdr/storagecommands.cpp
++++ b/dbus-sdr/storagecommands.cpp
+@@ -133,6 +133,7 @@ bool writeFru()
+     {
+         return true;
+     }
++    lastDevId = 0xFF;
+     std::shared_ptr<sdbusplus::asio::connection> dbus = getSdBus();
+     sdbusplus::message::message writeFru = dbus->new_method_call(
+         fruDeviceServiceName, "/xyz/openbmc_project/FruDevice",
+-- 
+2.17.1
+

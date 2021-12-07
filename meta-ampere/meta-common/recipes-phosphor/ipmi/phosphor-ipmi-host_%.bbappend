@@ -12,6 +12,7 @@ SRC_URI += " \
             file://0007-Revert-Confirm-presence-of-NIC-devices-described-in-.patch \
             file://0008-Set-the-thresholds-value-of-the-sensors-with-some-un.patch \
             file://0009-Response-thresholds-for-Get-SDR-command.patch \
+            file://0010-dbus-sdr-Reset-last-device-ID-to-0xff-when-writing-d.patch \
             "
 
 PACKAGECONFIG[dynamic-sensors] = "--enable-dynamic-sensors"
