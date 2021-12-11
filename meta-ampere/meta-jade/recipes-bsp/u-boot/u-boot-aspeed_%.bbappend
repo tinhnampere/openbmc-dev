@@ -1,7 +1,5 @@
 FILESEXTRAPATHS:append:mtjade := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
-            file://0001-aspeed-scu-Switch-PWM-pin-to-GPIO-input-mode.patch \
-            file://0002-aspeed-support-passing-system-reset-status-to-kernel.patch \
-            file://0003-aspeed-Enable-SPI-master-mode.patch \
+            file://0001-aspeed-support-passing-system-reset-status-to-kernel.patch \
            "
