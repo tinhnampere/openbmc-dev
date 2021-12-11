@@ -1314,7 +1314,7 @@
                     "Label": "vout0",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 1.12
+                    "Value": 1.14
                 },
                 {
                     "Direction": "less than",
@@ -1500,7 +1500,7 @@
                     "Label": "vout0",
                     "Name": "upper critical",
                     "Severity": 1,
-                    "Value": 1.12
+                    "Value": 1.14
                 },
                 {
                     "Direction": "less than",
