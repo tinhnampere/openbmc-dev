@@ -1,5 +1,5 @@
 fans:
-  - inventory: /system/chassis/motherboard/FAN3_1
+  - inventory: /system/chassis/Mt_Jade/FAN3_1
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -11,7 +11,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN3_2
+  - inventory: /system/chassis/Mt_Jade/FAN3_2
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -23,7 +23,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN4_1
+  - inventory: /system/chassis/Mt_Jade/FAN4_1
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -35,7 +35,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN4_2
+  - inventory: /system/chassis/Mt_Jade/FAN4_2
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -47,7 +47,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN5_1
+  - inventory: /system/chassis/Mt_Jade/FAN5_1
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -59,7 +59,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN5_2
+  - inventory: /system/chassis/Mt_Jade/FAN5_2
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -71,7 +71,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN6_1
+  - inventory: /system/chassis/Mt_Jade/FAN6_1
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -83,7 +83,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN6_2
+  - inventory: /system/chassis/Mt_Jade/FAN6_2
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -95,7 +95,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN7_1
+  - inventory: /system/chassis/Mt_Jade/FAN7_1
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -107,7 +107,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN7_2
+  - inventory: /system/chassis/Mt_Jade/FAN7_2
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -119,7 +119,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN8_1
+  - inventory: /system/chassis/Mt_Jade/FAN8_1
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1
@@ -131,7 +131,7 @@ fans:
         factor: 82
         offset: 0
 
-  - inventory: /system/chassis/motherboard/FAN8_2
+  - inventory: /system/chassis/Mt_Jade/FAN8_2
     allowed_out_of_range_time: 10
     deviation: 25
     num_sensors_nonfunc_for_fan_nonfunc: 1

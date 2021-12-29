@@ -3,18 +3,18 @@ groups:
       description: Group of fan inventory objects for air cooled zone 0
       type: /xyz/openbmc_project/inventory
       members:
-          - /system/chassis/motherboard/FAN3_1
-          - /system/chassis/motherboard/FAN3_2
-          - /system/chassis/motherboard/FAN4_1
-          - /system/chassis/motherboard/FAN4_2
-          - /system/chassis/motherboard/FAN5_1
-          - /system/chassis/motherboard/FAN5_2
-          - /system/chassis/motherboard/FAN6_1
-          - /system/chassis/motherboard/FAN6_2
-          - /system/chassis/motherboard/FAN7_1
-          - /system/chassis/motherboard/FAN7_2
-          - /system/chassis/motherboard/FAN8_1
-          - /system/chassis/motherboard/FAN8_2
+          - /system/chassis/Mt_Jade/FAN3_1
+          - /system/chassis/Mt_Jade/FAN3_2
+          - /system/chassis/Mt_Jade/FAN4_1
+          - /system/chassis/Mt_Jade/FAN4_2
+          - /system/chassis/Mt_Jade/FAN5_1
+          - /system/chassis/Mt_Jade/FAN5_2
+          - /system/chassis/Mt_Jade/FAN6_1
+          - /system/chassis/Mt_Jade/FAN6_2
+          - /system/chassis/Mt_Jade/FAN7_1
+          - /system/chassis/Mt_Jade/FAN7_2
+          - /system/chassis/Mt_Jade/FAN8_1
+          - /system/chassis/Mt_Jade/FAN8_2
     - name: zone0_ambient
       description: Group of ambient temperature sensors for zone 0
       type: /xyz/openbmc_project/sensors
