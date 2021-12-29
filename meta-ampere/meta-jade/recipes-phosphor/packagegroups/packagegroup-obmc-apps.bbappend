@@ -6,7 +6,6 @@ RDEPENDS:${PN}-extras:append:mtjade = " \
                                        scp-failover \
                                        fault-monitor \
                                        tempevent-monitor \
-                                       psu-inventory-update \
                                       "
 
 RDEPENDS:${PN}-inventory:append:mtjade = " \
