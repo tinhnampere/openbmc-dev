@@ -1,0 +1,350 @@
+From 52dabaaa3669979d4a866024ad6aafa19c8bdc28 Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Tue, 26 Oct 2021 17:47:09 +0700
+Subject: [PATCH] Support checking host status via GPIO pins
+
+Currently, openBmc supports checking host status via ipmi and PLDM
+method. However, not all of platforms support IPMI and PLDM. Some
+platforms, like Ampere Mt.Jade checks input GPIO to detect Host
+firmware boot status. This commit supports Dbus method to check host
+status via GPIO pins, it checks the value of "host0-ready/-n" pin to
+detect HOST is ready or not.
+
+Tested:
+	1. Update GPIO pin to detect host0 ready to "host0-ready"
+           in the device tree.
+        2. Enable host-gpios option and add executable and service
+           files to openBmc software then flash to the board.
+        3. In the BMC console, check host-gpio-condition via command
+           "busctl tree xyz.openbmc_project.State.HostCondition.Gpio"
+           Result as below:
+           `-/xyz
+  	      `-/xyz/openbmc_project
+    		 `-/xyz/openbmc_project/Gpios
+      		    `-/xyz/openbmc_project/Gpios/host0
+        4. Turn on/off the HOST0 then check the host status via
+           command
+           "busctl get-property \
+           xyz.openbmc_project.State.HostCondition.Gpio \
+           /xyz/openbmc_project/Gpios/host0 \
+           xyz.openbmc_project.Condition.HostFirmware \
+           CurrentFirmwareCondition"
+           Result as below:
+           "xyz.openbmc_project.Condition.HostFirmware.\
+           FirmwareCondition.<Running/Off>"
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+Change-Id: I20e38e76c5b70119f0c86e5b497d47453d7c5a6c
+---
+ host_condition_gpio/host_condition.cpp        | 72 +++++++++++++++++++
+ host_condition_gpio/host_condition.hpp        | 48 +++++++++++++
+ host_condition_gpio/host_condition_main.cpp   | 45 ++++++++++++
+ host_condition_gpio/meson.build               | 28 ++++++++
+ .../phosphor-host-condition-gpio@.service     | 11 +++
+ meson.build                                   | 12 ++++
+ meson_options.txt                             | 16 +++++
+ 7 files changed, 232 insertions(+)
+ create mode 100644 host_condition_gpio/host_condition.cpp
+ create mode 100644 host_condition_gpio/host_condition.hpp
+ create mode 100644 host_condition_gpio/host_condition_main.cpp
+ create mode 100644 host_condition_gpio/meson.build
+ create mode 100644 host_condition_gpio/phosphor-host-condition-gpio@.service
+
+diff --git a/host_condition_gpio/host_condition.cpp b/host_condition_gpio/host_condition.cpp
+new file mode 100644
+index 0000000..d0e4615
+--- /dev/null
++++ b/host_condition_gpio/host_condition.cpp
+@@ -0,0 +1,72 @@
++#include "host_condition.hpp"
++
++#include <gpiod.hpp>
++#include <phosphor-logging/elog-errors.hpp>
++#include <phosphor-logging/lg2.hpp>
++
++namespace phosphor
++{
++namespace condition
++{
++
++PHOSPHOR_LOG2_USING;
++
++using namespace phosphor::logging;
++
++void Host::scanGpioPin()
++{
++    /*
++     * Check the hostX-ready/-n pin is defined or not
++     */
++    if (gpiod::find_line(lineName + "-ready"))
++    {
++        lineName += "-ready";
++        isActHigh = true;
++    }
++    else if (gpiod::find_line(lineName + "-ready-n"))
++    {
++        lineName += "-ready-n";
++        isActHigh = false;
++    }
++    else
++    {
++        lineName = "";
++    }
++}
++
++Host::FirmwareCondition Host::currentFirmwareCondition() const
++{
++    auto retVal = Host::FirmwareCondition::Unknown;
++
++    /*
++     * Check host is ready or not
++     */
++    if (!lineName.empty())
++    {
++        auto line = gpiod::find_line(lineName);
++
++        try
++        {
++            int32_t gpioVal = 0;
++
++            line.request({lineName, gpiod::line_request::DIRECTION_INPUT,
++                          (true == isActHigh)
++                              ? 0
++                              : gpiod::line_request::FLAG_ACTIVE_LOW});
++
++            gpioVal = line.get_value();
++            line.release();
++
++            retVal = (0 == gpioVal) ? Host::FirmwareCondition::Off
++                                    : Host::FirmwareCondition::Running;
++        }
++        catch (std::system_error&)
++        {
++            error("Error when read gpio value");
++        }
++    }
++
++    return retVal;
++}
++} // namespace condition
++} // namespace phosphor
+diff --git a/host_condition_gpio/host_condition.hpp b/host_condition_gpio/host_condition.hpp
+new file mode 100644
+index 0000000..eaeefc7
+--- /dev/null
++++ b/host_condition_gpio/host_condition.hpp
+@@ -0,0 +1,48 @@
++#pragma once
++
++#include <sdbusplus/bus.hpp>
++#include <sdbusplus/server/object.hpp>
++#include <xyz/openbmc_project/Condition/HostFirmware/server.hpp>
++
++#include <iostream>
++
++namespace phosphor
++{
++namespace condition
++{
++
++using HostIntf = sdbusplus::server::object::object<
++    sdbusplus::xyz::openbmc_project::Condition::server::HostFirmware>;
++
++class Host : public HostIntf
++{
++  public:
++    Host() = delete;
++    Host(const Host&) = delete;
++    Host& operator=(const Host&) = delete;
++    Host(Host&&) = delete;
++    Host& operator=(Host&&) = delete;
++    virtual ~Host() = default;
++
++    Host(sdbusplus::bus::bus& bus, const std::string& path,
++         const std::string& hostId) :
++        HostIntf(bus, path.c_str()),
++        lineName("host" + hostId)
++    {
++        scanGpioPin();
++    };
++
++    /** @brief Override reads to CurrentFirmwareCondition */
++    FirmwareCondition currentFirmwareCondition() const override;
++
++  private:
++    std::string lineName;
++    bool isActHigh;
++
++    /*
++     * Scan gpio pin to detect the name and active state
++     */
++    void scanGpioPin();
++};
++} // namespace condition
++} // namespace phosphor
+diff --git a/host_condition_gpio/host_condition_main.cpp b/host_condition_gpio/host_condition_main.cpp
+new file mode 100644
+index 0000000..6148450
+--- /dev/null
++++ b/host_condition_gpio/host_condition_main.cpp
+@@ -0,0 +1,45 @@
++#include "config.h"
++
++#include "host_condition.hpp"
++
++#include <boost/algorithm/string.hpp>
++#include <sdbusplus/bus.hpp>
++
++#include <cstdlib>
++#include <iostream>
++
++int main(int argc, char** argv)
++{
++    std::string hostId;
++
++    if (argc == 2)
++    {
++        hostId = std::string(argv[1]);
++    }
++    else
++    {
++        return 0;
++    }
++
++    auto bus = sdbusplus::bus::new_default();
++    std::string objGroupName = HOST_GPIOS_OBJPATH;
++    std::string objPathInst = objGroupName + "/host" + hostId;
++    std::string busName = HOST_GPIOS_BUSNAME;
++
++    // Add sdbusplus ObjectManager
++    sdbusplus::server::manager::manager objManager(bus, objGroupName.c_str());
++
++    // For now, we only support checking Host0 status
++    auto host = std::make_unique<phosphor::condition::Host>(
++        bus, objPathInst.c_str(), hostId);
++
++    bus.request_name(busName.c_str());
++
++    while (true)
++    {
++        bus.process_discard();
++        bus.wait();
++    }
++
++    return 0;
++}
+diff --git a/host_condition_gpio/meson.build b/host_condition_gpio/meson.build
+new file mode 100644
+index 0000000..8de832a
+--- /dev/null
++++ b/host_condition_gpio/meson.build
+@@ -0,0 +1,28 @@
++inc_dirs = [ include_directories('../') ]
++
++gpioplus = dependency('gpioplus')
++gpiodcxx = dependency(
++    'libgpiodcxx',
++    fallback: ['libgpiod', 'gpiodcxx_dep']
++)
++
++executable(
++    'phosphor-host-condition-gpio',
++    'host_condition.cpp',
++    'host_condition_main.cpp',
++    dependencies: [
++        gpioplus, sdbusplus, sdeventplus, phosphorlogging,
++        phosphordbusinterfaces, gpiodcxx
++    ],
++    include_directories : inc_dirs,
++    implicit_include_directories: true,
++    install: true
++)
++
++configure_file(
++    input: 'phosphor-host-condition-gpio@.service',
++    output: 'phosphor-host-condition-gpio@.service',
++    copy: true,
++    install_dir: systemd_system_unit_dir,
++    install: true,
++)
+diff --git a/host_condition_gpio/phosphor-host-condition-gpio@.service b/host_condition_gpio/phosphor-host-condition-gpio@.service
+new file mode 100644
+index 0000000..fa70e3e
+--- /dev/null
++++ b/host_condition_gpio/phosphor-host-condition-gpio@.service
+@@ -0,0 +1,11 @@
++[Unit]
++Description=Phosphor host condition gpios check for HOST %i
++
++[Service]
++Restart=always
++ExecStart=/usr/bin/phosphor-host-condition-gpio %i
++Type=dbus
++BusName=xyz.openbmc_project.State.HostCondition.Gpio
++
++[Install]
++WantedBy=multi-user.target
+diff --git a/meson.build b/meson.build
+index fe898d4..149a28f 100644
+--- a/meson.build
++++ b/meson.build
+@@ -11,6 +11,8 @@ project(
+     version: '0.1',
+ )
+ 
++build_host_gpios = get_option('host-gpios')
++
+ conf = configuration_data()
+ conf.set_quoted(
+     'HOST_BUSNAME', get_option('host-busname'))
+@@ -42,6 +44,12 @@ conf.set(
+     'BOOT_COUNT_MAX_ALLOWED', get_option('boot-count-max-allowed'))
+ conf.set(
+     'CLASS_VERSION', get_option('class-version'))
++if build_host_gpios.enabled()
++    conf.set_quoted(
++        'HOST_GPIOS_BUSNAME', get_option('host-gpios-busname'))
++    conf.set_quoted(
++        'HOST_GPIOS_OBJPATH', get_option('host-gpios-objpath'))
++endif
+ 
+ # globals shared across applications
+ conf.set_quoted(
+@@ -163,6 +171,10 @@ systemd_system_unit_dir = systemd.get_variable(
+ subdir('service_files')
+ subdir('target_files')
+ 
++if build_host_gpios.enabled()
++    subdir('host_condition_gpio')
++endif
++
+ datadir = join_paths(
+     get_option('sysconfdir'),
+     'phosphor-systemd-target-monitor'
+diff --git a/meson_options.txt b/meson_options.txt
+index 33fe793..8592d1d 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -94,3 +94,19 @@ option('warm-reboot', type : 'feature',
+     value : 'enabled',
+     description : 'Enable warm reboots of the system',
+ )
++
++option('host-gpios', type : 'feature',
++    value : 'disabled',
++    description : 'Enable gpio mechanism to check host state.',
++)
++
++option('host-gpios-busname', type : 'string',
++    value : 'xyz.openbmc_project.State.HostCondition.Gpio',
++    description : 'The host gpios Dbus busname to own.',
++)
++
++option('host-gpios-objpath', type : 'string',
++    value : '/xyz/openbmc_project/Gpios',
++    description : 'The host gpios Dbus root.',
++)
++
+-- 
+2.17.1
+
