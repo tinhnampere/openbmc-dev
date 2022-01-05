@@ -1,6 +1,5 @@
 [Unit]
 Description=Ampere Altra Delete Bootstrap Account Handling
-Wants=obmc-host-started@%i.target
 After=obmc-host-started@%i.target
 Conflicts=obmc-host-stop@%i.target
 

@@ -1,0 +1,41 @@
+From 6d118963596ca6f893561839fbcf058daa23b32f Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Wed, 5 Jan 2022 10:17:13 +0700
+Subject: [PATCH] Enable ActivationBlocksTransition before write HOST BIOS
+ image
+
+Currently, Host can be turned on during HOST BIOS image is flashing,
+it can make the flashing have been broken.
+Enable ActivationBlocksTransition before write HOST BIOS image to
+block turning on HOST when flashing did not complete.
+
+Tested:
+      1. Request to write new SCP image via REDFISH
+      2. Turn on HOST.
+      3. HOST still off untill flashing completed.
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+---
+ activation.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/activation.cpp b/activation.cpp
+index c90b537..2dbb83c 100644
+--- a/activation.cpp
++++ b/activation.cpp
+@@ -114,6 +114,12 @@ auto Activation::activation(Activations value) -> Activations
+                     std::make_unique<ActivationProgress>(bus, path);
+             }
+ 
++            if (!activationBlocksTransition)
++            {
++                activationBlocksTransition =
++                    std::make_unique<ActivationBlocksTransition>(bus, path);
++            }
++
+             // Enable systemd signals
+             subscribeToSystemdSignals();
+ 
+-- 
+2.30.0
+
