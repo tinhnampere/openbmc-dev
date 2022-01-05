@@ -381,7 +381,7 @@
 116:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 43
-    multiplierM: 5
+    multiplierM: 10
     path: /xyz/openbmc_project/sensors/voltage/S0_CPU_VCORE
 117:
     <<: *VOLTAGE_DEFAULTS
@@ -444,7 +444,7 @@
 132:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 51
-    multiplierM: 5
+    multiplierM: 10
     path: /xyz/openbmc_project/sensors/voltage/S1_CPU_VCORE
 133:
     <<: *VOLTAGE_DEFAULTS
