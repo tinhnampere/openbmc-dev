@@ -1,0 +1,58 @@
+{
+    "Exposes": [
+        {
+            "Address": "$ADDRESS % 80 + 88",
+            "Bus": "$bus",
+            "Labels": [
+                "temp1",
+                "fan1",
+                "pin",
+                "pout1",
+                "vin",
+                "vout1",
+                "iin",
+                "iout1"
+            ],
+            "Name": "PSU$ADDRESS % 80",
+            "temp1_Name": "PSU$ADDRESS % 80 TEMP",
+            "fan1_Name": "PSU$ADDRESS % 80 fan1",
+            "pin_Name": "PSU$ADDRESS % 80 PINPUT",
+            "pout1_Name": "PSU$ADDRESS % 80 POUTPUT",
+            "vin_Name": "PSU$ADDRESS % 80 VINPUT",
+            "vout1_Name": "PSU$ADDRESS % 80 VOUTPUT",
+            "iin_Name": "PSU$ADDRESS % 80 IINPUT",
+            "iout1_Name": "PSU$ADDRESS % 80 IOUTPUT",
+            "PollRate":10,
+            "Thresholds": [
+                {
+                    "Direction": "greater than",
+                    "Label": "temp1",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 64
+                },
+                {
+                    "Direction": "greater than",
+                    "Label": "fan1",
+                    "Name": "upper critical",
+                    "Severity": 1,
+                    "Value": 20300
+                }
+            ],
+            "Type": "pmbus"
+        }
+    ],
+    "Name": "PSU$ADDRESS % 80",
+    "Probe": [
+        "xyz.openbmc_project.FruDevice({'PRODUCT_MANUFACTURER': '.*Artesyn.*'})",
+        "OR",
+        "xyz.openbmc_project.FruDevice({'PRODUCT_MANUFACTURER': '.*4172746573796e2020202020.*'})"
+    ],
+    "Type": "PowerSupply",
+    "xyz.openbmc_project.Inventory.Decorator.Asset": {
+            "Manufacturer": "$PRODUCT_MANUFACTURER",
+            "Model": "$PRODUCT_PRODUCT_NAME",
+            "PartNumber": "$PRODUCT_PART_NUMBER",
+            "SerialNumber": "$PRODUCT_SERIAL_NUMBER"
+    }
+}
