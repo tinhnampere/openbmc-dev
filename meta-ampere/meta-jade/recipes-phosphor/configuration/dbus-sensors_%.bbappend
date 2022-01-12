@@ -1,2 +1,2 @@
 PACKAGECONFIG:remove = " intelcpusensor ipmbsensor"
-PACKAGECONFIG:append = " nvmesensor"
+PACKAGECONFIG:append = " nvmesensor amperecpusensor"

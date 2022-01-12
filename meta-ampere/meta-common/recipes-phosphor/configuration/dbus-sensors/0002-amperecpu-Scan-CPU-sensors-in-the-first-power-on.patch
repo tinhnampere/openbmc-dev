@@ -1,0 +1,131 @@
+From ac86b9e39c47bdea3997918228b215cd0d656b43 Mon Sep 17 00:00:00 2001
+From: Thu Nguyen <thu@os.amperecomputing.com>
+Date: Fri, 30 Apr 2021 22:45:20 +0700
+Subject: [PATCH 2/6] amperecpu: Scan CPU sensors in the first power on
+
+The Altra SMPro-hwmon driver is probed when BMC boot up, but it is
+only binded when the host is Running. This causes the CPU sensor paths
+are not available when the bmc boots up with the host is off. The
+Ampere CPU daemon will not create any host sensor dbus objects.
+
+In the first power on time of the host, when the CurrentHostState
+powered is "...HostState.Running", the SMPro-hwmon drivers are binded.
+The host sensors paths are created. The AmpereSoc daemon will scan the
+CPU sensor paths and create the host sensor dbus objects.
+
+Tested:
+    1. Boot up the openbmc with the host is off.
+    2. Object xyz.openbmc_project.AmpereCPUSensor should be empty.
+    3. Turn on the host, wait for the Running state of the host.
+    4. The xyz.openbmc_project.AmpereCPUSensor Dbus interface will
+       list the CPU sensors.
+
+Signed-off-by: Thu Nguyen <thu@os.amperecomputing.com>
+Change-Id: I305d600c16d58fe5c44c72fc2452c26910d64393
+---
+ src/AmpereCPUMain.cpp | 56 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 5 deletions(-)
+
+diff --git a/src/AmpereCPUMain.cpp b/src/AmpereCPUMain.cpp
+index 7519e39..6c7abfc 100644
+--- a/src/AmpereCPUMain.cpp
++++ b/src/AmpereCPUMain.cpp
+@@ -47,6 +47,7 @@ static boost::container::flat_map<std::string, std::string> sensorTable;
+ static boost::container::flat_map<std::string, AmpereCPUProperty> propMatch;
+ static std::vector<AmpereCPUProperty> socProperties;
+ static std::regex i2cDevRegex(R"((\d+)-([a-fA-F0-9]+))");
++static bool createdSensors = false;
+ 
+ static bool getDeviceInfo(const std::string& devPath, size_t* bus, size_t* addr)
+ {
+@@ -511,6 +512,11 @@ static void createSensorsCallback(
+                           *sensorData, *interfacePath, *devType, directory,
+                           &numCreated);
+ 
++        if (numCreated != 0U)
++        {
++            createdSensors = true;
++        }
++
+         std::cerr << "Device " << bus << ":" << addr << " have " << numCreated
+                   << " sensors \n";
+     }
+@@ -521,10 +527,13 @@ void createSensors(boost::asio::io_service& io,
+                    std::shared_ptr<sdbusplus::asio::connection>& dbusConnection)
+ {
+     auto getter = std::make_shared<GetSensorConfiguration>(
+-        dbusConnection,
+-        [&io, &objectServer,
+-         &dbusConnection](const ManagedObjectType& sensorConfigs) {
+-        createSensorsCallback(io, objectServer, dbusConnection, sensorConfigs);
++        dbusConnection, [&io, &objectServer, &dbusConnection](
++                            const ManagedObjectType& sensorConfigs) {
++            if (!createdSensors)
++            {
++                createSensorsCallback(io, objectServer, dbusConnection,
++                                      sensorConfigs);
++            }
+         });
+     getter->getConfiguration(std::vector<std::string>{smproDrvName});
+ }
+@@ -546,6 +555,7 @@ int main()
+ {
+     boost::asio::io_service io;
+     auto systemBus = std::make_shared<sdbusplus::asio::connection>(io);
++    std::vector<std::unique_ptr<sdbusplus::bus::match::match>> matches;
+ 
+     systemBus->request_name(ampereDbusName);
+     sdbusplus::asio::object_server objectServer(systemBus, true);
+@@ -576,12 +586,48 @@ int main()
+         });
+     };
+ 
+-    auto matchPropChanged = std::make_unique<sdbusplus::bus::match::match>(
++    auto match = std::make_unique<sdbusplus::bus::match::match>(
+         static_cast<sdbusplus::bus::bus&>(*systemBus),
+         "type='signal',member='PropertiesChanged',path_namespace='" +
+             std::string(inventoryPath) + "',arg0namespace='" + smproDevType +
+             "'",
+         eventHandler);
++    matches.emplace_back(std::move(match));
++
++    std::function<void(sdbusplus::message::message&)> hostStateHandler =
++        [&](sdbusplus::message::message& message) {
++        if (message.is_method_error())
++        {
++            std::cerr << "callback method error\n";
++            return;
++        }
++
++        std::string objectName;
++        boost::container::flat_map<std::string, std::variant<std::string>>
++            values;
++        message.read(objectName, values);
++        auto findState = values.find(power::property);
++        if (findState == values.end())
++        {
++            return;
++        }
++
++        if (std::get<std::string>(findState->second) !=
++            "xyz.openbmc_project.State.Host.HostState.Running")
++        {
++            return;
++        }
++
++        createSensors(io, objectServer, systemBus);
++    };
++
++    auto matchHostState = std::make_unique<sdbusplus::bus::match::match>(
++        static_cast<sdbusplus::bus::bus&>(*systemBus),
++        "type='signal',interface='" + std::string(properties::interface) +
++            "',path='" + std::string(power::path) + "',arg0='" +
++            std::string(power::interface) + "'",
++        hostStateHandler);
++    matches.emplace_back(std::move(matchHostState));
+ 
+     io.run();
+ 
+-- 
+2.25.1
+

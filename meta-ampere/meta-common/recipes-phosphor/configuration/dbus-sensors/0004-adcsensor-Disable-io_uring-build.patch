@@ -1,0 +1,32 @@
+From 8aca1e58035de04e7acc6ac6223ae239122db5d0 Mon Sep 17 00:00:00 2001
+From: Chanh Nguyen <chanh@os.amperecomputing.com>
+Date: Fri, 23 Sep 2022 15:53:40 +0700
+Subject: [PATCH 4/6] adcsensor: Disable io_uring build
+
+When the adcsensor uses the io_uring lib,
+That causes a reading error to LTC2497 device (an ADC/I2C
+device).
+
+This is workaround for temp solution. That will be revert after we have
+a better solution with the ltc2497 driver.
+
+Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
+---
+ src/meson.build | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/meson.build b/src/meson.build
+index 0922c0f..523efcf 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -14,7 +14,6 @@ if get_option('adc').enabled()
+             thresholds_dep,
+             utils_dep,
+         ],
+-        cpp_args: uring_args,
+         implicit_include_directories: false,
+         include_directories: '../include',
+         install: true,
+-- 
+2.25.1
+
