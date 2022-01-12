@@ -1,0 +1,190 @@
+From 569661a03a667dc7230a8af27249fc873d6f172b Mon Sep 17 00:00:00 2001
+From: Thu Nguyen <thu@os.amperecomputing.com>
+Date: Wed, 28 Apr 2021 22:59:15 +0700
+Subject: [PATCH] amperecpu: Support "PresenceGpio" option
+
+ADCSensor daemon supports actiavate/deactivate the sensors which use
+the CPU power domain. These behaviors is based on the installation
+status of that CPU and "RequiredCPU" option in the sensors. ADCSensor
+daemon uses Present property of the /system/chassis/motherboard/CPU_*
+dbus interface to identify the CPU installation status. In Ampere
+platforms, the ADC sensors with the prefix "S1_*" require the CPU2.
+They should be hidden when CPU2 is absented.
+
+In Ampere platforms, the GPIO interface is used to identify the CPU
+installation status. In the CPU configuration, "PresenceGpio" option
+will declare the GPIO pin and the logic of that pin which will be
+applied when the CPU is installed.
+
+This commit supports "PresenceGpio" in Ampere CPU daemon and update
+the Present property of the /system/chassis/motherboard/CPU_* dbus
+interface. This property is based on the status of the configured GPIO
+pin.
+
+Tested:
+    1. Add PresenceGpio option in CPU2 configuration.
+    2. The CPU_2 Present dbus property should be False when that CPU
+       is not installed.
+    3. The ADC sensors which require CPU2 should be hidden.
+
+Signed-off-by: Thu Nguyen <thu@os.amperecomputing.com>
+Change-Id: I0fff02223003e84d15cac7bf519489aa2a6a226a
+---
+ include/AmpereCPU.hpp | 74 ++++++++++++++++++++++++++++++++++++++++++-
+ src/AmpereCPUMain.cpp | 23 ++++++++++++++
+ src/meson.build       |  1 +
+ 3 files changed, 97 insertions(+), 1 deletion(-)
+
+diff --git a/include/AmpereCPU.hpp b/include/AmpereCPU.hpp
+index 04f24c2..c50db1c 100644
+--- a/include/AmpereCPU.hpp
++++ b/include/AmpereCPU.hpp
+@@ -2,7 +2,7 @@
+ 
+ #include <Thresholds.hpp>
+ #include <boost/asio/random_access_file.hpp>
+-#include <sdbusplus/asio/object_server.hpp>
++#include <gpiod.hpp>
+ #include <sensor.hpp>
+ 
+ #include <array>
+@@ -57,3 +57,75 @@ class AmpereCPUProperty
+     double minReading;
+     double sensorScaleFactor;
+ };
++
++// this is added to AmpereCPU.hpp to avoid having every sensor have to link
++// against libgpiod, if another sensor needs it we may move it to utils
++inline bool cpuPresence(const SensorData& sensorData)
++{
++    std::string gpioName;
++    bool activeHigh = true;
++    bool matchedPresenceGpio = false;
++
++    for (const SensorBaseConfiguration& suppConfig : sensorData)
++    {
++        if (suppConfig.first.find("PresenceGpio") == std::string::npos)
++        {
++            continue;
++        }
++        auto findName = suppConfig.second.find("Name");
++        if (findName == suppConfig.second.end())
++        {
++            std::cerr << "No name defined\n";
++            return false;
++        }
++
++        gpioName = std::visit(VariantToStringVisitor(), findName->second);
++        if (gpioName.empty())
++        {
++            std::cerr << "No PresenceGpio Name setting.\n";
++            return false;
++        }
++
++        auto findPolarity = suppConfig.second.find("Polarity");
++        if (findPolarity == suppConfig.second.end())
++        {
++            std::cerr << "No PresenceGpio Polarity setting.\n";
++            return false;
++        }
++
++        if (std::string("Low") ==
++            std::visit(VariantToStringVisitor(), findPolarity->second))
++        {
++            activeHigh = false;
++        }
++        matchedPresenceGpio = true;
++        break;
++    }
++    /* Set CPU presence to true for soc don't have PresenceGpio setting */
++    if (!matchedPresenceGpio)
++    {
++        return true;
++    }
++
++    auto line = gpiod::find_line(gpioName);
++    if (!line)
++    {
++        std::cerr << "Error requesting gpio: " << gpioName << "\n";
++        return false;
++    }
++
++    bool resp = false;
++    try
++    {
++        line.request({"socsensor", gpiod::line_request::DIRECTION_INPUT,
++                      activeHigh ? 0 : gpiod::line_request::FLAG_ACTIVE_LOW});
++        resp = (line.get_value() != 0);
++    }
++    catch (std::system_error&)
++    {
++        std::cerr << "Error reading gpio: " << gpioName << "\n";
++        return false;
++    }
++
++    return resp;
++}
+\ No newline at end of file
+diff --git a/src/AmpereCPUMain.cpp b/src/AmpereCPUMain.cpp
+index 23fe017..910b184 100644
+--- a/src/AmpereCPUMain.cpp
++++ b/src/AmpereCPUMain.cpp
+@@ -46,6 +46,9 @@ static boost::container::flat_map<std::string, std::shared_ptr<AmpereCPUSensor>>
+ static boost::container::flat_map<std::string, std::string> sensorTable;
+ static boost::container::flat_map<std::string, AmpereCPUProperty> propMatch;
+ static std::vector<AmpereCPUProperty> socProperties;
++static boost::container::flat_map<
++    std::string, std::shared_ptr<sdbusplus::asio::dbus_interface>>
++    inventoryIfaces;
+ static std::regex i2cDevRegex(R"((\d+)-([a-fA-F0-9]+))");
+ static bool createdSensors = false;
+ 
+@@ -382,6 +385,22 @@ static bool matchAndCreateSensor(
+     return true;
+ }
+ 
++void addSoCInventory(sdbusplus::asio::object_server& objectServer,
++                     const std::string& name, bool present)
++{
++    std::string socName = std::regex_replace(name, illegalDbusRegex, "_");
++    if (inventoryIfaces.find(socName) == inventoryIfaces.end())
++    {
++        auto iface = objectServer.add_interface(
++            cpuInventoryPath + std::string("/") + socName,
++            "xyz.openbmc_project.Inventory.Item");
++        iface->register_property("PrettyName", socName);
++        iface->register_property("Present", present);
++        iface->initialize();
++        inventoryIfaces[socName] = std::move(iface);
++    }
++}
++
+ static bool parseSensorConfig(
+     boost::asio::io_service& io, sdbusplus::asio::object_server& objectServer,
+     std::shared_ptr<sdbusplus::asio::connection>& dbusConnection,
+@@ -403,6 +422,10 @@ static bool parseSensorConfig(
+         return false;
+     }
+ 
++    addSoCInventory(objectServer,
++                    std::visit(VariantToStringVisitor(), findSOCName->second),
++                    cpuPresence(sensorData));
++
+     if (!findFiles(directory, R"(\w\d+_input$)", sensorPaths, 0))
+     {
+         std::cerr << "No SOC non-label sensor in SOC\n";
+diff --git a/src/meson.build b/src/meson.build
+index 39b7c93..e3e6ade 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -185,6 +185,7 @@ if get_option('ampere-cpu').enabled()
+         'AmpereCPU.cpp',
+         'AmpereCPUMain.cpp',
+         dependencies: [
++            gpiodcxx,
+             sdbusplus,
+         ],
+         cpp_args: uring_args,
+-- 
+2.17.1
+
