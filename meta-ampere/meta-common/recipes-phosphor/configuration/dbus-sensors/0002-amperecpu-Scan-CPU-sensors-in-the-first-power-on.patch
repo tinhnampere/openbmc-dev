@@ -1,0 +1,77 @@
+From 01a943a378c1f2177a67fd92a3ca59ee60b16eef Mon Sep 17 00:00:00 2001
+From: ThuBaNguyen <thu@os.amperecomputing.com>
+Date: Fri, 30 Apr 2021 22:45:20 +0700
+Subject: [PATCH 2/5] amperecpu: Scan CPU sensors in the first power on
+
+The Altra SMPro-hwmon driver is probed when BMC boot up, but it is
+only binded when the host is Running. This causes the CPU sensor paths
+are not available when the bmc boots up with the host is off. The
+Ampere CPU daemon will not create any host sensor dbus objects.
+
+In the first power on time of the host, when the CurrentHostState
+powered is "...HostState.Running", the SMPro-hwmon drivers are binded.
+The host sensors paths are created. The AmpereSoc daemon will scan the
+CPU sensor paths and create the host sensor dbus objects.
+
+Tested:
+    1. Boot up the openbmc with the host is off.
+    2. Object xyz.openbmc_project.AmpereCPUSensor should be empty.
+    3. Turn on the host, wait for the Running state of the host.
+    4. The xyz.openbmc_project.AmpereCPUSensor Dbus interface will
+       list the CPU sensors.
+
+Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
+Change-Id: I305d600c16d58fe5c44c72fc2452c26910d64393
+---
+ src/AmpereCPUMain.cpp | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/src/AmpereCPUMain.cpp b/src/AmpereCPUMain.cpp
+index 55b8b09..8704689 100644
+--- a/src/AmpereCPUMain.cpp
++++ b/src/AmpereCPUMain.cpp
+@@ -594,6 +594,41 @@ int main()
+         eventHandler);
+     matches.emplace_back(std::move(matchPropChanged));
+ 
++    std::function<void(sdbusplus::message::message&)> hostStateHandler =
++        [&](sdbusplus::message::message& message) {
++            std::string objectName;
++            boost::container::flat_map<std::string, std::variant<std::string>>
++                values;
++            if (message.is_method_error())
++            {
++                std::cerr << "callback method error\n";
++                return;
++            }
++
++            message.read(objectName, values);
++            auto findState = values.find(power::property);
++            if (findState == values.end())
++            {
++                return;
++            }
++
++            if (std::get<std::string>(findState->second) !=
++                "xyz.openbmc_project.State.Host.HostState.Running")
++            {
++                return;
++            }
++
++            createSensors(io, objectServer, systemBus);
++        };
++
++    auto matchHostState = std::make_unique<sdbusplus::bus::match::match>(
++        static_cast<sdbusplus::bus::bus&>(*systemBus),
++        "type='signal',interface='" + std::string(properties::interface) +
++            "',path='" + std::string(power::path) + "',arg0='" +
++            std::string(power::interface) + "'",
++        hostStateHandler);
++    matches.emplace_back(std::move(matchHostState));
++
+     io.run();
+ 
+     return 0;
+-- 
+2.25.1
+
