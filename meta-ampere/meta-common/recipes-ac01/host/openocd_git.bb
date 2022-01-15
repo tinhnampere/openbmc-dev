@@ -1,13 +1,12 @@
 SUMMARY = "Free and Open On-Chip Debugging, In-System Programming and Boundary-Scan Testing"
 LICENSE = "GPLv2"
-LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
+LIC_FILES_CHKSUM = "file://COPYING;md5=599d2d1ee7fc84c0467b3d19801db870"
 DEPENDS = "libusb-compat libftdi"
 RDEPENDS_${PN} = "libusb1"
 
 #Remote Git Repository
-SRC_URI = "git://github.com/AmpereComputing/ampere-openocd.git;protocol=https"
-SRCREV = "48b4d06598991b07165111a6ad5a3293e4579212"
-
+SRC_URI = "git://github.com/AmpereComputing/ampere-openocd.git;protocol=https;branch=ampere_openocd_v1.3.0"
+SRCREV = "564bfadcc04c1b3a8c8e862160292a046b4b6fe0"
 S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools-brokensep gettext
@@ -15,9 +14,6 @@ inherit pkgconfig autotools-brokensep gettext
 BBCLASSEXTEND += "native nativesdk"
 
 EXTRA_OECONF = "--disable-doxygen-html"
-
-FILESEXTRAPATHS:append_mtjade := "${THISDIR}/${PN}:"
-SRC_URI += " file://0001-Fix-compilation-error-on-new-OpenBMC-codebase.patch"
 
 do_configure() {
     ./bootstrap
