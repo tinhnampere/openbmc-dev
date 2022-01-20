@@ -1,0 +1,14 @@
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+SRC_URI += " \
+            file://mt_mitchell_mb.json \
+            file://mt_mitchell_bmc.json \
+            file://blacklist.json \
+           "
+
+do_install:append() {
+     install -d ${D}${datadir}/${PN}
+     install -m 0444 ${WORKDIR}/blacklist.json ${D}${datadir}/${PN}
+     install -d ${D}${datadir}/${PN}/configurations
+     install -m 0444 ${WORKDIR}/mt_mitchell_mb.json ${D}${datadir}/${PN}/configurations
+     install -m 0444 ${WORKDIR}/mt_mitchell_bmc.json ${D}${datadir}/${PN}/configurations
+}
