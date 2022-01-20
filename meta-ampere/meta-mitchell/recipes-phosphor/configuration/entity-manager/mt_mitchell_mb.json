@@ -1,0 +1,2146 @@
+[
+    {
+        "Exposes": [
+            {
+                "Class": "Hwmon",
+                "Name": "Chassis_Intrusion_Status",
+                "Input": "intrusion0_alarm",
+                "ReArm": "Manual",
+                "Type": "ChassisIntrusionSensor"
+            },
+            {
+                "PowerState": "On",
+                "Index": 0,
+                "Name": "S0_0V8_D2D",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 0.99
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.92
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.64
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.72
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "On",
+                "Index": 1,
+                "Name": "S1_0V8_D2D",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 0.99
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.92
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.64
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.72
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 2,
+                "Name": "S0_0V85_SOC",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.05
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.95
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.68
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.765
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 3,
+                "Name": "S1_0V85_SOC",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.05
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.95
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.68
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.765
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 4,
+                "Name": "S0_0V85_RC_DDR0",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.085
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.97
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.68
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.765
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 5,
+                "Name": "S1_0V85_RC_DDR0",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.085
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.97
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.68
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.765
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 6,
+                "Name": "S0_0V85_RC_DDR1",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.085
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.97
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.68
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.765
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 7,
+                "Name": "S1_0V85_RC_DDR1",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.085
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.97
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.68
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.765
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 8,
+                "Name": "S0_0V9_RC5A",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.115
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.005
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.72
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.81
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 9,
+                "Name": "S1_0V9_RC5A",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.115
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.005
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.72
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.81
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 10,
+                "Name": "S0_1V8_RC5A",
+                "PollRate": 1,
+                "ScaleFactor": 0.75,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 2.23
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 2.01
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.62
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 11,
+                "Name": "S1_1V8_RC5A",
+                "PollRate": 1,
+                "ScaleFactor": 0.75,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 2.23
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 2.01
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.62
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 12,
+                "Name": "S0_1V2_SOC",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.488
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.344
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.96
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.08
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 13,
+                "Name": "S1_1V2_SOC",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.488
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.344
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.96
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.08
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "On",
+                "Index": 14,
+                "Name": "S0_EXT_VREF",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 0.865
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.78
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.56
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.63
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "On",
+                "Index": 15,
+                "Name": "S1_EXT_VREF",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 0.865
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 0.78
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.56
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.63
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 16,
+                "Name": "S0_1V1_VDDQ4567",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.362
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.224
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.876
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.99
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 17,
+                "Name": "S1_1V1_VDDQ4567",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.362
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.224
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.876
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.99
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 18,
+                "Name": "S0_1V8_SOC",
+                "PollRate": 1,
+                "ScaleFactor": 0.75,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 2.23
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 2.01
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.62
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 19,
+                "Name": "S1_1V8_SOC",
+                "PollRate": 1,
+                "ScaleFactor": 0.75,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 2.23
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 2.01
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.62
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "On",
+                "Index": 20,
+                "Name": "S0_0V75_PCP",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.365
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.232
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.581
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.658
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "On",
+                "Index": 21,
+                "Name": "S1_0V75_PCP",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.365
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.232
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.581
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.658
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 22,
+                "Name": "S0_1V1_VDDQ0123",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.362
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.224
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.876
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.99
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 23,
+                "Name": "S1_1V1_VDDQ0123",
+                "PollRate": 1,
+                "ScaleFactor": 1,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.362
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.224
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.876
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.99
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "BridgeGpio": [
+                    {
+                        "Name": "rtc-battery-voltage-read-enable",
+                        "Polarity": "High"
+                    }
+                ],
+                "PowerState": "ChassisOn",
+                "Index": 24,
+                "Name": "VBAT_RTC",
+                "PollRate": 1,
+                "ScaleFactor": 0.3333,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 4.086
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 3.672
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 2.376
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 2.682
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 25,
+                "Name": "12V_SB",
+                "PollRate": 1,
+                "ScaleFactor": 0.1129,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 26,
+                "Name": "12V_S0",
+                "PollRate": 1,
+                "ScaleFactor": 0.1129,
+                "CPURequired": 1,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 27,
+                "Name": "12V_S1",
+                "PollRate": 1,
+                "ScaleFactor": 0.1129,
+                "CPURequired": 2,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 28,
+                "Name": "3V3_SB",
+                "PollRate": 1,
+                "ScaleFactor": 0.4118,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 4.086
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 3.672
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 2.628
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 2.97
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 29,
+                "Name": "3V3",
+                "PollRate": 1,
+                "ScaleFactor": 0.4118,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 4.086
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 3.672
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 2.628
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 2.97
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 30,
+                "Name": "5V",
+                "PollRate": 1,
+                "ScaleFactor": 0.2703,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 6.183
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 5.589
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 3.996
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 4.482
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 31,
+                "Name": "5V_SB",
+                "PollRate": 1,
+                "ScaleFactor": 0.2703,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 6.183
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 5.589
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 3.996
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 4.482
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 32,
+                "Name": "3V3_OCP0_SB",
+                "ScaleFactor": 0.4118,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 4.086
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 3.672
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 2.628
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 2.97
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 33,
+                "Name": "12V_OCP1_SB",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 34,
+                "Name": "3V3_OCP1_SB",
+                "ScaleFactor": 0.4118,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 4.086
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 3.672
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 2.628
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 2.97
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 35,
+                "Name": "12V_HDD",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 36,
+                "Name": "12V_FAN",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 37,
+                "Name": "12V_PCIe",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 38,
+                "Name": "12V_NIC_SB",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 39,
+                "Name": "12V_GPU0",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 40,
+                "Name": "12V_GPU1",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 41,
+                "Name": "12V_GPU2",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 42,
+                "Name": "1V8_SB",
+                "ScaleFactor": 0.75,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 2.23
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 2.01
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.62
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 43,
+                "Name": "12V_OCP0_SB",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 14.88
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 13.44
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 9.6
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 10.8
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 44,
+                "Name": "1V05_SB",
+                "ScaleFactor": 0.9971,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.302
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.17
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 0.84
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 0.942
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 45,
+                "Name": "1V25_SB",
+                "ScaleFactor": 0.9968,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 1.544
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 1.392
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 1.12
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 46,
+                "Name": "3V3_M2",
+                "ScaleFactor": 0.4118,
+                "PollRate": 10,
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 4.086
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper non critical",
+                        "Severity": 0,
+                        "Value": 3.672
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 2.628
+                    },
+                    {
+                        "Direction": "less than",
+                        "Name": "lower non critical",
+                        "Severity": 0,
+                        "Value": 2.97
+                    }
+                ],
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "ChassisOn",
+                "Index": 47,
+                "Name": "12V_HDD_I",
+                "ScaleFactor": 0.1129,
+                "PollRate": 10,
+                "Type": "ADC"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 0,
+                    "PwmName": "PWM0"
+                },
+                "Index": 0,
+                "MaxReading": 23100,
+                "Name": "FAN5_F",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 0,
+                    "PwmName": "PWM0"
+                },
+                "Index": 1,
+                "MaxReading": 23100,
+                "Name": "FAN5_R",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 1,
+                    "PwmName": "PWM1"
+                },
+                "Index": 2,
+                "MaxReading": 23100,
+                "Name": "FAN4_F",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 1,
+                    "PwmName": "PWM1"
+                },
+                "Index": 3,
+                "MaxReading": 23100,
+                "Name": "FAN4_R",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 3,
+                    "PwmName": "PWM3"
+                },
+                "Index": 6,
+                "MaxReading": 23100,
+                "Name": "FAN3_F",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 3,
+                    "PwmName": "PWM3"
+                },
+                "Index": 7,
+                "MaxReading": 23100,
+                "Name": "FAN3_R",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 4,
+                    "PwmName": "PWM4"
+                },
+                "Index": 8,
+                "MaxReading": 23100,
+                "Name": "FAN2_F",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 4,
+                    "PwmName": "PWM4"
+                },
+                "Index": 9,
+                "MaxReading": 23100,
+                "Name": "FAN2_R",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 5,
+                    "PwmName": "PWM5"
+                },
+                "Index": 10,
+                "MaxReading": 23100,
+                "Name": "FAN1_F",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 5,
+                    "PwmName": "PWM5"
+                },
+                "Index": 11,
+                "MaxReading": 23100,
+                "Name": "FAN1_R",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 7,
+                    "PwmName": "PWM7"
+                },
+                "Index": 14,
+                "MaxReading": 23100,
+                "Name": "FAN0_F",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "PowerState": "On",
+                "Connector": {
+                    "Pwm": 7,
+                    "PwmName": "PWM7"
+                },
+                "Index": 15,
+                "MaxReading": 23100,
+                "Name": "FAN0_R",
+                "Thresholds": [
+                    {
+                        "Direction": "less than",
+                        "Name": "lower critical",
+                        "Severity": 1,
+                        "Value": 1900
+                    },
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 24900
+                    }
+                ],
+                "Type": "AspeedFan"
+            },
+            {
+                "Address": "0x48",
+                "Bus": 20,
+                "Name": "OutletTemp1",
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x49",
+                "Bus": 20,
+                "Name": "Psu1InletTemp2",
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 55
+                    }
+                ],
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x48",
+                "Bus": 21,
+                "Name": "PcieZoneTemp1",
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x49",
+                "Bus": 21,
+                "Name": "Psu0InletTemp2",
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 55
+                    }
+                ],
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x48",
+                "Bus": 22,
+                "Name": "PcieZoneTemp2",
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x49",
+                "Bus": 22,
+                "Name": "OutletTemp2",
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x7c",
+                "Bus": 23,
+                "Name": "MBInletTemp1",
+                "Name1": "SysCabInletTemp",
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 65
+                    },
+                    {
+                        "Index": 2,
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 65
+                    }
+                ],
+                "Type": "EMC1413"
+            },
+            {
+                "Address": "0x4c",
+                "Bus": 23,
+                "Name": "MBInletTemp2",
+                "Name1": "S0_THDIODE_Temp",
+                "Name2": "S1_THDIODE_Temp",
+                "Thresholds": [
+                    {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 65
+                    }
+                ],
+                "Type": "EMC1413"
+            },
+            {
+                "Address": "0x1f",
+                "Bus": 30,
+                "Name": "OCP1_Local_Temp",
+                "Name1": "OCP1_Temp",
+                "Type": "TMP421"
+            },
+            {
+                "Address": "0x1f",
+                "Bus": 31,
+                "Name": "OCP2_Local_Temp",
+                "Name1": "OCP2_Temp",
+                "Type": "TMP421"
+            },
+            {
+                "Address": "0x4c",
+                "Bus": 81,
+                "Name": "RearBPTemp1",
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x4c",
+                "Bus": 83,
+                "Name": "RearBPTemp2",
+                "Type": "TMP75"
+            },
+            {
+                "Address": "0x6a",
+                "Bus": 80,
+                "Name": "m2nvme0",
+                "Type": "NVME1000"
+            },
+            {
+                "Address": "0x6a",
+                "Bus": 81,
+                "Name": "m2nvme1",
+                "Type": "NVME1000"
+            },
+            {
+                "Address": "0x58",
+                "Bus": 2,
+                "Labels": [
+                    "temp1",
+                    "fan1",
+                    "pin",
+                    "pout1",
+                    "vin",
+                    "vout1",
+                    "iin",
+                    "iout1"
+                ],
+                "Name": "PSU0",
+                "PollRate": 10,
+                "Type": "pmbus",
+                "fan1_Name": "PSU0_fan1",
+                "iin_Name": "PSU0_IINPUT",
+                "iout1_Name": "PSU0_IOUTPUT",
+                "pin_Name": "PSU0_PINPUT",
+                "pout1_Name": "PSU0_POUTPUT",
+                "temp1_Name": "PSU0_TEMP",
+                "vin_Name": "PSU0_VINPUT",
+                "vout1_Name": "PSU0_VOUTPUT"
+            },
+            {
+                "Address": "0x59",
+                "Bus": 2,
+                "Labels": [
+                    "temp1",
+                    "fan1",
+                    "pin",
+                    "pout1",
+                    "vin",
+                    "vout1",
+                    "iin",
+                    "iout1"
+                ],
+                "Name": "PSU1",
+                "PollRate": 10,
+                "Type": "pmbus",
+                "fan1_Name": "PSU1_fan1",
+                "iin_Name": "PSU1_IINPUT",
+                "iout1_Name": "PSU1_IOUTPUT",
+                "pin_Name": "PSU1_PINPUT",
+                "pout1_Name": "PSU1_POUTPUT",
+                "temp1_Name": "PSU1_TEMP",
+                "vin_Name": "PSU1_VINPUT",
+                "vout1_Name": "PSU1_VOUTPUT"
+            }
+        ],
+        "Name": "Mt.Mitchell_Motherboard",
+        "Probe": [
+            "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'MB'})",
+            "AND",
+            "FOUND('Mt.Mitchell_BMC')"
+        ],
+        "Type": "Board",
+        "xyz.openbmc_project.Common.UUID": {
+            "UUID": "$MULTIRECORD_UUID"
+        },
+        "xyz.openbmc_project.Inventory.Decorator.Asset": {
+            "Manufacturer": "$BOARD_MANUFACTURER",
+            "Model": "$BOARD_PRODUCT_NAME",
+            "PartNumber": "$BOARD_PART_NUMBER",
+            "SerialNumber": "$BOARD_SERIAL_NUMBER"
+        }
+    }
+]
+
