@@ -1,0 +1,54 @@
+From 468a7ccab8b51f555e5dd9844ca60a5ac9b9d96a Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Tue, 8 Feb 2022 09:46:21 +0700
+Subject: [PATCH] discover-system: set requested state to off when
+ power_policy=AlwaysOff
+
+Issue:
+Step 1. Set the power policy to "always-on" then turn off/on the chassis
+power, HOST shall be turned on after BMC has been rebooted.
+Step 2. Set the power policy to "always-off" then turn off/on the chassis
+power, HOST shall be turned off after BMC has been rebooted.
+Step 3. Set the power policy to "previous" then turn off/on the chassis
+power then wait until BMC has been rebooted.
+Expect: At step 3, HOST should be turned off due to BMC did not turn on
+HOST in step 2.
+Actual: At step 3, HOST is turned on.
+
+Root cause: In step 1, BMC updated the requested state to "On". But in
+step 2, BMC did not change the requested state to "Off", it still is "On".
+Therefore, in step 3, when BMC checks the requested state (it is being
+"On"), it shall turn on the HOST.
+
+Solution: When power policy is "always off", set the requested state
+to "Off".
+
+Test:
+        Repeat 3 above steps, at step 3, HOST state is "Off".
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+---
+ discover_system_state.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/discover_system_state.cpp b/discover_system_state.cpp
+index 446959d..a8d8af4 100644
+--- a/discover_system_state.cpp
++++ b/discover_system_state.cpp
+@@ -209,6 +209,13 @@ int main(int argc, char** argv)
+             setProperty(bus, hostPath, HOST_BUSNAME, "RequestedHostTransition",
+                         convertForMessage(server::Host::Transition::On));
+         }
++        else if (RestorePolicy::Policy::AlwaysOff ==
++            RestorePolicy::convertPolicyFromString(powerPolicy))
++        {
++            info("power_policy=ALWAYS_POWER_OFF, set requested state to off");
++            setProperty(bus, hostPath, HOST_BUSNAME, "RequestedHostTransition",
++                        convertForMessage(server::Host::Transition::Off));
++        }
+         else if (RestorePolicy::Policy::Restore ==
+                  RestorePolicy::convertPolicyFromString(powerPolicy))
+         {
+-- 
+2.30.0
+

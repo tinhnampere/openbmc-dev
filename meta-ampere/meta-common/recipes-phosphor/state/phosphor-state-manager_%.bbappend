@@ -11,4 +11,5 @@ SRC_URI += " \
              file://0001-Limit-power-actions-when-the-host-is-off.patch \
              file://0002-Support-checking-host-status-via-GPIO-pins.patch \
              file://0003-remove-throwing-exception-when-calling-Dbus-method-i.patch \
+             file://0004-discover-system-set-requested-state-to-off-when-powe.patch \
            "
