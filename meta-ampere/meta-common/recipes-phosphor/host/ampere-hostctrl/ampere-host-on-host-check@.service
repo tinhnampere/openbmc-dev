@@ -10,4 +10,4 @@ ConditionPathExists=!/run/openbmc/host@%i-on
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/ampere_host_check.sh 1 0
+ExecStart=/usr/sbin/ampere_host_check.sh

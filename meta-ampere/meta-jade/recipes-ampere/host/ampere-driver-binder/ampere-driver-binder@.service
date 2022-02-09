@@ -1,8 +1,0 @@
-[Unit]
-Description=Bind SMPro drivers after obmc-host-startmin
-Wants=obmc-host-started@%i.target
-After=obmc-host-started@%i.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/sbin/ampere_driver_binder.sh
