@@ -2,20 +2,12 @@
 
 DELAY_BEFORE_BIND=5000000
 # Each driver include driver name and driver path
-declare -a DRIVER_NAMEs=("1e78a0c0.i2c-bus:smpro@4f:hwmon"
-                         "1e78a0c0.i2c-bus:smpro@4e:hwmon"
-                         "1e78a0c0.i2c-bus:smpro@4f:errmon"
-                         "1e78a0c0.i2c-bus:smpro@4e:errmon"
-                         "1e78a0c0.i2c-bus:smpro@4f:misc"
-                         "1e78a0c0.i2c-bus:smpro@4e:misc"
+declare -a DRIVER_NAMEs=("2-004f"
+                         "2-004e"
                         )
 # Driver path should include / at the end
-declare -a DRIVER_PATHs=("/sys/bus/platform/drivers/smpro-hwmon/"
-                         "/sys/bus/platform/drivers/smpro-hwmon/"
-                         "/sys/bus/platform/drivers/smpro-errmon/"
-                         "/sys/bus/platform/drivers/smpro-errmon/"
-                         "/sys/bus/platform/drivers/smpro-misc/"
-                         "/sys/bus/platform/drivers/smpro-misc/"
+declare -a DRIVER_PATHs=("/sys/bus/i2c/drivers/smpro-mfd-i2c/"
+                         "/sys/bus/i2c/drivers/smpro-mfd-i2c/"
                         )
 
 # get length of an array
