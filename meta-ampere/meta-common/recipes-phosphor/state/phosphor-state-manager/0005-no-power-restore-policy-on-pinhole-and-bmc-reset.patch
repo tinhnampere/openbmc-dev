@@ -1,0 +1,69 @@
+From 1187a09431542d75c9b85c36d45547c809d02940 Mon Sep 17 00:00:00 2001
+From: Andrew Geissler <geissonator@yahoo.com>
+Date: Wed, 26 Jan 2022 14:45:10 -0600
+Subject: [PATCH] no power restore policy on pinhole and bmc reset
+
+If the user initiated a BMC reboot via the pinhole reset then do not run
+the power restore policy. The pinhole reset is mostly used in debug
+situations where a system is having issues. Disabling the power restore
+logic helps keep debug simpler.
+
+Tested:
+- The overall pinhole reset logic has not been tested on hardware.
+- A variety of tests were done within simulation to validate the
+  different paths in this series of patches
+- Full end to end testing will occur once all function is in place due
+  to the complexities of physically toggling the pinhole reset
+
+Signed-off-by: Andrew Geissler <geissonator@yahoo.com>
+Change-Id: Ia656b4872620b6a1fc6ba8f82c01f041d43378a2
+---
+ discover_system_state.cpp                      | 18 ++++++++++++++++++
+ .../phosphor-discover-system-state@.service    |  2 ++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/discover_system_state.cpp b/discover_system_state.cpp
+index f638561..7912d06 100644
+--- a/discover_system_state.cpp
++++ b/discover_system_state.cpp
+@@ -156,6 +156,24 @@ int main(int argc, char** argv)
+ 
+     // This application is only run if chassis power is off
+ 
++    // If the BMC was rebooted due to a user initiated pinhole reset, do not
++    // implement any power restore policies
++    auto bmcRebootCause = getProperty(
++        bus, "/xyz/openbmc_project/state/bmc0", BMC_BUSNAME, "LastRebootCause");
++    if (bmcRebootCause ==
++        "xyz.openbmc_project.State.BMC.RebootCause.PinholeReset")
++    {
++        info(
++            "BMC was reset due to pinhole reset, no power restore policy will be run");
++        return 0;
++     } else if (bmcRebootCause ==
++        "xyz.openbmc_project.State.BMC.RebootCause.Watchdog")
++    {
++        info(
++            "BMC was reset due to soft reset, no power restore policy will be run");
++        return 0;
++    }
++
+     /* The logic here is to first check the one-time PowerRestorePolicy setting.
+      * If this property is not the default then look at the persistent
+      * user setting in the non one-time object, otherwise honor the one-time
+diff --git a/service_files/phosphor-discover-system-state@.service b/service_files/phosphor-discover-system-state@.service
+index 6b966f0..4fbb186 100644
+--- a/service_files/phosphor-discover-system-state@.service
++++ b/service_files/phosphor-discover-system-state@.service
+@@ -6,6 +6,8 @@ Wants=mapper-wait@-xyz-openbmc_project-state-host%i.service
+ After=mapper-wait@-xyz-openbmc_project-state-host%i.service
+ Wants=mapper-wait@-xyz-openbmc_project-state-chassis%i.service
+ After=mapper-wait@-xyz-openbmc_project-state-chassis%i.service
++Wants=mapper-wait@-xyz-openbmc_project-state-bmc%i.service
++After=mapper-wait@-xyz-openbmc_project-state-bmc%i.service
+ After=op-reset-chassis-on@%i.service
+ ConditionPathExists=!/run/openbmc/chassis@%i-on
+ 
+-- 
+2.25.1
+
