@@ -22,9 +22,6 @@ do
 		then
 			ampere_driver_binder.sh
 		fi
-		mkdir -p /run/openbmc
-		echo "Creating /run/openbmc/host@0-on"
-		touch /run/openbmc/host@0-on
 		exit 0
 	fi
 	sleep 1

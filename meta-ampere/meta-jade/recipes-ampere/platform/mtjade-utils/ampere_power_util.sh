@@ -75,7 +75,6 @@ force_reset() {
       exit 0
     fi
   fi
-  rm -f /run/openbmc/host@0-on
   echo "Triggering sysreset pin"
   gpioset -l $GPIO_CHIP0_IDX $S0_SYSRESET_L=1
   sleep 1
