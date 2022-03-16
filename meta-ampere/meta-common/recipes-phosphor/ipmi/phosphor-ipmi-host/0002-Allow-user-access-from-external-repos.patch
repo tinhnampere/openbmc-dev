@@ -1,0 +1,28 @@
+From 08b465c8ba180f6775d9e02f6e3a7052d8c278bc Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieu.huynh@amperecomputing.com>
+Date: Fri, 24 Jun 2022 10:14:01 +0000
+Subject: [PATCH 2/6] Allow user access from external repos
+
+This commit adds the user_mgmt.hpp to Makefile.am file for access
+from external.
+
+Signed-off-by: Hieu Huynh <hieu.huynh@amperecomputing.com>
+---
+ transporthandler.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/transporthandler.hpp b/transporthandler.hpp
+index 961aae9..b90b519 100644
+--- a/transporthandler.hpp
++++ b/transporthandler.hpp
+@@ -2,6 +2,7 @@
+ 
+ #include "app/channel.hpp"
+ #include "user_channel/cipher_mgmt.hpp"
++#include "user_channel/user_mgmt.hpp"
+ 
+ #include <arpa/inet.h>
+ #include <netinet/ether.h>
+-- 
+2.34.1
+
