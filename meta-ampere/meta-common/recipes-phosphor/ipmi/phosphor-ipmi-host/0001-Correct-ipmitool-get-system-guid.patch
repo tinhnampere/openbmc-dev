@@ -1,0 +1,41 @@
+From f3cd4ce233ec2b706bde792e7c76e413614cc782 Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Fri, 24 Jun 2022 10:10:42 +0000
+Subject: [PATCH 1/8] Correct ipmitool get system guid
+
+The IPMI get System GUID command is implemented by reading data from the
+Dbus object. Currently, the object data from the getDbusObject() function
+is incorrect because the wrong interface argument that causes the issue
+the UUID is incorrect. This commit correct the interface argument of the
+getDbusObject() function to fix the issue.
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ apphandler.cpp | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/apphandler.cpp b/apphandler.cpp
+index 8e47288..d0d77f8 100644
+--- a/apphandler.cpp
++++ b/apphandler.cpp
+@@ -843,8 +843,6 @@ auto ipmiAppGetBtCapabilities()
+ 
+ auto ipmiAppGetSystemGuid() -> ipmi::RspType<std::array<uint8_t, 16>>
+ {
+-    static constexpr auto bmcInterface =
+-        "xyz.openbmc_project.Inventory.Item.Bmc";
+     static constexpr auto uuidInterface = "xyz.openbmc_project.Common.UUID";
+     static constexpr auto uuidProperty = "UUID";
+ 
+@@ -853,7 +851,7 @@ auto ipmiAppGetSystemGuid() -> ipmi::RspType<std::array<uint8_t, 16>>
+     {
+         // Get the Inventory object implementing BMC interface
+         auto busPtr = getSdBus();
+-        auto objectInfo = ipmi::getDbusObject(*busPtr, bmcInterface);
++        auto objectInfo = ipmi::getDbusObject(*busPtr, uuidInterface);
+ 
+         // Read UUID property value from bmcObject
+         // UUID is in RFC4122 format Ex: 61a39523-78f2-11e5-9862-e6402cfc3223
+-- 
+2.25.1
+
