@@ -1,0 +1,137 @@
+From 16a2fa58b23fa53fda052045e0cd414134513481 Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Fri, 24 Jun 2022 10:15:45 +0000
+Subject: [PATCH 2/5] Disable SDR and SEL ipmi commands in dynamic library
+
+Ampere's platforms are using SDR and SEL commands of libipmi20 library,
+it will disable SDR and SEL commands of Dynamic library, only enable FRU
+commands of Dynamic library.
+
+Tested:
+       1. Print FRU device
+          ipmitool fru print 0
+       2. Edit MAC address on the FRU device via ipmitool
+          ipmitool fru edit 0 field b 5 70:E2:84:86:76:C2
+       3. Reboot BMC, check new MAC address.
+          ip a
+       4. MAC address as step 2.
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+---
+ dbus-sdr/sensorcommands.cpp  |  2 ++
+ dbus-sdr/storagecommands.cpp |  3 +++
+ sensorhandler.cpp            |  7 -------
+ storagehandler.cpp           | 10 ++++------
+ 4 files changed, 9 insertions(+), 13 deletions(-)
+
+diff --git a/dbus-sdr/sensorcommands.cpp b/dbus-sdr/sensorcommands.cpp
+index 5a78ddb..1ca592a 100644
+--- a/dbus-sdr/sensorcommands.cpp
++++ b/dbus-sdr/sensorcommands.cpp
+@@ -2511,6 +2511,7 @@ ipmi::RspType<uint8_t,              // No of instances for requested id
+ 
+ void registerSensorFunctions()
+ {
++    if (false) {
+     // <Platform Event>
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnSensor,
+                           ipmi::sensor_event::cmdPlatformEvent,
+@@ -2589,5 +2590,6 @@ void registerSensorFunctions()
+                                ipmi::dcmi::cmdGetDcmiSensorInfo,
+                                ipmi::Privilege::User,
+                                ipmi::dcmi::getSensorInfo);
++    }
+ }
+ } // namespace ipmi
+diff --git a/dbus-sdr/storagecommands.cpp b/dbus-sdr/storagecommands.cpp
+index eeed777..82f691c 100644
+--- a/dbus-sdr/storagecommands.cpp
++++ b/dbus-sdr/storagecommands.cpp
+@@ -1298,6 +1298,8 @@ void registerStorageFunctions()
+                           ipmi::storage::cmdWriteFruData,
+                           ipmi::Privilege::Operator, ipmiStorageWriteFruData);
+ 
++    if (false)
++    {
+     // <Get SEL Info>
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnStorage,
+                           ipmi::storage::cmdGetSelInfo, ipmi::Privilege::User,
+@@ -1327,6 +1329,7 @@ void registerStorageFunctions()
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnStorage,
+                           ipmi::storage::cmdSetSelTime,
+                           ipmi::Privilege::Operator, ipmiStorageSetSELTime);
++    }
+ }
+ } // namespace storage
+ } // namespace ipmi
+diff --git a/sensorhandler.cpp b/sensorhandler.cpp
+index 30cee8b..174bf0d 100644
+--- a/sensorhandler.cpp
++++ b/sensorhandler.cpp
+@@ -1472,9 +1472,6 @@ ipmi_ret_t ipmicmdPlatformEvent(ipmi_netfn_t, ipmi_cmd_t,
+ void register_netfn_sen_functions()
+ {
+     // Handlers with dbus-sdr handler implementation.
+-    // Do not register the hander if it dynamic sensors stack is used.
+-
+-#ifndef FEATURE_DYNAMIC_SENSORS
+ 
+ #ifdef FEATURE_SENSORS_CACHE
+     // Initialize the sensor matches
+@@ -1514,10 +1511,6 @@ void register_netfn_sen_functions()
+     ipmi_register_callback(NETFUN_SENSOR, IPMI_CMD_GET_DEVICE_SDR, nullptr,
+                            ipmi_sen_get_sdr, PRIVILEGE_USER);
+ 
+-#endif
+-
+-    // Common Handers used by both implementation.
+-
+     // <Platform Event Message>
+     ipmi_register_callback(NETFUN_SENSOR, IPMI_CMD_PLATFORM_EVENT, nullptr,
+                            ipmicmdPlatformEvent, PRIVILEGE_OPERATOR);
+diff --git a/storagehandler.cpp b/storagehandler.cpp
+index 08fdda7..287ca55 100644
+--- a/storagehandler.cpp
++++ b/storagehandler.cpp
+@@ -873,9 +873,7 @@ void register_netfn_storage_functions()
+     selCacheMapInitialized = false;
+     initSELCache();
+     // Handlers with dbus-sdr handler implementation.
+-    // Do not register the hander if it dynamic sensors stack is used.
+ 
+-#ifndef FEATURE_DYNAMIC_SENSORS
+     // <Get SEL Info>
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnStorage,
+                           ipmi::storage::cmdGetSelInfo, ipmi::Privilege::User,
+@@ -910,6 +908,8 @@ void register_netfn_storage_functions()
+                           ipmi::storage::cmdClearSel, ipmi::Privilege::Operator,
+                           clearSEL);
+ 
++#ifndef FEATURE_DYNAMIC_SENSORS
++
+     // <Get FRU Inventory Area Info>
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnStorage,
+                           ipmi::storage::cmdGetFruInventoryAreaInfo,
+@@ -920,6 +920,8 @@ void register_netfn_storage_functions()
+                           ipmi::storage::cmdReadFruData,
+                           ipmi::Privilege::Operator, ipmiStorageReadFruData);
+ 
++#endif
++
+     // <Get Repository Info>
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnStorage,
+                           ipmi::storage::cmdGetSdrRepositoryInfo,
+@@ -934,10 +936,6 @@ void register_netfn_storage_functions()
+     ipmi_register_callback(NETFUN_STORAGE, IPMI_CMD_GET_SDR, nullptr,
+                            ipmi_sen_get_sdr, PRIVILEGE_USER);
+ 
+-#endif
+-
+-    // Common Handers used by both implementation.
+-
+     // <Reserve SEL>
+     ipmi::registerHandler(ipmi::prioOpenBmcBase, ipmi::netFnStorage,
+                           ipmi::storage::cmdReserveSel, ipmi::Privilege::User,
+-- 
+2.25.1
+

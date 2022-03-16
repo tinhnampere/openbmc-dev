@@ -1,0 +1,104 @@
+From 844f017ac41a83fdd4e5add7509a1b7712ba79a2 Mon Sep 17 00:00:00 2001
+From: "Thang Q. Nguyen" <thang@os.amperecomputing.com>
+Date: Wed, 16 Mar 2022 04:39:55 +0000
+Subject: [PATCH 4/5] Revert "Confirm presence of NIC devices described in
+ channel_config"
+
+The purpose of the commit 0a2abc8 is compares the LAN interfaces defined
+in the channel_config file with the LAN devices reported by the
+getifaddrs. If a LAN channel is described in the channel_config file but
+missing from the getifaddrs device list, the channel is marked as
+invalid.
+Currently, the getifaddrs does not list the usb0 interface in our
+system. It causes the issue the ipmitool lan print 3 does not work.
+This reverts commit 0a2abc803ffb4e01d10d4c9fb78475c3012df496 as
+temporary workaround to fix this issue
+---
+ user_channel/channel_mgmt.cpp | 36 ++---------------------------------
+ 1 file changed, 2 insertions(+), 34 deletions(-)
+
+diff --git a/user_channel/channel_mgmt.cpp b/user_channel/channel_mgmt.cpp
+index 7d3cf95..8fae78b 100644
+--- a/user_channel/channel_mgmt.cpp
++++ b/user_channel/channel_mgmt.cpp
+@@ -19,9 +19,7 @@
+ #include "apphandler.hpp"
+ #include "user_layer.hpp"
+ 
+-#include <ifaddrs.h>
+ #include <sys/stat.h>
+-#include <sys/types.h>
+ #include <unistd.h>
+ 
+ #include <boost/interprocess/sync/scoped_lock.hpp>
+@@ -933,15 +931,6 @@ int ChannelConfig::loadChannelConfig()
+ 
+     channelData.fill(ChannelProperties{});
+ 
+-    // Collect the list of NIC interfaces connected to the BMC. Use this
+-    // information to only add IPMI channels that have active NIC interfaces.
+-    struct ifaddrs *ifaddr = nullptr, *ifa = nullptr;
+-    if (int err = getifaddrs(&ifaddr); err < 0)
+-    {
+-        log<level::DEBUG>("Unable to acquire network interfaces");
+-        return -EIO;
+-    }
+-
+     for (int chNum = 0; chNum < maxIpmiChannels; chNum++)
+     {
+         try
+@@ -962,30 +951,13 @@ int ChannelConfig::loadChannelConfig()
+             if (jsonChInfo.is_null())
+             {
+                 log<level::ERR>("Invalid/corrupted channel config file");
+-                freeifaddrs(ifaddr);
+                 return -EBADMSG;
+             }
+ 
+-            bool channelFound = true;
+-            // Confirm the LAN channel is present
+-            if (jsonChInfo[mediumTypeString].get<std::string>() == "lan-802.3")
+-            {
+-                channelFound = false;
+-                for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+-                {
+-                    if (jsonChData[nameString].get<std::string>() ==
+-                        ifa->ifa_name)
+-                    {
+-                        channelFound = true;
+-                        break;
+-                    }
+-                }
+-            }
+             ChannelProperties& chData = channelData[chNum];
+-            chData.chID = chNum;
+             chData.chName = jsonChData[nameString].get<std::string>();
+-            chData.isChValid =
+-                channelFound && jsonChData[isValidString].get<bool>();
++            chData.chID = chNum;
++            chData.isChValid = jsonChData[isValidString].get<bool>();
+             chData.activeSessCount = jsonChData.value(activeSessionsString, 0);
+             chData.maxTransferSize =
+                 jsonChData.value(maxTransferSizeString, smallChannelSize);
+@@ -1014,18 +986,14 @@ int ChannelConfig::loadChannelConfig()
+         {
+             log<level::DEBUG>("Json Exception caught.",
+                               entry("MSG=%s", e.what()));
+-            freeifaddrs(ifaddr);
+-
+             return -EBADMSG;
+         }
+         catch (const std::invalid_argument& e)
+         {
+             log<level::ERR>("Corrupted config.", entry("MSG=%s", e.what()));
+-            freeifaddrs(ifaddr);
+             return -EBADMSG;
+         }
+     }
+-    freeifaddrs(ifaddr);
+ 
+     return 0;
+ }
+-- 
+2.25.1
+
