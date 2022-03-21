@@ -88,6 +88,466 @@
         "Expression": "(P1 + P2) >= 0 ? (P1 + P2) : NULL"
     },
     {
+        "Desc": {
+            "Name": "S1_CPU_Pwr",
+            "SensorType": "power"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 500
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "P1",
+                    "Desc": {
+                        "Name": "S1_Core_VRD_Pwr",
+                        "SensorType": "power"
+                    }
+                },
+                {
+                    "ParamName": "P2",
+                    "Desc": {
+                        "Name": "S1_SOC_VRD_Pwr",
+                        "SensorType": "power"
+                    }
+                }
+            ]
+        },
+        "Expression": "(P1 + P2) >= 0 ? (P1 + P2) : NULL"
+    },
+    {
+        "Desc": {
+            "Name": "S0_CPU_Pwr",
+            "SensorType": "power"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 500
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "P1",
+                    "Desc": {
+                        "Name": "S0_Core_VRD_Pwr",
+                        "SensorType": "power"
+                    }
+                },
+                {
+                    "ParamName": "P2",
+                    "Desc": {
+                        "Name": "S0_SOC_VRD_Pwr",
+                        "SensorType": "power"
+                    }
+                }
+            ]
+        },
+        "Expression": "(P1 + P2) >= 0 ? (P1 + P2) : NULL"
+    },
+    {
+        "Desc": {
+            "Name": "S0_MEM_Pwr",
+            "SensorType": "power"
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "P1",
+                    "Desc": {
+                        "Name": "S0_DIMM_VR1_Pwr",
+                        "SensorType": "power"
+		    }
+                },
+                {
+                    "ParamName": "P2",
+                    "Desc": {
+                        "Name": "S0_DIMM_VR2_Pwr",
+                        "SensorType": "power"
+                    }
+                }
+            ]
+        },
+        "Expression": "(P1 + P2) >= 0 ? (P1 + P2) : NULL"
+    },
+    {
+        "Desc": {
+            "Name": "S1_MEM_Pwr",
+            "SensorType": "power"
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "P1",
+                    "Desc": {
+                        "Name": "S1_DIMM_VR1_Pwr",
+                        "SensorType": "power"
+                    }
+                },
+                {
+                    "ParamName": "P2",
+                    "Desc": {
+                        "Name": "S1_DIMM_VR2_Pwr",
+                        "SensorType": "power"
+                    }
+                }
+            ]
+        },
+        "Expression": "(P1 + P2) >= 0 ? (P1 + P2) : NULL"
+    },
+    {
+        "Desc": {
+            "Name": "S0_DIMMG0_Temp",
+            "SensorType": "temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 85
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "CH0",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH0_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH1",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH1_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH2",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH2_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH3",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH3_Temp",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,(CH0 == CH0) ? CH0 : NULL,(CH1 == CH1) ? CH1 : NULL,(CH2 == CH2) ? CH2 : NULL,(CH3 == CH3) ? CH3 : NULL)"
+    },
+    {
+        "Desc": {
+            "Name": "S1_DIMMG0_Temp",
+            "SensorType": "temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 85
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "CH0",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH0_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH1",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH1_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH2",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH2_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH3",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH3_Temp",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,(CH0 == CH0) ? CH0 : NULL,(CH1 == CH1) ? CH1 : NULL,(CH2 == CH2) ? CH2 : NULL,(CH3 == CH3) ? CH3 : NULL)"
+    },
+    {
+        "Desc": {
+            "Name": "S0_DIMMG1_Temp",
+            "SensorType": "temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 85
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "CH4",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH4_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH5",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH5_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH6",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH6_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH7",
+                    "Desc": {
+                        "Name": "S0_DIMM_CH7_Temp",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,(CH4 == CH4) ? CH4 : NULL,(CH5 == CH5) ? CH5 : NULL,(CH6 == CH6) ? CH6 : NULL,(CH7 == CH7) ? CH7 : NULL)"
+    },
+    {
+        "Desc": {
+            "Name": "S1_DIMMG1_Temp",
+            "SensorType": "temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 85
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "CH4",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH4_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH5",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH5_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH6",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH6_Temp",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "CH7",
+                    "Desc": {
+                        "Name": "S1_DIMM_CH7_Temp",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,(CH4 == CH4) ? CH4 : NULL,(CH5 == CH5) ? CH5 : NULL,(CH6 == CH6) ? CH6 : NULL,(CH7 == CH7) ? CH7 : NULL)"
+    },
+    {
+        "Desc": {
+            "Name": "S1_DIMM_DDR_Volt",
+            "SensorType": "voltage"
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "V1",
+                    "Desc": {
+                        "Name": "S1_DIMM_VR1_Volt",
+                        "SensorType": "voltage"
+                    }
+                },
+                {
+                    "ParamName": "V2",
+                    "Desc": {
+                        "Name": "S1_DIMM_VR2_Volt",
+                        "SensorType": "voltage"
+                    }
+                }
+            ]
+        },
+        "Expression": "max((V1 == V1) ? V1 : NULL,(V2 == V2) ? V2 : NULL)"
+    },
+    {
+        "Desc": {
+            "Name": "S0_DIMM_DDR_Volt",
+            "SensorType": "voltage"
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
+        "Params": {
+            "DbusParam": [
+                {
+                    "ParamName": "V1",
+                    "Desc": {
+                        "Name": "S0_DIMM_VR1_Volt",
+                        "SensorType": "voltage"
+                    }
+                },
+                {
+                    "ParamName": "V2",
+                    "Desc": {
+                        "Name": "S0_DIMM_VR2_Volt",
+                        "SensorType": "voltage"
+                    }
+                }
+            ]
+        },
+        "Expression": "max((V1 == V1) ? V1 : NULL,(V2 == V2) ? V2 : NULL)"
+    },
+    {
         "Desc":{
             "Name":"nvme_bp_max",
             "SensorType":"temperature"
