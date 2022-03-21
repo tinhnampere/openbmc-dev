@@ -5,7 +5,6 @@
 ETHERNET_INTERFACE="eth1"
 ETHERNET_NCSI="eth0"
 ENV_ETH="eth1addr"
-ENV_MAC_ADDR=$(fw_printenv | grep $ENV_ETH)
 
 # Workaround to dhcp NC-SI eth0 interface when BMC boot up
 ifconfig ${ETHERNET_NCSI} down
@@ -22,27 +21,20 @@ for i in {1..10}; do
 	sleep 2
 done
 
-# Check if BMC MAC address is exported
-if [ -z "${MAC_ADDR}" ]; then
-	echo "ERROR: No BMC MAC address is detected from FRU Inventory information!"
-	# Return 1 so that systemd knows the service failed to start
-	exit 1
-fi
-
-# Check if BMC MAC address is exported
-if [[ $ENV_MAC_ADDR =~ $MAC_ADDR ]]; then
-	echo "WARNING: BMC MAC address already exist!"
+# Check if BMC MAC address is exported. If FRU does not contain valid BMC MAC, do nothing
+if echo "$MAC_ADDR" | grep -q -vE "^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$" ; then
+	echo "ERROR: No valid BMC MAC Address detected from BMC FRU!"
 	exit 0
 fi
 
-# Request to update the MAC address
-if ! fw_setenv ${ENV_ETH} "${MAC_ADDR}";
-then
-	echo "ERROR: Fail to set MAC address to ${ENV_ETH}"
-	exit 1
+# Check if the Ethernet port has correct MAC Address
+ETH_INCLUDE_MAC=$(ifconfig ${ETHERNET_INTERFACE} | grep -i "$MAC_ADDR")
+if [ -n "$ETH_INCLUDE_MAC" ]; then
+	echo "BMC MAC Address is already configured"
+	exit 0
 fi
 
-# Request to restart the service
+fw_setenv ${ENV_ETH} "${MAC_ADDR}"
 ifconfig ${ETHERNET_INTERFACE} down
 if ! ifconfig ${ETHERNET_INTERFACE} hw ether "${MAC_ADDR}";
 then
