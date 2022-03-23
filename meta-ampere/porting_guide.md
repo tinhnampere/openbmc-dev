@@ -26,20 +26,19 @@ flowchart TD
 ```
 
 
-- `meta-ampere/meta-common/recipes-ac01 `: Contain Altra-specific (but not platform specific) features, include:
-	- [`ampere-hostctrl`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-common/recipes-ac01/host/ampere-hostctrl): contain services to check host state and host reset (via `SYS_RESET` pin)
-	- [`boot-progress`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-common/recipes-ac01/host/boot-progress): support check EDKII boot progress, update to dbus and log events to Redfish EventLog.
+- `meta-ampere/meta-common/recipes-ac01`: Contain Altra-specific (but not platform specific) features, include:
+	- [`host/boot-progress`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-common/recipes-ac01/host/boot-progress): support check EDKII boot progress, update to dbus and log events to Redfish EventLog.
+	- [`host/openocd`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-common/recipes-ac01/host/openocd_git.bb): support Altra/AltraMax remote JTAG.
 - `meta-ampere/meta-common/recipes-phosohor `: Contain common features that can be used in different platforms.
-	- [`flash/phosphor-software-manager`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-common/recipes-phosphor/flash/phosphor-software-manager): backend script to flash Host firmware.
-	- [`network/ampere-usbnet`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-common/recipes-phosphor/network/ampere-usbnet): create virtual USB Ethernet.
+	- [`ampere-hostctrl`](https://github.com/openbmc/openbmc/tree/master/meta-ampere/meta-common/recipes-phosphor/host/ampere-hostctrl): contain services to check host state.
+	- [`flash/phosphor-software-manager`](https://github.com/openbmc/openbmc/tree/master/meta-ampere/meta-common/recipes-phosphor/flash/phosphor-software-manager): backend script to flash Host firmware.
+	- [`network/ampere-usbnet`](https://github.com/openbmc/openbmc/tree/master/meta-ampere/meta-common/recipes-phosphor/network/ampere-usbnet): create virtual USB Ethernet.
 - `meta-ampere/meta-jade/recipes-ampere `: Mt.Jade specific configuration, or contains some Mt.Jade specific configuration.
-	- [`ampere-openocd`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-jade/recipes-ampere/ampere-openocd): enable OpenOCD support for Altra silicon.
 	- [`flash/ampere-flash-utils`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-jade/recipes-ampere/flash/ampere-flash-utils): utilities to flash Host firmware images.
-	- [`host/ampere-driver-binder`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-jade/recipes-ampere/host/ampere-driver-binder): service to support check and bind smpro-hwmon, smpro-misc and smpro-errmon when the Host boots.
 	- [`host/ampere-platform-mgmt`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-jade/recipes-ampere/host/ampere-platform-mgmt): application to monitor Host errors and log events.
-	- [`platform/ampere-mac-update`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-jade/recipes-ampere/platform/ampere-mac-update): check BMC MAC Address from FRU's Board Extra and update the `eth1addr` u-boot variable.
+	- [`platform/ampere-mac-update`](https://github.com/openbmc/openbmc/tree/master/meta-ampere/meta-jade/recipes-ampere/platform/ampere-mac-update): check BMC MAC Address from FRU's Board Extra and update the `eth1addr` u-boot variable.
 - `meta-ampere/meta-jade/recipes-phosphor `: configure phosphor recipes with Mt.Jade specific information.
-	- [`gpio`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-jade/recipes-phosphor/gpio): `phosphor-gpio-monitor` based GPIO application to handle GPIOs from Altra silicon.
+	- [`gpio`](https://github.com/openbmc/openbmc/tree/master/meta-ampere/meta-jade/recipes-phosphor/gpio/ampere-gpio-handling): `phosphor-gpio-monitor` based GPIO application to handle GPIOs from Altra silicon.
 
 ## Linux kernel
 
@@ -128,9 +127,7 @@ Ensure the `ssifbridge.service` service starts correctly and `/dev/ipmi-ssif-hos
 
 Working on Altra CPU sensors and error report requires the smpro-hwmon, smpro-errmon and smpro-misc drivers added and enabled. In addition, the drivers need to be bound when powering ON the Host.
 
-The [`ampere-driver-binder`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-ampere/host/ampere-driver-binder.bb) recipe is supported to check and bind the smpro-hwmon, smpro-errmon and smpro-misc when the Host is booted (if not bound before).
-
-Porting to the new platform just needs to clone the code and update the [`drivers-conf.sh`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-ampere/host/ampere-driver-binder/drivers-conf.sh) script if any change in the I2C addresses.
+The [`ampere-driver-binder`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-ampere/platform/mtjade-utils/ampere_driver_binder.sh) utility is supported to check and bind the smpro-hwmon, smpro-errmon and smpro-misc when the Host is booted (if not bound before).
 
 Below features assume that smpro drivers are already added, enabled and bound.
 
@@ -181,9 +178,9 @@ Altra silicon supports power control operations below:
 | On | power up | Same as ForceOn |
 | PowerCycle | power cycle | DC power off then DC power on |
 
-To implement power ON, OFF, cycle handling, declare GPIO pin information inside [skeleton](https://github.com/openbmc/skeleton)'s gpio_defs.json file for power good GPIO, GPIO signal to control power ON, ... Refer to Mt.Jade [gpio_defs.json](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-phosphor/skeleton/obmc-libobmc-intf/gpio_defs.json) file for an example implementation.
+To implement power ON, OFF, cycle handling, declare GPIO pin information inside [skeleton](https://github.com/openbmc/skeleton)'s gpio_defs.json file for power good GPIO, GPIO signal to control power ON, ... Refer to Mt.Jade [gpio_defs.json](https://github.com/openbmc/openbmc/blob/master/meta-ampere/meta-jade/recipes-phosphor/skeleton/obmc-libobmc-intf/gpio_defs.json) file for an example implementation.
 
-Graceful Shutdown in OpenBMC is implemented using SMS_ATN (Heartbeat) which is only available in IPMI KCS interface only. To implement graceful shutdown for Ampere Altra silicon, need to overwrite the `xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service` service which asserting the `SHUTDOWN_REQ` GPIO instead. Refer to [`phosphor-ipmi-host_%.bbappend`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-phosphor/ipmi/phosphor-ipmi-host_%25.bbappend) for how Mt.Jade OpenBMC overwrite this service.
+Graceful Shutdown in OpenBMC is implemented using SMS_ATN (Heartbeat) which is only available in IPMI KCS interface only. To implement graceful shutdown for Ampere Altra silicon, need to overwrite the `xyz.openbmc_project.Ipmi.Internal.SoftPowerOff.service` service which asserting the `SHUTDOWN_REQ` GPIO instead. Refer to [`phosphor-ipmi-host_%.bbappend`](https://github.com/openbmc/openbmc/blob/master/meta-ampere/meta-jade/recipes-phosphor/gpio/ampere-gpio-handling.bb) for how Mt.Jade OpenBMC overwrite this service.
 
 ### Host power signal handling
 In addition, it also supports operations from Host OS:
@@ -193,7 +190,7 @@ In addition, it also supports operations from Host OS:
 | reboot | Trigger `SYS_RESET` pin to reset host when detecting `REBOOT_ACK` GPIO asserted |
 | poweroff/shutdown | Turn OFF the Host power when detecting `SHUTDOWN_ACK` GPIO asserted |
 
-Handling `REBOOT_ACK` and `SHUTDOWN_ACK` GPIOs from Host can be done by using [`phosphor-gpio-monitor`][13]. Refer to Mt.Jade [`host-gpio-handling.bb`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-phosphor/gpio/host-gpio-handling.bb) recipe for the implementation.
+Handling `REBOOT_ACK` and `SHUTDOWN_ACK` GPIOs from Host can be done by using [`ampere-gpio-handling.bb`][13]. Refer to Mt.Jade [`host-gpio-handling.bb`](https://github.com/openbmc/openbmc/blob/master/meta-ampere/meta-jade/recipes-phosphor/gpio/ampere-gpio-handling.bb) recipe for the implementation.
 
 
 ## Host State Detection
@@ -202,24 +199,24 @@ OpenBMC's [phosphor-state-manager][6] just supports detect Host state via PLDM a
 
 ### Host State Detection when powering ON the Host
 
-A [`ampere-host-on-host-check@.service`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-common/recipes-ac01/host/ampere-hostctrl/ampere-host-on-host-check%40.service) service is added to check and update the Host status when the Host is powered ON.
+A [`ampere-host-on-host-check@.service`](https://github.com/openbmc/openbmc/blob/master/meta-ampere/meta-common/recipes-phosphor/host/ampere-hostctrl/ampere-host-on-host-check%40.service) service is added to check and update the Host status when the Host is powered ON.
 
-It executes the [`ampere_host_check.sh`](https://github.com/ampere-openbmc/openbmc/blob/ampere/meta-ampere/meta-jade/recipes-ampere/platform/mtjade-utils/ampere_host_check.sh) script that check the `S0_FW_BOOT_OK` GPIO signal in 60s. Once the GPIO is asserted, the script create a file `/run/openbmc/host@0-on` to indicate the Host is ON so that [phosphor-state-manager][6] will continue to process.
+It executes the [`ampere_host_check.sh`](https://github.com/openbmc/openbmc/blob/master/meta-ampere/meta-common/recipes-phosphor/host/ampere-hostctrl/ampere_host_check.sh) script that check the `S0_FW_BOOT_OK` GPIO signal in 60s. Once the GPIO is asserted, the script terminate with returning 0 to indicate the Host is ON so that [phosphor-state-manager][6] will continue to process.
 
 ### Host State Detection after rebooting BMC
 
-Host State Dectection when BMC rebooted is specified at [BMC Reset with Host Booted][8]. As Ampere Altra-based platform uses GPIO interface (over `S0_FW_BOOT_OK`), the design and implementation for GPIO interface were put under review at [48270](https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-state-manager/+/48270) and [47662](https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-state-manager/+/47662) from [phosphor-state-manager][6].
+Host State Dectection when BMC rebooted is specified at [BMC Reset with Host Booted][8]. As Ampere Altra-based platform uses GPIO interface (over `S0_FW_BOOT_OK`).
 
 To support the feature:
 
 - Add `S0_FW_BOOT_OK` GPIO pin into device tree with linename `host0-state`.
-- Download the code as patch to use inside `meta-<vendor>` while the code is still not merged.
+- Enable the feature in [`phosphor-state-manager`](https://github.com/openbmc/openbmc/blob/master/meta-ampere/meta-common/recipes-phosphor/state/phosphor-state-manager_%25.bbappend).
 
 ## Firmware Update
 
 OpenBMC supports firmware update for BMC and Host firmware. However, need to implement the backend code to flash Host firmware image. To do so, overwrite the `obmc-flash-host-bios@.service` service to add the script to execute the flashing.
 
-Refer to the [`phosphor-software-manager`](https://github.com/ampere-openbmc/openbmc/tree/ampere/meta-ampere/meta-common/recipes-phosphor/flash) from Mt.Jade implementation for how to overwrite for Host firmware update:
+Refer to the [`phosphor-software-manager`](https://github.com/openbmc/openbmc/tree/master/meta-ampere/meta-common/recipes-phosphor/flash) from Mt.Jade implementation for how to overwrite for Host firmware update:
 
 * Add `obmc-flash-host-bios@.service` which calls the `firmware_update.sh` script to execute the actual firmware flashing.
 * The `firmware_update.sh` script will check the MANIFEST file for value of `EXTENDED_VERSION` in the MANIFEST file. Base on the value, will flash the firmware image into appropriate hardware device (Host SPI-NOR, Boot EEPROM,...)
