@@ -4,7 +4,7 @@ DESCRIPTION = "Ampere OEM IPMI commands"
 LICENSE = "Apache-2.0"
 S = "${WORKDIR}"
 
-LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=a6a4edad4aed50f39a66d098d74b265b"
 
 DEPENDS = "boost phosphor-ipmi-host phosphor-logging systemd"
 
@@ -13,8 +13,8 @@ inherit meson pkgconfig obmc-phosphor-ipmiprovider-symlink
 LIBRARY_NAMES = "libzampoemcmds.so"
 
 S = "${WORKDIR}/git"
-SRC_URI = "git://github.com/openbmc/ampere-ipmi-oem.git;branch=master;protocol=https"
-SRCREV = "db24557c2033c5e418104655ddb25e905dcfd6a9"
+SRC_URI = "git://github.com/ampere-openbmc/ampere-ipmi-oem;protocol=https;branch=ampere"
+SRCREV = "1389c278d8f83635aac7b1e5dc263e6e606aeb60"
 
 HOSTIPMI_PROVIDER_LIBRARY += "${LIBRARY_NAMES}"
 NETIPMI_PROVIDER_LIBRARY += "${LIBRARY_NAMES}"
