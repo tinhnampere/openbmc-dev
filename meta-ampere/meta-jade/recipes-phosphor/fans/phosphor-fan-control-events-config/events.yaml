@@ -27,7 +27,7 @@ groups:
           - /temperature/S0_SOC_Temp
           - /temperature/S1_SOC_Temp
     - name: zone0_dimms
-      description: Group of core temperature sensors for zone 0
+      description: Group of virtual dimm temperature sensors for zone 0
       type: /xyz/openbmc_project/sensors
       members:
           - /temperature/S0_DIMMG0_Temp
@@ -239,6 +239,30 @@ events:
             speed:
                 value: 255
                 type: uint64_t
+    - name: high_speed_on_missing_service
+      groups:
+          - name: zone0_cores
+            interface: xyz.openbmc_project.Sensor.Value
+            property:
+                name: Value
+                type: int64_t
+      triggers:
+          - name: init
+            method: nameHasOwner
+            handler: setService
+          - name: signal
+            signal: nameOwnerChanged
+            handler: setService
+      actions:
+          - name: call_actions_based_on_timer
+            timer:
+                interval: 5000000
+                type: oneshot
+            actions:
+                - name: set_speed_on_missing_owner
+                  speed:
+                      value: 255
+                      type: uint64_t
     - name: set_wiwynn_algo_on_ts_temp
       groups:
           - name: zone0_ambient

@@ -6,6 +6,6 @@ zone_configuration:
    zones:
      - zone: 0
        full_speed: 255
-       default_floor: 200
+       default_floor: 255
        increase_delay: 5
        decrease_interval: 30
