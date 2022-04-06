@@ -33,6 +33,7 @@ RDEPENDS:${PN}-flash = " \
 
 SUMMARY:${PN}-system = "Ampere System"
 RDEPENDS:${PN}-system = " \
+                         ampere-gpio-handling \
                          entity-manager \
                          dbus-sensors \
                          webui-vue \
