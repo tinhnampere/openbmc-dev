@@ -20,3 +20,14 @@
         systemctl reload rsyslog 2> /dev/null || true
     endscript
 }
+
+# Keep up to four 5M files
+/var/log/ras_event
+{
+    rotate 2
+    size 5M
+    missingok
+    postrotate
+        systemctl reload rsyslog 2> /dev/null || true
+    endscript
+}
