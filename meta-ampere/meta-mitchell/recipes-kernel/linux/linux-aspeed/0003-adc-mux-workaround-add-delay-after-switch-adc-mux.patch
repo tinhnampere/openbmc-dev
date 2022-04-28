@@ -1,0 +1,49 @@
+From b1e4f43e79f1ed438950056ee228f76373d6d7d4 Mon Sep 17 00:00:00 2001
+From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+Date: Wed, 11 May 2022 00:02:09 +0700
+Subject: [PATCH] adc-mux:workaround:add delay after switch adc mux
+
+In Mt. Mitchell, there is a timing issue with iio-mux, which causes
+the value of ADC sensors is not ready right after switching the
+selecting GPIO. This commit adds the delay of 10 miliseconds after switch
+the iio-mux to make sure that the switching is done and the mux is
+ready to report the sensor value.
+
+Tested:
+1. Check ipmitool sensor list.
+2. Make sure the values of onboard ADC sensors are corrected.
+3. Stress-dc, make sure there are no VBAT sensor threshold errors.
+
+Signed-off-by: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+---
+ drivers/iio/multiplexer/iio-mux.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/iio/multiplexer/iio-mux.c b/drivers/iio/multiplexer/iio-mux.c
+index d54ae5cbe51b..a358f4d50e0e 100644
+--- a/drivers/iio/multiplexer/iio-mux.c
++++ b/drivers/iio/multiplexer/iio-mux.c
+@@ -7,6 +7,7 @@
+  * Author: Peter Rosin <peda@axentia.se>
+  */
+ 
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/iio/consumer.h>
+ #include <linux/iio/iio.h>
+@@ -43,6 +44,12 @@ static int iio_mux_select(struct mux *mux, int idx)
+ 	int i;
+ 
+ 	ret = mux_control_select(mux->control, chan->channel);
++
++	/* Workaround: delay 10ms second after setting GPIO to allow
++	 * the mux is ready to read the ADC
++	 */
++	mdelay(10);
++
+ 	if (ret < 0) {
+ 		mux->cached_state = -1;
+ 		return ret;
+-- 
+2.17.1
+
