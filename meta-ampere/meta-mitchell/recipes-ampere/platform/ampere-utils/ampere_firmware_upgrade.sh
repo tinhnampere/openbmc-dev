@@ -1,0 +1,131 @@
+#!/bin/bash
+
+# Helper script to flash FRU and Boot EEPROM devices.
+# Author : Chanh Nguyen (chnguyen@amperecomputing.com)
+#
+# Syntax for FRU:
+#    ampere_firmware_upgrade.sh fru <image> [<dev>]
+#      dev: 1 for MB FRU (default), 2 for BMC FRU.
+#
+# Syntax for EEPROM:
+#    ampere_firmware_upgrade.sh eeprom <image> [<dev>]
+#      dev: 1 for main Boot EEPROM (default), 2 for secondary Boot EEPROM (if supported)
+#
+# GPIOs :
+#    BMC_GPIOW6_SPI0_PROGRAM_SEL (GPIO 182) = 1 => The BMC takes over the S_I2C1 bus for programming.
+#    BMC_GPIOW6_SPI0_PROGRAM_SEL (GPIO 182) = 0 => The CPU takes over the S_I2C1 bus for programming.
+#    BMC_GPIOX0_I2C_BACKUP_SEL (GPIO 184) = 1 => Failover EEPROM
+#    BMC_GPIOX0_I2C_BACKUP_SEL (GPIO 184) = 0 => Primary EEPROM
+
+# shellcheck disable=SC2046
+
+do_eeprom_flash() {
+	FIRMWARE_IMAGE=$IMAGE
+	BACKUP_SEL=$2
+
+	# Turn off the Host if it is currently ON
+	chassisstate=$(obmcutil chassisstate | awk -F. '{print $NF}')
+	echo "Current Chassis State: $chassisstate"
+	if [ "$chassisstate" == 'On' ];
+	then
+		echo "Turning the Chassis off"
+		obmcutil chassisoff
+		sleep 15
+		# Check if HOST was OFF
+		chassisstate_off=$(obmcutil chassisstate | awk -F. '{print $NF}')
+		if [ "$chassisstate_off" == 'On' ];
+		then
+			echo "Error : Failed turning the Chassis off"
+			exit 1
+		fi
+	fi
+
+	# Switch EEPROM control to BMC AST2600 I2C
+	# BMC_GPIOW6_SPI0_PROGRAM_SEL
+	gpioset $(gpiofind spi0-program-sel)=1
+
+	# BMC_GPIOX0_I2C_BACKUP_SEL (GPIO 184)
+	if [[ $BACKUP_SEL == 1 ]]; then
+		echo "Run update Primary EEPROM"
+		gpioset $(gpiofind i2c-backup-sel)=0
+	elif [[ $BACKUP_SEL == 2 ]]; then
+		echo "Run update Failover EEPROM"
+		gpioset $(gpiofind i2c-backup-sel)=1
+	else
+		echo "Please choose Primary EEPROM (1) or Failover EEPROM (2)"
+		exit 0
+	fi
+
+	# The EEPROM (AT24C64WI) with address 0x50 at BMC_I2C11 bus
+	# Write Firmware to EEPROM and read back for validation
+	ampere_eeprom_prog -b 10 -s 0x50 -p -f "$FIRMWARE_IMAGE"
+
+	# Switch to primary EEPROM
+	gpioset $(gpiofind i2c-backup-sel)=0
+
+	# Switch EEPROM control to CPU HOST
+	gpioset $(gpiofind spi0-program-sel)=0
+
+	if [ "$chassisstate" == 'On' ];
+	then
+		sleep 5
+		echo "Turn on the Host"
+		obmcutil poweron
+	fi
+}
+
+do_fru_flash() {
+	FRU_IMAGE=$1
+	FRU_DEV=$2
+
+	if [[ $FRU_DEV == 1 ]]; then
+		if [ -f /sys/bus/i2c/devices/4-0050/eeprom ]; then
+			FRU_DEVICE="/sys/bus/i2c/devices/4-0050/eeprom"
+		else
+			FRU_DEVICE="/sys/bus/i2c/devices/3-0050/eeprom"
+		fi
+		echo "Flash MB FRU with image $IMAGE at $FRU_DEVICE"
+	elif [[ $FRU_DEV == 2 ]]; then
+		FRU_DEVICE="/sys/bus/i2c/devices/14-0050/eeprom"
+		echo "Flash BMC FRU with image $IMAGE at $FRU_DEVICE"
+	else
+		echo "Please select MB FRU (1) or BMC FRU (2)"
+		exit 0
+	fi
+
+	ampere_fru_upgrade -d "$FRU_DEVICE" -f "$FRU_IMAGE"
+
+	systemctl restart xyz.openbmc_project.FruDevice.service
+	systemctl restart phosphor-ipmi-host.service
+
+	echo "Done"
+}
+
+if [ $# -eq 0 ]; then
+	echo "Usage:"
+	echo "  - Flash Boot EEPROM"
+	echo "     $(basename "$0") eeprom <Image file>"
+	echo "  - Flash FRU"
+	echo "     $(basename "$0") fru <Image file> [dev]"
+	echo "    Where:"
+	echo "      dev: 1 - MB FRU, 2 - BMC FRU"
+	exit 0
+fi
+
+TYPE=$1
+IMAGE=$2
+if [ -z "$3" ]; then
+	BACKUP_SEL=1
+else
+	BACKUP_SEL=$3
+fi
+
+if [[ $TYPE == "eeprom" ]]; then
+	# Run EEPROM update: write/read/validation with CRC32 checksum
+	do_eeprom_flash "$IMAGE" "$BACKUP_SEL"
+elif [[ $TYPE == "fru" ]]; then
+	# Run FRU update
+	do_fru_flash "$IMAGE" "$BACKUP_SEL"
+fi
+
+exit 0
