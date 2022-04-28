@@ -30,6 +30,28 @@ shutdown_ack() {
 	fi
 }
 
+unbind_aspeed_smc_driver() {
+	# Switch the Host SPI-NOR to BMC
+	gpio_name_set spi0-program-sel 1
+	# Check the HNOR partition available
+	HOST_MTD=$(< /proc/mtd grep "hnor" | sed -n 's/^\(.*\):.*/\1/p')
+	if [ -z "$HOST_MTD" ]; then
+		# If the HNOR partition is not available, then bind and unbind driver
+		echo "Bind/Unbind the ASpeed SMC driver"
+		echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/bind
+		sleep 1
+		echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/unbind
+	else
+		# If the HNOR partition is available, then unbind driver
+		echo "Unbind the ASpeed SMC driver"
+		echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/unbind
+	fi
+
+	# Switch the Host SPI-NOR to HOST
+	gpio_name_set spi0-program-sel 0
+	sleep 0.5
+}
+
 soft_off() {
 	# Trigger shutdown_req
 	touch /run/openbmc/host@0-softpoweroff
@@ -80,6 +102,7 @@ force_reset() {
 		fi
 	fi
 	rm -f /run/openbmc/host@0-on
+	unbind_aspeed_smc_driver
 	echo "Triggering sysreset pin"
 	gpio_name_set host0-sysreset-n 0
 	sleep 1
