@@ -1,2 +1,2 @@
 PACKAGECONFIG:append = " mac-address-manual-fru-conf"
-PACKAGECONFIG[mac-address-manual-fru-conf] = "-Dmac-address-fru-bus=14 -Dmac-address-fru-addr=80"
+PACKAGECONFIG[mac-address-manual-fru-conf] = "-Dmac_address_fru_bus=14 -Dmac_address_fru_addr=80"
