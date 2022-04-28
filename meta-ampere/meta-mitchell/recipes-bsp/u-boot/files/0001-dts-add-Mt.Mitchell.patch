@@ -1,0 +1,27 @@
+From 033ac41d93b15f56b640e3142d946ec6d730a43b Mon Sep 17 00:00:00 2001
+From: "Thang Q. Nguyen" <thang@os.amperecomputing.com>
+Date: Mon, 27 Jun 2022 13:39:30 +0000
+Subject: [PATCH] dts: add Mt.Mitchell
+
+Signed-off-by: Thang Q. Nguyen <thang@os.amperecomputing.com>
+---
+ arch/arm/dts/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 6dc9aeab24..f65086ffe7 100755
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -691,7 +691,8 @@ dtb-$(CONFIG_ARCH_ASPEED) += \
+ 	ast2600-qcom-dc-scm-v1.dtb \
+ 	ast2600-s6q.dtb \
+ 	ast2600-slt.dtb \
+-	ast2600-tacoma.dtb
++	ast2600-tacoma.dtb \
++	ast2600-mitchell.dtb
+ 
+ dtb-$(CONFIG_ARCH_STI) += stih410-b2260.dtb
+ 
+-- 
+2.34.1
+
