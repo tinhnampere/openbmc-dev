@@ -11,6 +11,7 @@ SRC_URI = "git://github.com/ampere-openbmc/ampere-platform-mgmt.git;protocol=htt
 
 SRC_URI:append = " \
            file://ampere_add_redfishevent.sh \
+           file://ampere_update_mac.sh \
           "
 SRCREV = "26ec37cd8275e881c538677b4ebd0519e112b4bc"
 
@@ -28,6 +29,7 @@ do_compile() {
 do_install() {
     install -d ${D}/usr/sbin
     install -m 0755 ${WORKDIR}/ampere_add_redfishevent.sh ${D}/${sbindir}/
+    install -m 0755 ${WORKDIR}/ampere_update_mac.sh ${D}/${sbindir}/
     install -m 0755 ${S}/ampere_eeprom_prog ${D}/${sbindir}/ampere_eeprom_prog
     install -m 0755 ${S}/ampere_fru_upgrade ${D}/${sbindir}/ampere_fru_upgrade
 }
