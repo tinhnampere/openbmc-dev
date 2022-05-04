@@ -41,6 +41,7 @@ RDEPENDS:${PN}-system = " \
                          ipmitool \
                          phosphor-sel-logger \
                          phosphor-logging \
+                         libmctp \
                         "
 
 RDEPENDS:${PN}-extras:remove = " phosphor-hwmon"
