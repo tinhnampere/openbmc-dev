@@ -1,0 +1,1 @@
+DEMUX_BINDING_OPTS="-e 8 smbus 3 0x10"
