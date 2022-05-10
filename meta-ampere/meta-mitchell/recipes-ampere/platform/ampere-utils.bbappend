@@ -8,6 +8,7 @@ SRC_URI:append = " \
            file://ampere_flash_bios.sh \
            file://ampere_fanctrl.sh \
            file://nvparm \
+           file://ampere_driver_binder.sh \
           "
 
 do_install:append() {
@@ -17,4 +18,5 @@ do_install:append() {
     install -m 0755 ${WORKDIR}/ampere_flash_bios.sh ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_fanctrl.sh ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/nvparm ${D}/${sbindir}/
+    install -m 0755 ${WORKDIR}/ampere_driver_binder.sh ${D}/${sbindir}/
 }
