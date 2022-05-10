@@ -1,0 +1,41 @@
+From d7b4dbf7076e09299ad49d23c695c216fb9fe478 Mon Sep 17 00:00:00 2001
+From: "Thang Q. Nguyen" <thang@os.amperecomputing.com>
+Date: Tue, 10 May 2022 06:57:26 +0000
+Subject: [PATCH 2/2] Temporary remove threshold check
+
+Current codes always check sensor threshold even not added in the config
+file. In case of missing threshold, the application uses 0 for all
+threshold which are not correct.
+This commit temporary disables sensor threshold check as we don't need
+it. Sensor threshold and report should be configured via yaml file.
+
+Signed-off-by: Thang Q. Nguyen <thang@os.amperecomputing.com>
+---
+ nvme_manager.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/nvme_manager.cpp b/nvme_manager.cpp
+index d15732c..8cf7ca8 100644
+--- a/nvme_manager.cpp
++++ b/nvme_manager.cpp
+@@ -574,7 +574,7 @@ void Nvme::readNvmeData(NVMeConfig& config)
+         nvmeSSD->setSensorThreshold(config.criticalHigh, config.criticalLow,
+                                     config.warningHigh, config.warningLow);
+ 
+-        nvmeSSD->checkSensorThreshold();
++        //nvmeSSD->checkSensorThreshold();
+         setLEDsStatus(config, success, nvmeData);
+     }
+     else
+@@ -590,7 +590,7 @@ void Nvme::readNvmeData(NVMeConfig& config)
+                 config.criticalHigh, config.criticalLow, config.warningHigh,
+                 config.warningLow);
+         }
+-        iter->second->checkSensorThreshold();
++        //iter->second->checkSensorThreshold();
+         setLEDsStatus(config, success, nvmeData);
+     }
+ }
+-- 
+2.25.1
+
