@@ -7,7 +7,7 @@
         PRODUCT_PART_NUMBER:
           IPMIFruProperty: Part Number
           IPMIFruSection: Product
-196:
+1:
   /xyz/openbmc_project/FruDevice/BMC:
     entityID: 7
     entityInstance: 2
