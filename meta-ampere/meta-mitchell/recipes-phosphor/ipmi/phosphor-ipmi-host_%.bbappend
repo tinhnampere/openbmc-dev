@@ -1,5 +1,8 @@
 FILESEXTRAPATHS:append := "${THISDIR}/${PN}:"
 
+PACKAGECONFIG:append = " dynamic-sensors-static-fru"
+PACKAGECONFIG[dynamic-sensors-static-fru] = "-Ddynamic-sensors-static-fru=enabled,-Ddynamic-sensors-static-fru=disabled"
+
 DEPENDS:append = " mtmitchell-yaml-config"
 
 EXTRA_OEMESON = " \
