@@ -1,0 +1,13 @@
+[Unit]
+Description=Ampere PLDM Boot Progress Handling
+After=ampere-host-on-host-check@0.service
+Conflicts=obmc-host-stop@0.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/sbin/ampere_boot_progress.sh
+SyslogIdentifier=ampere-boot-progress
+RemainAfterExit=no
+
+[Install]
+RequiredBy=obmc-host-startmin@%i.target
