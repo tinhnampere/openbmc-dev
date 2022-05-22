@@ -7,6 +7,7 @@ SRC_URI += " \
             file://ac03.cfg \
             file://0001-mtd-spi-nor-aspeed-force-exit-4byte-mode-when-unbind.patch \
             file://0002-mtd-spi-nor-aspeed-Force-using-4KB-sector-size-for-p.patch \
+            file://0003-adc-mux-workaround-add-delay-after-switch-adc-mux.patch \
            "
 
 SRCREV = "a9165a5c0026c0cdeded279d8d84f88f396129d6"
