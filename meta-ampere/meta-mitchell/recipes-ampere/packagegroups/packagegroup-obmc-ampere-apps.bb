@@ -44,6 +44,7 @@ RDEPENDS:${PN}-system = " \
                          libmctp \
                          mctp-ctrl \
                          pldm \
+                         peripheral-manager \
                         "
 
 RDEPENDS:${PN}-extras:remove = " phosphor-hwmon"
