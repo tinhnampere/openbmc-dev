@@ -17,4 +17,5 @@ do_install:append() {
     install -m 0755 ${WORKDIR}/ampere_firmware_upgrade.sh ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_flash_bios.sh ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_driver_binder.sh ${D}/${sbindir}/
+    install -m 0755 ${S}/nvparm ${D}/${sbindir}/
 }
