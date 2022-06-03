@@ -1,0 +1,63 @@
+From a2a81b34b77851ea1c688455649e9ec0193fb0c6 Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Mon, 30 May 2022 10:22:13 +0000
+Subject: [PATCH] mtd: spi-nor: aspeed: force exit 4byte mode when unbind
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ drivers/spi/spi-aspeed-smc.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/drivers/spi/spi-aspeed-smc.c b/drivers/spi/spi-aspeed-smc.c
+index 496f3e1e9079..5cec1a1bed7c 100644
+--- a/drivers/spi/spi-aspeed-smc.c
++++ b/drivers/spi/spi-aspeed-smc.c
+@@ -50,6 +50,9 @@
+ /* CEx Read timing compensation register */
+ #define CE0_TIMING_COMPENSATION_REG	0x94
+ 
++/* Used for Macronix and Winbond flashes. */
++#define SPINOR_OP_EX4B		0xe9	/* Exit 4-byte mode */
++
+ enum aspeed_spi_ctl_reg_value {
+ 	ASPEED_SPI_BASE,
+ 	ASPEED_SPI_READ,
+@@ -781,10 +784,35 @@ static int aspeed_spi_probe(struct platform_device *pdev)
+ 	return ret;
+ }
+ 
++static void aspeed_spi_chip_exit_4byte(struct aspeed_spi *aspi, unsigned int cs)
++{
++	if (cs == 0 && strncmp(aspi->dev->kobj.name, "1e630000.spi", 12) == 0)
++	{
++		struct aspeed_spi_chip *chip = &aspi->chips[cs];
++		struct spi_mem_op op =
++			SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_EX4B, 0),
++					SPI_MEM_OP_NO_ADDR,
++					SPI_MEM_OP_NO_DUMMY,
++					SPI_MEM_OP_DATA_OUT(0, NULL, 0));
++
++		aspeed_spi_write_reg(chip, &op);
++		dev_info(aspi->dev, "Exit 4-byte mode");
++	}
++}
++
++static void aspeed_spi_exit_4byte(struct aspeed_spi *aspi)
++{
++	int cs;
++
++	for (cs = 0; cs < aspi->data->max_cs; cs++)
++		aspeed_spi_chip_exit_4byte(aspi, cs);
++}
++
+ static int aspeed_spi_remove(struct platform_device *pdev)
+ {
+ 	struct aspeed_spi *aspi = platform_get_drvdata(pdev);
+ 
++	aspeed_spi_exit_4byte(aspi);
+ 	aspeed_spi_enable(aspi, false);
+ 	clk_disable_unprepare(aspi->clk);
+ 	return 0;
+-- 
+2.17.1
+
