@@ -4,6 +4,7 @@ SRC_URI = "git://github.com/ampere-openbmc/linux;protocol=https;branch=ampere"
 SRC_URI += " \
             file://defconfig \
             file://ac03.cfg \
+            file://0001-mtd-spi-nor-aspeed-force-exit-4byte-mode-when-unbind.patch \
             file://0003-adc-mux-workaround-add-delay-after-switch-adc-mux.patch \
            "
 
