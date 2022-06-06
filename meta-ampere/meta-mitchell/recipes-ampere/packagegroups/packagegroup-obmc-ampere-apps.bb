@@ -33,6 +33,7 @@ SUMMARY:${PN}-system = "Ampere System"
 RDEPENDS:${PN}-system = " \
                          smbios-mdr \
                          libmctp \
+                         pldm \
                         "
 
 SUMMARY:${PN}-flash = "Ampere Flash"
