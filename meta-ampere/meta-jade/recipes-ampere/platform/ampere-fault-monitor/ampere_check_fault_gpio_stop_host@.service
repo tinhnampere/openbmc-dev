@@ -1,0 +1,9 @@
+[Unit]
+Description=Stop monitor fault GPIO
+After=ampere-host-on-host-check@0.service
+
+[Service]
+Restart=no
+ExecStart=/bin/sh -c "ampere_post_check_fault_gpio.sh && echo fault_gpio_stop"
+SyslogIdentifier=ampere_check_fault_gpio
+Type=simple
