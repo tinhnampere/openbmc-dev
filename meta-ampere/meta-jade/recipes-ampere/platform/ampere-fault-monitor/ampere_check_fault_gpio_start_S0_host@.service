@@ -1,0 +1,9 @@
+[Unit]
+Description=Start monitor fault GPIO and updade fault LED status
+Before=obmc-host-start-pre@%i.target
+
+[Service]
+Restart=no
+ExecStart=/bin/sh -c "echo fault_gpio_S0_start && /usr/sbin/ampere_check_fault_gpio.sh 0"
+SyslogIdentifier=ampere_check_fault_gpio
+Type=simple
