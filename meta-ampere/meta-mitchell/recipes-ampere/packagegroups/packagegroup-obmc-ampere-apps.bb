@@ -42,6 +42,7 @@ RDEPENDS:${PN}-system = " \
                          phosphor-sel-logger \
                          phosphor-logging \
                          libmctp \
+                         mctp-ctrl \
                         "
 
 RDEPENDS:${PN}-extras:remove = " phosphor-hwmon"
