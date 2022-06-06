@@ -1,0 +1,10 @@
+[Unit]
+Description = Ampere MCTP Control
+
+[Service]
+Restart=always
+ExecStart=/usr/sbin/ampere-mctp-ctrl
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
