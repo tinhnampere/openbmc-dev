@@ -1,0 +1,29 @@
+From 000850addb4196456aae1df9270a43635b134122 Mon Sep 17 00:00:00 2001
+From: HuyLe <hule@amperecomputing.com>
+Date: Wed, 8 Jun 2022 07:20:48 +0000
+Subject: [PATCH 2/2] Fix press Reset button incorrect behavior
+
+Pressing RESET button haves the BMC incorrectly executes power cycle.
+This commit fixes the issue by changing to trigger hard reset.
+
+Signed-off-by: HuyLe <hule@amperecomputing.com>
+---
+ src/button_handler.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/button_handler.cpp b/src/button_handler.cpp
+index 60b19ff..e1ab679 100644
+--- a/src/button_handler.cpp
++++ b/src/button_handler.cpp
+@@ -213,7 +213,7 @@ void Handler::resetPressed(sdbusplus::message::message& msg)
+         log<level::INFO>("Handling reset button press");
+ 
+         std::variant<std::string> state =
+-            convertForMessage(Host::Transition::Reboot);
++            convertForMessage(Host::Transition::ForceWarmReboot);
+ 
+         auto service = getService(HOST_STATE_OBJECT_NAME, hostIface);
+         auto method = bus.new_method_call(
+-- 
+2.25.1
+
