@@ -21,7 +21,7 @@
 
 do_flash () {
 	# Check the HNOR partition available
-	HOST_MTD=$(< /proc/mtd grep "pnor" | sed -n 's/^\(.*\):.*/\1/p')
+	HOST_MTD=$(< /proc/mtd grep "hnor" | sed -n 's/^\(.*\):.*/\1/p')
 	if [ -z "$HOST_MTD" ];
 	then
 		# Check the ASpeed SMC driver binded before
@@ -37,7 +37,7 @@ do_flash () {
 		echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/bind
 		sleep 2
 
-		HOST_MTD=$(< /proc/mtd grep "pnor" | sed -n 's/^\(.*\):.*/\1/p')
+		HOST_MTD=$(< /proc/mtd grep "hnor" | sed -n 's/^\(.*\):.*/\1/p')
 		if [ -z "$HOST_MTD" ];
 		then
 			echo "Fail to probe Host SPI-NOR device"
@@ -46,7 +46,30 @@ do_flash () {
 	fi
 
 	echo "--- Flashing firmware image $IMAGE to @/dev/$HOST_MTD"
-	flashcp -v "$IMAGE" /dev/"$HOST_MTD"
+	flash_erase "/dev/$HOST_MTD" 0 0
+	if [ "$?" == '1' ]; then
+		echo "Failed to erase /dev/$HOST_MTD"
+	else
+		echo "Start writing $IMAGE to /dev/$HOST_MTD"
+		dd if="$IMAGE" of="/dev/$HOST_MTD"
+		if [ "$?" == '1' ]; then
+			echo "Failed to erase /dev/$HOST_MTD"
+		else
+			echo "Start verifying the flashed image in /dev/$HOST_MTD"
+			dd if="/dev/$HOST_MTD" of="/tmp/verifyImage.img"
+			imageSize=$(find . -name "$IMAGE" -exec ls -l {} \;| cut -d " " -f 17)
+			echo "imageSize $imageSize"
+			hexdump "$IMAGE" -n "$imageSize" > /tmp/src.txt
+			hexdump "/tmp/verifyImage.img" -n "$imageSize" > /tmp/des.txt
+			offset=$(md5sum /tmp/src.txt|cut -d " " -f 1)
+			flashedOrigin=$(md5sum /tmp/des.txt|cut -d " " -f 1)
+			if [ "$offset" == "$flashedOrigin" ]; then
+				echo "Flashing $IMAGE to /dev/$HOST_MTD is successfull!!!"
+			else
+				echo "ERROR: Flashing $IMAGE to /dev/$HOST_MTD is failed!!!"
+			fi
+		fi
+	fi
 }
 
 
