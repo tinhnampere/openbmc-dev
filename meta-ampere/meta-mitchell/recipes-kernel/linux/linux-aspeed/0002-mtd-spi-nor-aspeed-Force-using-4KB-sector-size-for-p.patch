@@ -1,0 +1,51 @@
+From 74309e1c20627c18eca4b57eface3c379ec8edec Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Tue, 15 Feb 2022 05:17:37 +0000
+Subject: [PATCH] mtd: spi-nor: aspeed: Force using 4KB sector size for hnor
+ partition label
+
+Due to memory limitation of MPro on processing LFS, so force using 4KB
+sector size for hnor partition label to be used for nvparm tool.
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ drivers/mtd/spi-nor/core.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index cc08bd707378..ad9afd99970b 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -2396,6 +2396,14 @@ static int spi_nor_select_erase(struct spi_nor *nor)
+ 	wanted_size = 4096u;
+ #endif
+ 
++	/* FIXME Due to MPro has limitation on ROM size, so
++	 * force using 4KB erase sector to nvparm tool work.
++	 * Note: This will increase the time of Host SPINOR FW update
++	 */
++	if (strncmp(nor->mtd.name, "hnor", 4) == 0) {
++		wanted_size = 4096u;
++	}
++
+ 	if (spi_nor_has_uniform_erase(nor)) {
+ 		erase = spi_nor_select_uniform_erase(map, wanted_size);
+ 		if (!erase)
+@@ -3204,6 +3212,14 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
+ 	if (ret)
+ 		return ret;
+ 
++	/* FIXME Due to MPro has limitation on ROM size, so
++	 * force using 4KB erase sector to nvparm tool work.
++	 * Note: This will increase the time of Host SPINOR FW update
++	 */
++	if (strncmp(nor->mtd.name, "hnor", 4) == 0) {
++		nor->mtd.erasesize = 4096u;
++	}
++
+ 	/* Configure OTP parameters and ops */
+ 	spi_nor_otp_init(nor);
+ 
+-- 
+2.17.1
+
