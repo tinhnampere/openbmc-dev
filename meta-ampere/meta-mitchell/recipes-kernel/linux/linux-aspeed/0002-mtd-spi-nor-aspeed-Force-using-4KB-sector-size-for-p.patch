@@ -1,8 +1,8 @@
-From 74309e1c20627c18eca4b57eface3c379ec8edec Mon Sep 17 00:00:00 2001
+From 9569013103748f8470e0ad683ba827a0ff59313f Mon Sep 17 00:00:00 2001
 From: Hieu Huynh <hieuh@os.amperecomputing.com>
-Date: Tue, 15 Feb 2022 05:17:37 +0000
-Subject: [PATCH] mtd: spi-nor: aspeed: Force using 4KB sector size for hnor
- partition label
+Date: Thu, 6 Oct 2022 10:26:01 +0700
+Subject: [PATCH 2/3] mtd: spi-nor: aspeed: Force using 4KB sector size for
+ hnor partition label
 
 Due to memory limitation of MPro on processing LFS, so force using 4KB
 sector size for hnor partition label to be used for nvparm tool.
@@ -13,10 +13,10 @@ Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
  1 file changed, 16 insertions(+)
 
 diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index cc08bd707378..ad9afd99970b 100644
+index f2c64006f8d7..a183660a682c 100644
 --- a/drivers/mtd/spi-nor/core.c
 +++ b/drivers/mtd/spi-nor/core.c
-@@ -2396,6 +2396,14 @@ static int spi_nor_select_erase(struct spi_nor *nor)
+@@ -2161,6 +2161,14 @@ static int spi_nor_select_erase(struct spi_nor *nor)
  	wanted_size = 4096u;
  #endif
  
@@ -31,7 +31,7 @@ index cc08bd707378..ad9afd99970b 100644
  	if (spi_nor_has_uniform_erase(nor)) {
  		erase = spi_nor_select_uniform_erase(map, wanted_size);
  		if (!erase)
-@@ -3204,6 +3212,14 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
+@@ -2989,6 +2997,14 @@ int spi_nor_scan(struct spi_nor *nor, const char *name,
  	if (ret)
  		return ret;
  
@@ -43,9 +43,9 @@ index cc08bd707378..ad9afd99970b 100644
 +		nor->mtd.erasesize = 4096u;
 +	}
 +
- 	/* Configure OTP parameters and ops */
- 	spi_nor_otp_init(nor);
- 
+ 	/* Send all the required SPI flash commands to initialize device */
+ 	ret = spi_nor_init(nor);
+ 	if (ret)
 -- 
-2.17.1
+2.25.1
 
