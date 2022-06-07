@@ -1,0 +1,29 @@
+From 5ac8055c2559a8f8c220e8c2e3a80d7da4916267 Mon Sep 17 00:00:00 2001
+From: HuyLe <hule@amperecomputing.com>
+Date: Mon, 18 Jul 2022 14:46:46 +0700
+Subject: [PATCH 2/3] Fix press Reset button incorrect behavior
+
+Pressing RESET button haves the BMC incorrectly executes power cycle.
+This commit fixes the issue by changing to trigger hard reset.
+
+Signed-off-by: HuyLe <hule@amperecomputing.com>
+---
+ src/button_handler.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/button_handler.cpp b/src/button_handler.cpp
+index 6ed5c55..645602d 100644
+--- a/src/button_handler.cpp
++++ b/src/button_handler.cpp
+@@ -276,7 +276,7 @@ void Handler::handlePowerEvent(PowerEvent powerEventType)
+             }
+ 
+             lg2::info("Handling reset button press");
+-            transition = Host::Transition::Reboot;
++            transition = Host::Transition::ForceWarmReboot;
+             break;
+         }
+         default:
+-- 
+2.25.1
+
