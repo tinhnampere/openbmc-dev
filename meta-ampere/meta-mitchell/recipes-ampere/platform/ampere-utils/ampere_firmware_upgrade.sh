@@ -11,6 +11,17 @@
 #    ampere_firmware_upgrade.sh eeprom <image> [<dev>]
 #      dev: 1 for main Boot EEPROM (default), 2 for secondary Boot EEPROM (if supported)
 #
+# Syntax for Mainboard CPLD:
+#    ampere_firmware_upgrade.sh main_cpld <image>
+#
+# Syntax for Backplane CPLD:
+#    ampere_firmware_upgrade.sh bp_cpld <image> [<target>]
+#      target: 1 for Front Backplane 1
+#              2 for Front Backplane 2
+#              3 for Front Backplane 3
+#              4 for Rear Backplane 1
+#              5 for Rear Backplane 2
+#
 # GPIOs :
 #    BMC_GPIOW6_SPI0_PROGRAM_SEL (GPIO 182) = 1 => The BMC takes over the S_I2C1 bus for programming.
 #    BMC_GPIOW6_SPI0_PROGRAM_SEL (GPIO 182) = 0 => The CPU takes over the S_I2C1 bus for programming.
@@ -101,6 +112,39 @@ do_fru_flash() {
 	echo "Done"
 }
 
+do_mb_cpld_flash() {
+	MB_CPLD_IMAGE=$1
+	echo "Flashing MB CPLD"
+	gpioset $(gpiofind hpm-fw-recovery)=1
+	sleep 2
+	ampere_cpldupdate_jtag -p "$MB_CPLD_IMAGE"
+	gpioset $(gpiofind hpm-fw-recovery)=0
+	echo "Done"
+}
+
+do_bp_cpld_flash() {
+	BP_CPLD_IMAGE=$1
+	BP_TARGET=$2
+	if [[ $BP_TARGET == 1 ]]; then
+		echo "Flashing Front Backplane 1 CPLD"
+		ampere_cpldupdate_i2c -b 82 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+	elif [[ $BP_TARGET == 2 ]]; then
+		echo "Flashing Front Backplane 2 CPLD"
+		ampere_cpldupdate_i2c -b 84 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+	elif [[ $BP_TARGET == 3 ]]; then
+		echo "Flashing Front Backplane 3 CPLD"
+		ampere_cpldupdate_i2c -b 86 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		elif [[ $BP_TARGET == 4 ]]; then
+		echo "Flashing Rear Backplane 1 CPLD"
+		ampere_cpldupdate_i2c -b 87 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		elif [[ $BP_TARGET == 5 ]]; then
+		echo "Flashing Rear Backplane 2 CPLD"
+		ampere_cpldupdate_i2c -b 89 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+	fi
+	
+	echo "Done"
+}
+
 if [ $# -eq 0 ]; then
 	echo "Usage:"
 	echo "  - Flash Boot EEPROM"
@@ -109,11 +153,19 @@ if [ $# -eq 0 ]; then
 	echo "     $(basename "$0") fru <Image file> [dev]"
 	echo "    Where:"
 	echo "      dev: 1 - MB FRU, 2 - BMC FRU"
+	echo "  - Flash Mainboard CPLD"
+	echo "     $(basename "$0") mb_cpld <Image file>"
+	echo "  - Flash Backplane CPLD"
+	echo "     $(basename "$0") bp_cpld <Image file> <Target> "
+	echo "    Where:"
+	echo "      Target: 1 - FrontBP1, 2 - FrontBP2, 3 - FrontBP3"
+	echo "              4 - RearBP1, 5 - RearBP2"
 	exit 0
 fi
 
 TYPE=$1
 IMAGE=$2
+TARGET=$3
 if [ -z "$3" ]; then
 	BACKUP_SEL=1
 else
@@ -126,6 +178,12 @@ if [[ $TYPE == "eeprom" ]]; then
 elif [[ $TYPE == "fru" ]]; then
 	# Run FRU update
 	do_fru_flash "$IMAGE" "$BACKUP_SEL"
+elif [[ $TYPE == "mb_cpld" ]]; then
+	# Run Mainboard CPLD update
+	do_mb_cpld_flash "$IMAGE"
+elif [[ $TYPE == "bp_cpld" ]]; then
+	# Run Backplane CPLD update
+	do_bp_cpld_flash "$IMAGE" "$TARGET"
 fi
 
 exit 0
