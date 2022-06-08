@@ -1,4 +1,5 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}/${MACHINE}:"
 
 SRC_URI += " \
             file://mt_jade.json \

@@ -89,48 +89,6 @@
     },
     {
         "Desc": {
-            "Name": "S1_CPU_Pwr",
-            "SensorType": "power"
-        },
-        "Threshold" :
-        {
-            "CriticalHigh": 500
-        },
-        "Associations":
-        [
-            [
-                "chassis",
-                "all_sensors",
-                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
-            ],
-            [
-                "inventory",
-                "sensors",
-                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
-            ]
-        ],
-        "Params": {
-            "DbusParam": [
-                {
-                    "ParamName": "P1",
-                    "Desc": {
-                        "Name": "S1_Core_VRD_Pwr",
-                        "SensorType": "power"
-                    }
-                },
-                {
-                    "ParamName": "P2",
-                    "Desc": {
-                        "Name": "S1_SOC_VRD_Pwr",
-                        "SensorType": "power"
-                    }
-                }
-            ]
-        },
-        "Expression": "(P1 + P2) >= 0 ? (P1 + P2) : NULL"
-    },
-    {
-        "Desc": {
             "Name": "S0_CPU_Pwr",
             "SensorType": "power"
         },
@@ -552,6 +510,19 @@
             "Name":"nvme_bp_max",
             "SensorType":"temperature"
         },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
         "Params":{
             "DbusParam": [
                 {
@@ -731,6 +702,19 @@
             "Name":"nvme_m2_max",
             "SensorType":"temperature"
         },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
         "Params":{
             "DbusParam": [
                 {
