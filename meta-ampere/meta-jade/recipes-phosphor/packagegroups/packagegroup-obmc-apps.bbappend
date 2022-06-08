@@ -1,4 +1,4 @@
-RDEPENDS:${PN}-extras:append:mtjade = " \
+RDEPENDS:${PN}-extras:append = " \
                                        webui-vue \
                                        phosphor-image-signing \
                                        phosphor-virtual-sensor \
@@ -6,11 +6,11 @@ RDEPENDS:${PN}-extras:append:mtjade = " \
                                        ampere-gpio-handling \
                                       "
 
-RDEPENDS:${PN}-inventory:append:mtjade = " \
+RDEPENDS:${PN}-inventory:append = " \
                                           dbus-sensors \
                                           entity-manager \
                                          "
 
-RDEPENDS:${PN}-extras:remove:mtjade = " phosphor-hwmon"
+RDEPENDS:${PN}-extras:remove = " phosphor-hwmon"
 VIRTUAL-RUNTIME_obmc-sensors-hwmon ?= "dbus-sensors"
-RDEPENDS:${PN}-extras:append:mtjade = " phosphor-virtual-sensor"
+RDEPENDS:${PN}-extras:append = " phosphor-virtual-sensor"
