@@ -510,6 +510,19 @@
             "Name":"nvme_bp_max",
             "SensorType":"temperature"
         },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/chassis/Mt_Jade"
+            ]
+        ],
         "Params":{
             "DbusParam": [
                 {
@@ -689,7 +702,7 @@
             "Name":"nvme_m2_max",
             "SensorType":"temperature"
         },
-	"Associations":
+        "Associations":
         [
             [
                 "chassis",
