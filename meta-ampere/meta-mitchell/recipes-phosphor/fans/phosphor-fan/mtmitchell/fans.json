@@ -1,0 +1,82 @@
+[
+    {
+        "name": "FAN0_F",
+        "zone": "0",
+        "sensors": ["PWM7"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM7"
+    },
+    {
+        "name": "FAN0_R",
+        "zone": "0",
+        "sensors": ["PWM0"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM0"
+    },
+    {
+        "name": "FAN1_F",
+        "zone": "0",
+        "sensors": ["PWM1"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM1"
+    },
+    {
+        "name": "FAN1_R",
+        "zone": "0",
+        "sensors": ["PWM1"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM1"
+    },
+    {
+        "name": "FAN3_F",
+        "zone": "0",
+        "sensors": ["PWM3"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM3"
+    },
+    {
+        "name": "FAN3_R",
+        "zone": "0",
+        "sensors": ["PWM3"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM3"
+    },
+    {
+        "name": "FAN4_F",
+        "zone": "0",
+        "sensors": ["PWM4"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM4"
+    },
+    {
+        "name": "FAN4_R",
+        "zone": "0",
+        "sensors": ["PWM4"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM4"
+    },
+    {
+        "name": "FAN5_F",
+        "zone": "0",
+        "sensors": ["PWM5"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM5"
+    },
+    {
+        "name": "FAN5_R",
+        "zone": "0",
+        "sensors": ["PWM5"],
+        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
+        "target_interface": "xyz.openbmc_project.Control.FanPwm",
+        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM5"
+    }
+]
