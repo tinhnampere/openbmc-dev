@@ -1,0 +1,152 @@
+[
+    {
+       "name": "FAN0_F",
+       "path": "/system/board/Mt_Mitchell_MB/FAN0_F",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN0_F"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN0_R",
+       "path": "/system/board/Mt_Mitchell_MB/FAN0_R",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN0_R"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN1_F",
+       "path": "/system/board/Mt_Mitchell_MB/FAN1_F",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN1_F"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN1_R",
+       "path": "/system/board/Mt_Mitchell_MB/FAN1_R",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN1_R"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN3_F",
+       "path": "/system/board/Mt_Mitchell_MB/FAN3_F",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN3_F"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN3_R",
+       "path": "/system/board/Mt_Mitchell_MB/FAN3_R",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN3_R"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN4_F",
+       "path": "/system/board/Mt_Mitchell_MB/FAN4_F",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN4_F"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN4_R",
+       "path": "/system/board/Mt_Mitchell_MB/FAN4_R",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN4_R"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN5_F",
+       "path": "/system/board/Mt_Mitchell_MB/FAN5_F",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN5_F"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    },
+    {
+       "name": "FAN5_R",
+       "path": "/system/board/Mt_Mitchell_MB/FAN5_R",
+       "methods": [
+          {
+             "type": "tach",
+             "sensors": [
+                "FAN5_R"
+             ]
+          }
+       ],
+       "rpolicy": {
+          "type": "anyof"
+       }
+    }
+ ]

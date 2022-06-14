@@ -1,0 +1,90 @@
+From 50109a0ac40c4bc6efd995188c3b0c783d994d84 Mon Sep 17 00:00:00 2001
+From: Tung Nguyen <tung.nguyen@amperecomputing.com>
+Date: Thu, 9 Jun 2022 09:46:02 +0000
+Subject: [PATCH 5/6] control: support sensor_path option
+
+phosphor-fan-control fixed the sensor path in the variable
+FAN_SENSOR_PATH="/xyz/openbmc_project/sensors/fan_tach/",
+and used it to drive the fan speeds, by writing the TARGET property
+The fan dbus-sensor for ast2600 has been changed, the fan speed is
+controlled by the "/xyz/openbmc_project/sensors/fanpwm/".
+
+This patch give the option to specify the sensor_path in the json
+configuration without changing the default FAN_SENSOR_PATH.
+
+Signed-off-by: Tung Nguyen <tung.nguyen@amperecomputing.com>
+---
+ control/json/fan.cpp | 12 ++++++++++++
+ control/json/fan.hpp | 14 ++++++++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/control/json/fan.cpp b/control/json/fan.cpp
+index f80e2cf..1aaffd7 100644
+--- a/control/json/fan.cpp
++++ b/control/json/fan.cpp
+@@ -36,11 +36,22 @@ Fan::Fan(const json& jsonObj) :
+     ConfigBase(jsonObj), _bus(util::SDBusPlus::getBus())
+ {
+     setInterface(jsonObj);
++    setSensorPath(jsonObj);
+     setSensors(jsonObj);
+     setZone(jsonObj);
+     setControlPath(jsonObj);
+ }
+ 
++void Fan::setSensorPath(const json& jsonObj)
++{
++    if (!jsonObj.contains("sensor_path"))
++    {
++        // The default sensor path
++        _path = FAN_SENSOR_PATH;
++    }
++    _path = jsonObj["sensor_path"].get<std::string>();
++}
++
+ void Fan::setInterface(const json& jsonObj)
+ {
+     if (!jsonObj.contains("target_interface"))
+@@ -65,6 +76,7 @@ void Fan::setSensors(const json& jsonObj)
+     for (const auto& sensor : jsonObj["sensors"])
+     {
+         path = FAN_SENSOR_PATH + sensor.get<std::string>();
++	path = _path + sensor.get<std::string>();
+         auto service = util::SDBusPlus::getService(_bus, path, _interface);
+         _sensors[path] = service;
+     }
+diff --git a/control/json/fan.hpp b/control/json/fan.hpp
+index 17f7481..45fc0f9 100644
+--- a/control/json/fan.hpp
++++ b/control/json/fan.hpp
+@@ -159,6 +159,11 @@ class Fan : public ConfigBase
+      */
+     std::map<std::string, std::string> _sensors;
+ 
++    /**
++     * Path to the sensor to `Target` property
++     */
++    std::string _path;
++
+     /* The zone this fan belongs to */
+     std::string _zone;
+ 
+@@ -168,6 +173,15 @@ class Fan : public ConfigBase
+      */
+     std::string _controlPath;
+ 
++    /**
++     * @brief Parse and set the fan's sensor path
++     *
++     * @param[in] jsonObj - JSON object for the fan
++     *
++     * Sets the sensor path to use when setting the `Target` property
++     */
++    void setSensorPath(const json& jsonObj);
++
+     /**
+      * @brief Parse and set the fan's sensor interface
+      *
+-- 
+2.25.1
+
