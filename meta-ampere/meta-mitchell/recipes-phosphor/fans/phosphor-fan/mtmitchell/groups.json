@@ -1,0 +1,60 @@
+[
+ {
+   "name": "FAN inventory",
+   "members": [
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN0_F",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN0_R",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN1_F",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN1_R",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN3_F",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN3_R",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN4_F",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN4_R",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN5_F",
+     "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN5_R"
+   ]
+  },
+  {
+    "name": "fan0 rotor inventory",
+    "members": [
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN0_F",
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN0_R"
+    ]
+  },
+  {
+    "name": "fan1 rotor inventory",
+    "members": [
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN1_F",
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN1_R"
+    ]
+  },
+  {
+    "name": "fan3 rotor inventory",
+    "members": [
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN3_F",
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN3_R"
+    ]
+  },
+  {
+    "name": "fan4 rotor inventory",
+    "members": [
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN4_F",
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN4_R"
+    ]
+  },
+  {
+    "name": "fan5 rotor inventory",
+    "members": [
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN5_F",
+      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN5_R"
+    ]
+  },
+  {
+    "name": "CPU temps",
+    "service": "xyz.openbmc_project.PLDM",
+    "members": [
+      "/xyz/openbmc_project/sensors/temperature/S0_ThrotOff_Temp",
+      "/xyz/openbmc_project/sensors/temperature/S1_ThrotOff_Temp"
+    ]
+  }
+]
