@@ -24,6 +24,7 @@ RDEPENDS:${PN}-chassis = " \
                             obmc-phosphor-buttons-handler \
                             ampere-hostctrl \
                             obmc-op-control-power \
+                            ampere-power-on-failure-check \
                          "
 
 SUMMARY:${PN}-flash = "Ampere Flash"
