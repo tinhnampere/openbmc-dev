@@ -1,0 +1,12 @@
+[Unit]
+Description=Check Power On Sequence status
+After=obmc-host-started@0.target
+After=obmc-power-start-pre@0.target
+Conflicts=obmc-host-stop@0.target
+Conflicts=phosphor-reset-host-check@0.service
+OnFailure=obmc-host-quiesce@0.target
+OnFailureJobMode=flush
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ampere_power_on_failure_check.sh
