@@ -5,6 +5,7 @@ SRC_URI += " \
             file://0002-amperecpu-Scan-CPU-sensors-in-the-first-power-on.patch \
             file://0003-amperecpu-Support-PresenceGpio-option.patch \
             file://0004-amperecpu-Support-label-_AddAssoc-option.patch \
+            file://0005-Restructure-the-code-handle-PowerState-attribute.patch \
            "
 
 PACKAGECONFIG[amperecpusensor] = "-Dampere-cpu=enabled, -Dampere-cpu=disabled"
