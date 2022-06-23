@@ -10,6 +10,7 @@ SRC_URI:append = " \
            file://ampere_power_cap.sh \
            file://nvparm \
            file://ampere_driver_binder.sh \
+           file://ampere_firmware_version.sh \
           "
 
 do_install:append() {
@@ -21,4 +22,5 @@ do_install:append() {
     install -m 0755 ${WORKDIR}/ampere_power_cap.sh ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/nvparm ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_driver_binder.sh ${D}/${sbindir}/
+    install -m 0755 ${WORKDIR}/ampere_firmware_version.sh ${D}/${sbindir}/
 }
