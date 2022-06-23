@@ -416,11 +416,11 @@
     multiplierM: 10
     path: /xyz/openbmc_project/sensors/voltage/S0_PCP_VR_Volt
 
-125: &current
+129: &current
     sensorType: 0x03
-    path: /xyz/openbmc_project/sensors/current/S0_PCP_VR_Cur
+    path: /xyz/openbmc_project/sensors/current/S0_SOC_VR_Cur
     entityID: 0x13
-    entityInstance: 53
+    entityInstance: 57
     sensorReadingType: 0x01
     multiplierM: 0x50
     offsetB: 0
@@ -557,12 +557,14 @@
     entityInstance: 56
     multiplierM: 0x32
     path: /xyz/openbmc_project/sensors/voltage/S0_SOC_VR_Volt
-129:
+125:
     <<: *current
     entityID: 0x13
-    entityInstance: 57
-    multiplierM: 0x50
-    path: /xyz/openbmc_project/sensors/current/S0_SOC_VR_Cur
+    entityInstance: 53
+    multiplierM: 0xC8
+    rExp: -2
+    path: /xyz/openbmc_project/sensors/current/S0_PCP_VR_Cur
+
 
 130:
     <<: *TEMP_DEFAULTS
@@ -636,7 +638,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 69
-    multiplierM: 0x50
+    multiplierM: 0x7D
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S0_D2D_VR_Cur
 
 142:
@@ -661,7 +664,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 73
-    multiplierM: 0x50
+    multiplierM: 0x10
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S0_IOC_VR1_Cur
 
 146:
@@ -686,7 +690,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 77
-    multiplierM: 0x50
+    multiplierM: 0x10
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S0_IOC_VR2_Cur
 
 150:
@@ -884,7 +889,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 89
-    multiplierM: 0x50
+    multiplierM: 0xC8
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S1_PCP_VR_Cur
 
 182:
@@ -984,7 +990,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 105
-    multiplierM: 0x50
+    multiplierM: 0x7D
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S1_D2D_VR_Cur
 
 198:
@@ -1009,7 +1016,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 109
-    multiplierM: 0x50
+    multiplierM: 0x10
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S1_IOC_VR1_Cur
 
 202:
@@ -1034,7 +1042,8 @@
     <<: *current
     entityID: 0x13
     entityInstance: 113
-    multiplierM: 0x50
+    multiplierM: 0x10
+    rExp: -2
     path: /xyz/openbmc_project/sensors/current/S1_IOC_VR2_Cur
 
 206:
