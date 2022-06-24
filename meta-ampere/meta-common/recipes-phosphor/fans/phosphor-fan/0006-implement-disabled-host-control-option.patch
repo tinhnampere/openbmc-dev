@@ -1,0 +1,62 @@
+From 024f5f7c973a7a099ba67cb7779db89db1359ba7 Mon Sep 17 00:00:00 2001
+From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+Date: Mon, 18 Jul 2022 08:57:24 +0700
+Subject: [PATCH 6/6] implement disabled-host-control option
+
+Some openBmc platforms use dbus-sensor and entity-manager to create
+the fan sensors and phosphor-fan to control the fans.
+In those systems, Phosphor-fan-monitor starts before the fan sensors
+are created. Fan monitor is designed to shutdown the host when there
+are no fan tach sensors. This is not necessary for those systems which
+usualy have the secondary mechanism to set fan at default speed.
+This commit supports the package option to disable host control in
+fan monitor.
+
+Tested:
+1. The host state should not be changed when BMC boots up with the
+host is on.
+
+Signed-off-by: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+---
+ configure.ac       | 9 +++++++++
+ monitor/system.cpp | 4 +++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 4a1e6f7..9471a53 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -112,6 +112,15 @@ AM_COND_IF([WANT_HOST_STATE],
+     ]
+ )
+ 
++AC_ARG_ENABLE([prevent-host-control],
++    AS_HELP_STRING([--enable-prevent-host-control], [Disable host control when the power is on and the fan tach sensors are offline.]))
++AM_CONDITIONAL([WANT_PREVENT_HOST_CONTROL], [test "x$enable_prevent_host_control" == "xyes"])
++AM_COND_IF([WANT_PREVENT_HOST_CONTROL],
++    [
++        AC_DEFINE([PREVENT_HOST_CONTROL], [1], [Disable host control when the power is on and the fan tach sensors are offline.])
++    ]
++)
++
+ # Package specific checks.
+ AS_IF([test "x$enable_presence" != "xno"], [
+     # Use runtime(json) config, otherwise default to compile time(yaml) config
+diff --git a/monitor/system.cpp b/monitor/system.cpp
+index 9da828b..dd06e8c 100644
+--- a/monitor/system.cpp
++++ b/monitor/system.cpp
+@@ -373,7 +373,9 @@ void System::powerStateChanged(bool powerStateOn)
+                 return fan->numSensorsOnDBusAtPowerOn() == 0;
+             }))
+         {
+-            handleOfflineFanController();
++#ifndef PREVENT_HOST_CONTROL
++                handleOfflineFanController();
++#endif
+             return;
+         }
+ 
+-- 
+2.25.1
+
