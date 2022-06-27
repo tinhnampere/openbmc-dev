@@ -2046,26 +2046,8 @@
             },
             {
                 "Address": "0x4c",
-                "Bus": 100,
-                "Name": "FrontBPTemp1",
-                "Type": "TMP75"
-            },
-            {
-                "Address": "0x4c",
                 "Bus": 83,
                 "Name": "RearBPTemp2",
-                "Type": "TMP75"
-            },
-            {
-                "Address": "0x4c",
-                "Bus": 101,
-                "Name": "FrontBPTemp2",
-                "Type": "TMP75"
-            },
-            {
-                "Address": "0x4c",
-                "Bus": 102,
-                "Name": "FrontBPTemp3",
                 "Type": "TMP75"
             },
             {
