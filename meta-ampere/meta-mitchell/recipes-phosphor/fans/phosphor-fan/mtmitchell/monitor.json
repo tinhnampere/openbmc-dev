@@ -4,15 +4,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN0_F",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN0_F",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM0",
+                "factor": 90,
+                "offset": 0
              }
           ]
        },
@@ -20,15 +24,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN0_R",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN0_R",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM0",
+                "factor": 87,
+                "offset": 0
              }
           ]
        },
@@ -36,15 +44,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN1_F",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN1_F",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM1",
+                "factor": 90,
+                "offset": 0
              }
           ]
        },
@@ -52,15 +64,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN1_R",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN1_R",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM1",
+                "factor": 87,
+                "offset": 0
              }
           ]
        },
@@ -68,15 +84,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN3_F",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN3_F",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM3",
+                "factor": 90,
+                "offset": 0
              }
           ]
        },
@@ -84,15 +104,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN3_R",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN3_R",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM3",
+                "factor": 87,
+                "offset": 0
              }
           ]
        },
@@ -100,15 +124,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN4_F",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN4_F",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM4",
+                "factor": 90,
+                "offset": 0
              }
           ]
        },
@@ -116,15 +144,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN4_R",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN4_R",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM4",
+                "factor": 87,
+                "offset": 0
              }
           ]
        },
@@ -132,15 +164,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN5_F",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN5_F",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM5",
+                "factor": 90,
+                "offset": 0
              }
           ]
        },
@@ -148,15 +184,19 @@
           "inventory": "/system/board/Mt_Mitchell_MB/FAN5_R",
           "method": "count",
           "count_interval": 1,
-          "deviation": 25,
-          "num_sensors_nonfunc_for_fan_nonfunc": 0,
+          "deviation": 10,
+          "num_sensors_nonfunc_for_fan_nonfunc": 1,
           "monitor_start_delay": 30,
           "set_func_on_present": true,
           "sensors": [
              {
                 "name": "FAN5_R",
                 "threshold": 30,
-                "has_target": false
+                "has_target": true,
+                "target_interface": "xyz.openbmc_project.Control.FanPwm",
+                "target_path": "/xyz/openbmc_project/control/fanpwm/PWM5",
+                "factor": 87,
+                "offset": 0
              }
           ]
        }
