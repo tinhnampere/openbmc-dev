@@ -1,42 +1,61 @@
 #!/bin/bash
-
 # This script monitors fan, over-temperature, PSU, CPU/SCP failure and update fault LED status
+
+# shellcheck disable=SC2004
+# shellcheck source=/dev/null
+source /usr/sbin/gpio-lib.sh
 
 # common variables
 	machine=$(uname -a | cut -d' ' -f2)
-	fan_sensor_path='/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/.*/'
-	inventory_service_name='xyz.openbmc_project.Inventory.Manager'
-
-	s0_fault_flag='/tmp/fault0'
-	s1_fault_flag='/tmp/fault1'
-
-	fault="false"
+	fan_interface='xyz.openbmc_project.State.Decorator.OperationalStatus'
 
 	on=1
 	off=0
 
-	gpio_fault="deasserted"
-
 	retry=5
 	wait_sec=30
 
+# Host variables
 	host_is_on="false"
-
 	host_state_service='xyz.openbmc_project.State.Host'
 	host_state_path='/xyz/openbmc_project/state/host0'
 	host_state_interface='xyz.openbmc_project.State.Host'
-
 	delay_check_host=60
 
 # fan variables
 	fan_failed="false"
-	fan_interface='xyz.openbmc_project.State.Decorator.OperationalStatus'
+	fan_sensor_path='/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/.*/'
+	inventory_service_name='xyz.openbmc_project.Inventory.Manager'
+
+# PSU variables
+	psu_failed="false"
+	psu_bus=2
+	psu0_addr=0x58
+	psu1_addr=0x59
+	status_word_cmd=0x79
+	# Following the PMBus Specification
+	# Bit[1]: CML faults
+	# Bit[2]: Over temperature faults
+	# Bit[3]: Under voltage faults
+	# Bit[4]: Over current faults
+	# Bit[5]: Over voltage fault
+	# Bit[10]: Fan faults
+	psu_fault_bitmask=0x43e
+
+# System Fault variables
+	sys_failed="false"
 
 # led variables
 	led_service='xyz.openbmc_project.LED.GroupManager'
 	led_fault_path='/xyz/openbmc_project/led/groups/system_fault'
 	led_fault_interface='xyz.openbmc_project.Led.Group'
-	fault_led_status=$off
+	fan_fault_led_status=$off
+	psu_fault_led_status=$off
+	sys_fault_led_status=$off
+	led_bus=15
+	led_addr=0x22
+	led_port0_config=0x06
+	led_port0_output=0x02
 
 # functions declaration
 check_fan_control_ready() {
@@ -96,42 +115,128 @@ check_fan_failed() {
 	done
 }
 
-turn_on_off_fault_led() {
+turn_on_off_fan_fault_led() {
 	# Control fan fault led via CPLD's I2C at slave address 0x22, I2C16.
 	# Config port direction to output
-	i2cset -f -y 15 0x22 0x06 0
-	# Turn on/off fan fault led
-	i2cset -f -y 15 0x22 0x02 "$1"
+	i2cset -f -y $led_bus $led_addr $led_port0_config 0
 
+	# Get led value
+	led_st=$(i2cget -f -y $led_bus $led_addr $led_port0_output)
+
+	if [ "$1" == $on ]; then
+		led_st=$(("$led_st" | 1))
+	else
+		led_st=$(("$led_st" & ~1))
+	fi
+
+	# Turn on/off fan fault led
+	i2cset -f -y $led_bus $led_addr $led_port0_output $led_st
+}
+
+turn_on_off_psu_fault_led() {
+	# Control psu fault led via CPLD's I2C at slave address 0x22, I2C16.
+	# Config port direction to output
+	i2cset -f -y $led_bus $led_addr $led_port0_config 0
+
+	# Get led value
+	led_st=$(i2cget -f -y $led_bus $led_addr $led_port0_output)
+	if [ "$1" == $on ]; then
+		led_st=$(("$led_st" | 2))
+	else
+		led_st=$(("$led_st" & ~2))
+	fi
+
+	# Turn on/off psu fault led
+	i2cset -f -y $led_bus $led_addr $led_port0_output $led_st
+}
+
+control_fan_fault_led() {
+	if [ "$fan_failed" == "true" ]; then
+		if [ "$fan_fault_led_status" == $off ]; then
+			turn_on_off_fan_fault_led $on
+			fan_fault_led_status=$on
+		fi
+	else
+		if [ "$fan_fault_led_status" == $on ]; then
+			turn_on_off_fan_fault_led $off
+			fan_fault_led_status=$off
+		fi
+	fi
+}
+
+check_psu_failed() {
+	local psu0_presence
+	local psu1_presence
+	local psu0_value
+	local psu1_value
+
+	psu0_presence=$(gpio_name_get presence-ps0)
+	psu0_failed="true"
+	if [ "$psu0_presence" == "0" ]; then
+		# PSU0 presence, monitor the PSUs using pmbus, check the STATUS_WORD
+		psu0_value=$(i2cget -f -y $psu_bus $psu0_addr $status_word_cmd w)
+		psu0_bit_fault=$(($psu0_value & $psu_fault_bitmask))
+		if [ "$psu0_bit_fault" != "0" ]; then
+			echo "Error: PSU0 failed"
+		else
+			psu0_failed="false"
+		fi
+	else
+		echo "Error: PSU0 is not presence"
+	fi
+
+	psu1_presence=$(gpio_name_get presence-ps1)
+	psu1_failed="true"
+	if [ "$psu1_presence" == "0" ]; then
+		# PSU1 presence, monitor the PSUs using pmbus, check the STATUS_WORD
+		psu1_value=$(i2cget -f -y $psu_bus $psu1_addr $status_word_cmd w)
+		psu1_bit_fault=$(($psu1_value & $psu_fault_bitmask))
+		if [ "$psu1_bit_fault" != "0" ]; then
+			echo "Error: PSU1 failed"
+		else
+			psu1_failed="false"
+		fi
+	else
+		echo "Error: PSU1 is not presence"
+	fi
+
+	if [ "$psu0_failed" == "true" ] || [ "$psu1_failed" == "true" ]; then
+		psu_failed="true"
+	else
+		psu_failed="false"
+	fi
+}
+
+control_psu_fault_led() {
+	if [ "$psu_failed" == "true" ]; then
+		if [ "$psu_fault_led_status" == $off ]; then
+			turn_on_off_psu_fault_led $on
+			psu_fault_led_status=$on
+		fi
+	else
+		if [ "$psu_fault_led_status" == $on ]; then
+			turn_on_off_psu_fault_led $off
+			psu_fault_led_status=$off
+		fi
+	fi
 }
 
 check_fault() {
-	if [ "$fan_failed" == "true" ]; then
+	if [[ "$fan_failed" == "true" ]] || [[ "$psu_failed" == "true" ]]; then
 		fault="true"
 	else
 		fault="false"
 	fi
 }
 
-control_fault_led() {
+# The System Fault Led turns on upon the system error, update the System Fault Led
+# based on the Fan fault status and PSU fault status
+control_sys_fault_led() {
+	# Turn on/off the System Fault Led
 	if [ "$fault" == "true" ]; then
-		if [ "$fault_led_status" == $off ]; then
-			turn_on_off_fault_led $on
-			fault_led_status=$on
-		fi
+		gpio_name_set led-fault $on
 	else
-		if [ "$fault_led_status" == $on ]; then
-			turn_on_off_fault_led $off
-			fault_led_status=$off
-		fi
-	fi
-}
-
-check_gpio_fault() {
-	if [[ -f $s0_fault_flag ]] || [[ -f $s1_fault_flag ]]; then
-		gpio_fault="asserted"
-	else
-		gpio_fault="deasserted"
+		gpio_name_set led-fault $off
 	fi
 }
 
@@ -146,19 +251,18 @@ get_fan_list
 
 while true
 do
-	check_gpio_fault
-	if [ "$gpio_fault" == "deasserted" ]; then
-		check_fan_failed
-		# TODO: add check for over_temp, Power, PSU
+	#  Monitors Fan speeds
+	check_fan_failed
+	# Monitors PSU presence
+	check_psu_failed
 
-		# check_overtemp_failed
+	# Check fault to update fail
+	check_fault
+	control_sys_fault_led
 
-		# check_power_failed
-		# check_PSU_failed
+	control_fan_fault_led
+	control_psu_fault_led
 
-		check_fault
-		control_fault_led
-	fi
 	sleep 2
 done
 
