@@ -10,6 +10,7 @@ SRC_URI:append:mtmitchell  = "file://events.json \
                               file://presence.json \
                               file://phosphor-fan-control@.service \
                               file://phosphor-fan-monitor@.service \
+                              file://phosphor-fan-presence-tach@.service \
 "
 
 do_configure:prepend:mtmitchell () {
@@ -30,4 +31,5 @@ do_install:append:mtmitchell () {
         install -d ${D}${systemd_system_unitdir}
         install -m 0644 ${WORKDIR}/phosphor-fan-monitor@.service ${D}${systemd_system_unitdir}
         install -m 0644 ${WORKDIR}/phosphor-fan-control@.service ${D}${systemd_system_unitdir}
+        install -m 0644 ${WORKDIR}/phosphor-fan-presence-tach@.service ${D}${systemd_system_unitdir}
 }
