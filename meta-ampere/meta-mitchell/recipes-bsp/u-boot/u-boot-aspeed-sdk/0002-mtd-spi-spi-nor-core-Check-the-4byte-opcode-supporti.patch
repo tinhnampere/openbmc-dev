@@ -1,0 +1,41 @@
+From 108072a383792e9a2704909eb01597f253d94eb6 Mon Sep 17 00:00:00 2001
+From: Tung Vu <tung.vu@amperecomputing.com>
+Date: Mon, 15 Aug 2022 16:05:11 +0700
+Subject: [PATCH 2/2] mtd: spi: spi-nor-core: Check the 4byte opcode supporting
+
+Root cause:
+- Currently UBoot version (19.04) is out of date from Kernel for SPINOR
+driver, UBoot driver always uses EN4B commands to enter 4B-address mode
+without checking the SPINOR supports 4bytes address op code. While
+Kernel driver will skip enter 4B-address mode if the SPINOR already
+supported 4bytes address op code.
+- Problem occurs when user presses SRST reset button, the SPINOR is
+still in 4B-address mode while the ROM AST2600 code reads SPINOR with
+3B-address mode so it cannot read data to boot.
+
+Solution:
+- Apply solution from Kernel to UBoot: NOT enter 4B-address mode for
+the SPINOR which already supported 4bytes address op code.
+
+Signed-off-by: Tung Vu <tung.vu@amperecomputing.com>
+---
+ drivers/mtd/spi/spi-nor-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/spi/spi-nor-core.c b/drivers/mtd/spi/spi-nor-core.c
+index 633ca00834..059b121592 100644
+--- a/drivers/mtd/spi/spi-nor-core.c
++++ b/drivers/mtd/spi/spi-nor-core.c
+@@ -2653,7 +2653,8 @@ static int spi_nor_init(struct spi_nor *nor)
+ 	}
+ 
+ 	if (nor->addr_width == 4 &&
+-	    (JEDEC_MFR(nor->info) != SNOR_MFR_SPANSION)) {
++	    (JEDEC_MFR(nor->info) != SNOR_MFR_SPANSION) &&
++	    !(nor->info->flags & SPI_NOR_4B_OPCODES)) {
+ 
+ 		/*
+ 		 * If the RESET# pin isn't hooked up properly, or the system
+-- 
+2.25.1
+
