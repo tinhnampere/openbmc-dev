@@ -1,0 +1,39 @@
+From b8e2c213ea38b2d17299d277f20919ebf1b3af64 Mon Sep 17 00:00:00 2001
+From: Dung Cao <dung@os.amperecomputing.com>
+Date: Thu, 7 Jul 2022 09:08:48 +0000
+Subject: [PATCH] Add the free instance id dbus interface
+
+Add dbus interface for releasing granted instance id.
+
+Signed-off-by: Dung Cao <dung@os.amperecomputing.com>
+---
+ .../PLDM/Requester.interface.yaml                | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/yaml/xyz/openbmc_project/PLDM/Requester.interface.yaml b/yaml/xyz/openbmc_project/PLDM/Requester.interface.yaml
+index 2585c82..2a99ad6 100644
+--- a/yaml/xyz/openbmc_project/PLDM/Requester.interface.yaml
++++ b/yaml/xyz/openbmc_project/PLDM/Requester.interface.yaml
+@@ -49,3 +49,19 @@ methods:
+                 PLDM instance id.
+       errors:
+           - xyz.openbmc_project.Common.Error.TooManyResources
++
++    - name: FreeInstanceId
++      description: >
++          Free PLDM instance id, for the input MCTP EID.
++
++      parameters:
++          - name: EID
++            type: byte
++            description: >
++                The MCTP endpoint, specified by 'eid' (endpoint id), for which the
++                PLDM instance id needs to be freed.
++                
++          - name: InstanseId
++            type: byte
++            description: >
++                The PLDM instance id needs to be freed.
+-- 
+2.17.1
+
