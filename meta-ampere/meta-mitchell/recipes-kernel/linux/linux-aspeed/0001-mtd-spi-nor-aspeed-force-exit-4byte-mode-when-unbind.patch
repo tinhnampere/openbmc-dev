@@ -1,44 +1,54 @@
-From a2a81b34b77851ea1c688455649e9ec0193fb0c6 Mon Sep 17 00:00:00 2001
-From: Hieu Huynh <hieuh@os.amperecomputing.com>
-Date: Mon, 30 May 2022 10:22:13 +0000
-Subject: [PATCH] mtd: spi-nor: aspeed: force exit 4byte mode when unbind
+From ffd807e5a7cb135a38b9d25209487e63905148aa Mon Sep 17 00:00:00 2001
+From: Chanh Nguyen <chanh@os.amperecomputing.com>
+Date: Thu, 7 Jul 2022 09:50:31 +0700
+Subject: [PATCH] spi: aspeed: force exit 4byte mode when unbind
+
+This patch will support exit 4byte address mode once
+unbind the driver.
+
+Current the issi part have the exit 4byte addr mode is 0x29
+. Other parts, the exit  4byte addr mode is 0xe9.
 
 Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
 ---
- drivers/spi/spi-aspeed-smc.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/spi/spi-aspeed-smc.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/drivers/spi/spi-aspeed-smc.c b/drivers/spi/spi-aspeed-smc.c
-index 496f3e1e9079..5cec1a1bed7c 100644
+index 496f3e1e9079..8fa90bb56d9b 100644
 --- a/drivers/spi/spi-aspeed-smc.c
 +++ b/drivers/spi/spi-aspeed-smc.c
-@@ -50,6 +50,9 @@
+@@ -50,6 +50,12 @@
  /* CEx Read timing compensation register */
  #define CE0_TIMING_COMPENSATION_REG	0x94
  
 +/* Used for Macronix and Winbond flashes. */
 +#define SPINOR_OP_EX4B		0xe9	/* Exit 4-byte mode */
 +
++/* Used for ISSI flashes. */
++#define SPINOR_OP_EX4B_ISSI		0x29	/* Exit 4-byte mode */
++
  enum aspeed_spi_ctl_reg_value {
  	ASPEED_SPI_BASE,
  	ASPEED_SPI_READ,
-@@ -781,10 +784,35 @@ static int aspeed_spi_probe(struct platform_device *pdev)
+@@ -781,10 +787,38 @@ static int aspeed_spi_probe(struct platform_device *pdev)
  	return ret;
  }
  
-+static void aspeed_spi_chip_exit_4byte(struct aspeed_spi *aspi, unsigned int cs)
++static void aspeed_spi_chip_exit_4byte(struct aspeed_spi *aspi, unsigned int cs, unsigned int cmd)
 +{
 +	if (cs == 0 && strncmp(aspi->dev->kobj.name, "1e630000.spi", 12) == 0)
 +	{
 +		struct aspeed_spi_chip *chip = &aspi->chips[cs];
 +		struct spi_mem_op op =
-+			SPI_MEM_OP(SPI_MEM_OP_CMD(SPINOR_OP_EX4B, 0),
++			SPI_MEM_OP(SPI_MEM_OP_CMD(cmd, 0),
 +					SPI_MEM_OP_NO_ADDR,
 +					SPI_MEM_OP_NO_DUMMY,
 +					SPI_MEM_OP_DATA_OUT(0, NULL, 0));
 +
 +		aspeed_spi_write_reg(chip, &op);
-+		dev_info(aspi->dev, "Exit 4-byte mode");
++		dev_info(aspi->dev, "Exit 4-byte mode by command 0x%x", cmd);
 +	}
 +}
 +
@@ -47,7 +57,10 @@ index 496f3e1e9079..5cec1a1bed7c 100644
 +	int cs;
 +
 +	for (cs = 0; cs < aspi->data->max_cs; cs++)
-+		aspeed_spi_chip_exit_4byte(aspi, cs);
++	{
++		aspeed_spi_chip_exit_4byte(aspi, cs, SPINOR_OP_EX4B);
++		aspeed_spi_chip_exit_4byte(aspi, cs, SPINOR_OP_EX4B_ISSI);
++	}
 +}
 +
  static int aspeed_spi_remove(struct platform_device *pdev)
