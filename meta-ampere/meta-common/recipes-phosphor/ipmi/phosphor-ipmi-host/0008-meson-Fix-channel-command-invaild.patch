@@ -1,0 +1,49 @@
+From faeb073974768c04dc8390253df75c0ff9f86d36 Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Mon, 11 Jul 2022 14:00:38 +0700
+Subject: [PATCH] meson: Fix channel command invaild
+
+Fix channel command invaild, `channelcommands.cpp` file is missing in
+meson.build.
+
+Tested:
+
+ipmitool channel info 1
+Channel 0x1 info:
+  Channel Medium Type   : 802.3 LAN
+  Channel Protocol Type : IPMB-1.0
+  Session Support       : multi-session
+  Active Session Count  : 0
+  Protocol Vendor ID    : 7154
+  Volatile(active) Settings
+    Alerting            : enabled
+    Per-message Auth    : enabled
+    User Level Auth     : enabled
+    Access Mode         : always available
+  Non-Volatile Settings
+    Alerting            : enabled
+    Per-message Auth    : enabled
+    User Level Auth     : enabled
+    Access Mode         : always available
+
+Change-Id: I36436a78b4344087b4d079fa1775383005a0bd3d
+Signed-off-by: Jian Zhang <zhangjian.3032@bytedance.com>
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index 86a50ee..3b15faa 100644
+--- a/meson.build
++++ b/meson.build
+@@ -220,6 +220,7 @@ libipmi20_src = [
+   'ipmi_fru_info_area.cpp',
+   'read_fru_data.cpp',
+   'sensordatahandler.cpp',
++  'user_channel/channelcommands.cpp',
+   generated_src,
+   transportoem_src,
+   conf_h,
+-- 
+2.17.1
+
