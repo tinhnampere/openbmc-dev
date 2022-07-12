@@ -1,0 +1,12 @@
+[Unit]
+Description=Ampere System Firmware Hang Handler
+Wants=obmc-mapper.target
+After=obmc-mapper.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/env ampere_sysfw_hang_handler.sh
+
+[Install]
+WantedBy=multi-user.target
