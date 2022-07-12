@@ -110,7 +110,7 @@ input_gpios_in_bmc_reboot=(
     "s0-pcp-oc-warn-n"
     "s1-pcp-oc-warn-n"
     "cpu-bios-recover"
-    "cpld-done"
+    "s0-heartbeat"
     "hs-scout-proc-hot"
     "s0-vr-hot-n"
     "s1-vr-hot-n"
