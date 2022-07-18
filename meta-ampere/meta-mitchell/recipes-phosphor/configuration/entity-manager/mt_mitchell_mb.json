@@ -2046,7 +2046,7 @@
             },
             {
                 "Address": "0x4c",
-                "Bus": 82,
+                "Bus": 100,
                 "Name": "FrontBPTemp1",
                 "Type": "TMP75"
             },
@@ -2058,13 +2058,13 @@
             },
             {
                 "Address": "0x4c",
-                "Bus": 84,
+                "Bus": 101,
                 "Name": "FrontBPTemp2",
                 "Type": "TMP75"
             },
             {
                 "Address": "0x4c",
-                "Bus": 86,
+                "Bus": 102,
                 "Name": "FrontBPTemp3",
                 "Type": "TMP75"
             },
