@@ -10,4 +10,4 @@ SRC_URI += " \
             file://0003-adc-mux-workaround-add-delay-after-switch-adc-mux.patch \
            "
 
-SRCREV = "a9165a5c0026c0cdeded279d8d84f88f396129d6"
+SRCREV = "f9c38e1ca0da284b378f97b9de89dd3803c2eee1"
