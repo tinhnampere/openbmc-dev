@@ -38,8 +38,16 @@ function post-platform-init() {
         echo "PSU is on. Setting PSON to 0"
         gpio_name_set power-chassis-control 0
     else
-        echo "PSU is off. Setting PSON to 1"
-        gpio_name_set power-chassis-control 1
+        echo "pgood D-Bus property response as 0. PSU is off."
+        # for unknown reason when stress reboot bmc power-control.exe detect power-chassis-good is 1 (power on)
+        # But "busctl get-property org.openbmc.control.Power /org/openbmc/control/power0 org.openbmc.control.Power pgood" responses 0 (power off)
+        # Add sleep 3 seconds after the pgood dbus reponse (power off) and recheck the power-chassis-good to confirm about the PSU power state
+        sleep 3
+        pgood=$(gpio_name_get power-chassis-good)
+        if [ "$pgood" == '0' ]; then
+            echo "power-chassis-good reponse as 0. Confirm PSU is off. Setting PSON to 1."
+            gpio_name_set power-chassis-control 1
+        fi
     fi
     gpio_name_set host0-sysreset-n 1
 
