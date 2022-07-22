@@ -6,15 +6,15 @@
 	platform=$(uname -a | cut -d' ' -f2)
 	fan_sensor_path='/xyz/openbmc_project/inventory/system/chassis/Mt_Jade/.*/'
 	inventory_service_name='xyz.openbmc_project.Inventory.Manager'
-	
+
 	s0_fault_flag='/tmp/fault0'
 	s1_fault_flag='/tmp/fault1'
-	
+
 	fault="false"
-	
+
 	on="true"
 	off="false"
-	
+
 	gpio_fault="deasserted"
 
 	retry=5
@@ -31,7 +31,14 @@
 # fan variables
 	fan_failed="false"
 	fan_interface='xyz.openbmc_project.State.Decorator.OperationalStatus'
-	
+
+# PSU variables
+	psu_failed="false"
+	psu_service_name='xyz.openbmc_project.PSUSensor'
+	psu_interface='xyz.openbmc_project.State.Decorator.OperationalStatus'
+	psu0_sensor_path='/xyz/openbmc_project/State/Decorator/PSU0_OperationalStatus'
+	psu1_sensor_path='/xyz/openbmc_project/State/Decorator/PSU1_OperationalStatus'
+
 # led variables
 	led_service='xyz.openbmc_project.LED.GroupManager'
 	led_fault_path='/xyz/openbmc_project/led/groups/system_fault'
@@ -42,7 +49,7 @@
 check_fan_control_ready() {
 	local cnt=0
 	local tmp
-	
+
 	while [ $cnt -le $retry ]
 	do
 		tmp=$(systemctl status phosphor-fan-control-init@0.service | grep Process | cut -d'/' -f5 | cut -d')' -f0)
@@ -80,7 +87,7 @@ check_fan_failed() {
 	check_host_status 0
 	if [ "$host_is_on" == "false" ]; then
 		return
-	fi	
+	fi
 
 	local tmp
 
@@ -100,8 +107,22 @@ turn_on_off_fault_led() {
 	busctl set-property $led_service $led_fault_path $led_fault_interface Asserted b "$1" >> /dev/null
 }
 
+check_psu_failed() {
+	local psu0_func_status
+	local psu1_func_status
+
+	psu0_func_status=$(busctl get-property $psu_service_name $psu0_sensor_path $psu_interface functional | cut -d' ' -f2)
+	psu1_func_status=$(busctl get-property $psu_service_name $psu1_sensor_path $psu_interface functional | cut -d' ' -f2)
+	if [[ "$psu0_func_status" == "false" ]] || [[ "$psu1_func_status" == "false" ]]; then
+		echo "Error: PSU failed"
+		psu_failed="true"
+	else
+		psu_failed="false"
+	fi
+}
+
 check_fault() {
-	if [ "$fan_failed" == "true" ]; then
+	if [[ "$fan_failed" == "true" ]] || [[ "$psu_failed" == "true" ]]; then
 		fault="true"
 	else
 		fault="false"
@@ -128,7 +149,7 @@ check_gpio_fault() {
 	else
 		gpio_fault="deasserted"
 	fi
-}	
+}
 
 # daemon start
 check_host_status $delay_check_host
@@ -144,13 +165,11 @@ do
 	check_gpio_fault
 	if [ "$gpio_fault" == "deasserted" ]; then
 		check_fan_failed
-		# TODO: add check for over_temp, Power, PSU
-		
-		# check_overtemp_failed
-		
-		# check_power_failed
-		# check_PSU_failed
-			
+		# TODO: add check for over_temp
+
+		# Monitors PSU presence
+		check_psu_failed
+
 		check_fault
 		control_fault_led
 	fi
@@ -158,4 +177,3 @@ do
 done
 
 exit 1
-
