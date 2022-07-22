@@ -1,4 +1,0 @@
-DEVPATH=/dev/input/by-path/platform-gpio-keys-event
-KEY=190
-POLARITY=1
-TARGET=ampere_overtemp@1.service

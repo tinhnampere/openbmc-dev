@@ -10,15 +10,13 @@ RDEPENDS:${PN} += "virtual/obmc-gpio-monitor"
 RDEPENDS:${PN} += "bash"
 
 AMPERE_MONITOR_INSTANCES = " \
-                            S0_overtemp S0_hightemp_start S0_hightemp_stop \
-                            S1_overtemp S1_hightemp_start S1_hightemp_stop \
+                            S0_hightemp_start S0_hightemp_stop \
+                            S1_hightemp_start S1_hightemp_stop \
                            "
 
 SYSTEMD_ENVIRONMENT_FILE:${PN} +=" \
-                                  obmc/gpio/S0_overtemp \
                                   obmc/gpio/S0_hightemp_start \
                                   obmc/gpio/S0_hightemp_stop \
-                                  obmc/gpio/S1_overtemp \
                                   obmc/gpio/S1_hightemp_start \
                                   obmc/gpio/S1_hightemp_stop \
                                  "
@@ -29,9 +27,7 @@ TGT = "multi-user.target"
 FMT = "../${TMPL}:${TGT}.requires/${INSTFMT}"
 
 SYSTEMD_SERVICE:${PN} += " \
-                          ampere_overtemp@.service \
                           ampere_hightemp_start@.service \
                           ampere_hightemp_stop@.service \
                          "
 SYSTEMD_LINK:${PN} += "${@compose_list(d, 'FMT', 'AMPERE_MONITOR_INSTANCES')}"
-
