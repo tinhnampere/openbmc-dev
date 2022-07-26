@@ -7,7 +7,7 @@ SRC_URI = "git://github.com/ampere-openbmc/pldm;protocol=https;branch=ampere \
            file://eid_to_name.json \
            file://dbus_to_effecter.json \
           "
-SRCREV = "2febd38686892b5b17852f036fd9b287840b40ee"
+SRCREV = "3164586ce7ff81b2636e3bc84a8803f9152a804f"
 
 SYSTEMD_SERVICE:${PN}:remove = " \
                                 pldmSoftPowerOff.service \
