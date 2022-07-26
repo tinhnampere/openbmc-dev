@@ -46,10 +46,10 @@ fi
 # Check CPU presence, identify whether it is 1P or 2P system
 oneP_presence=$(gpio_name_get presence-cpu0)
 twoP_presence=$(gpio_name_get presence-cpu1)
-if [ "$oneP_presence" == "0" ]; then
-	ampere_add_redfishevent.sh OpenBMC.0.1.AmpereEvent.OK "Host firmware boots with 1 Processor"
-elif [ "$oneP_presence" == "0" ] && [ "$twoP_presence" == "0" ]; then
+if [ "$oneP_presence" == "0" ] && [ "$twoP_presence" == "0" ]; then
 	ampere_add_redfishevent.sh OpenBMC.0.1.AmpereEvent.OK "Host firmware boots with 2 Processor"
+elif [ "$oneP_presence" == "0" ]; then
+	ampere_add_redfishevent.sh OpenBMC.0.1.AmpereEvent.OK "Host firmware boots with 1 Processor"
 else
 	ampere_add_redfishevent.sh OpenBMC.0.1.AmpereEvent.OK "No Processor is present"
 fi
