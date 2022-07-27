@@ -59,10 +59,22 @@
     <<: *TEMP_DEFAULTS
     entityInstance: 12
     path: /xyz/openbmc_project/sensors/temperature/NVMeFBP_MaxTemp
+13:
+    <<: *TEMP_DEFAULTS
+    entityInstance: 13
+    path: /xyz/openbmc_project/sensors/temperature/NVMeRBP_MaxTemp
 14:
     <<: *TEMP_DEFAULTS
     entityInstance: 14
     path: /xyz/openbmc_project/sensors/temperature/FrontBP_MaxTemp
+15:
+    <<: *TEMP_DEFAULTS
+    entityInstance: 15
+    path: /xyz/openbmc_project/sensors/temperature/RearBP_MaxTemp
+16:
+    <<: *TEMP_DEFAULTS
+    entityInstance: 16
+    path: /xyz/openbmc_project/sensors/temperature/OCP_MaxTemp
 
 17: &FAN_DEFAULTS
   entityID: 29
