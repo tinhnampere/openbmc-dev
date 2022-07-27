@@ -1,6 +1,6 @@
 1: &TEMP_DEFAULTS
     bExp: 0
-    entityID: 30
+    entityID: 0x7
     entityInstance: 1
     interfaces:
         xyz.openbmc_project.Sensor.Value:
@@ -37,32 +37,54 @@
     path: /xyz/openbmc_project/sensors/temperature/PcieZoneTemp2
 7:
     <<: *TEMP_DEFAULTS
-    entityInstance: 7
+    entityID: 0x37
+    entityInstance: 1
     path: /xyz/openbmc_project/sensors/temperature/SysCabInletTemp
 8:
     <<: *TEMP_DEFAULTS
-    entityInstance: 8
+    entityID: 0x40
+    entityInstance: 1
     path: /xyz/openbmc_project/sensors/temperature/MBInletTemp1
 9:
     <<: *TEMP_DEFAULTS
-    entityInstance: 9
+    entityID: 0x40
+    entityInstance: 2
     path: /xyz/openbmc_project/sensors/temperature/MBInletTemp2
 10:
     <<: *TEMP_DEFAULTS
-    entityInstance: 10
+    entityID: 0x42
+    entityInstance: 1
     path: /xyz/openbmc_project/sensors/temperature/AST2600CPUTemp
 11:
     <<: *TEMP_DEFAULTS
-    entityInstance: 11
+    entityID: 0x1e
+    entityInstance: 1
     path: /xyz/openbmc_project/sensors/temperature/NVMeM2_MaxTemp
 12:
     <<: *TEMP_DEFAULTS
-    entityInstance: 12
+    entityID: 0x1e
+    entityInstance: 2
     path: /xyz/openbmc_project/sensors/temperature/NVMeFBP_MaxTemp
+13:
+    <<: *TEMP_DEFAULTS
+    entityID: 0x1e
+    entityInstance: 3
+    path: /xyz/openbmc_project/sensors/temperature/NVMeRBP_MaxTemp
 14:
     <<: *TEMP_DEFAULTS
-    entityInstance: 14
+    entityID: 0x1e
+    entityInstance: 4
     path: /xyz/openbmc_project/sensors/temperature/FrontBP_MaxTemp
+15:
+    <<: *TEMP_DEFAULTS
+    entityID: 0x1e
+    entityInstance: 5
+    path: /xyz/openbmc_project/sensors/temperature/RearBP_MaxTemp
+16:
+    <<: *TEMP_DEFAULTS
+    entityID: 0x1e
+    entityInstance: 6
+    path: /xyz/openbmc_project/sensors/temperature/OCP_MaxTemp
 
 17: &FAN_DEFAULTS
   entityID: 29
@@ -1191,10 +1213,12 @@
     path: /xyz/openbmc_project/sensors/power/total_power
 243:
     <<: *TEMP_DEFAULTS
+    entityID: 0x1e
     entityInstance: 58
     path: /xyz/openbmc_project/sensors/temperature/PSU0_TEMP
 244:
     <<: *TEMP_DEFAULTS
+    entityID: 0x1e
     entityInstance: 59
     path: /xyz/openbmc_project/sensors/temperature/PSU1_TEMP
 245:
