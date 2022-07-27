@@ -504,5 +504,47 @@
             ]
         },
         "Expression": "max(0,(n1 == n1) ? n1 : NULL,(n2 == n2) ? n2 : NULL)"
+    },
+    {
+        "Desc":{
+            "Name":"OCP_MaxTemp",
+            "SensorType":"temperature"
+        },
+        "Threshold" :
+        {
+            "CriticalHigh": 105
+        },
+        "Associations":
+        [
+            [
+                "chassis",
+                "all_sensors",
+                "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_Motherboard"
+            ],
+            [
+                "inventory",
+                "sensors",
+                "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_Motherboard"
+            ]
+        ],
+        "Params":{
+            "DbusParam": [
+                {
+                    "ParamName": "n1",
+                    "Desc": {
+                        "Name": "peripheral0",
+                        "SensorType": "temperature"
+                    }
+                },
+                {
+                    "ParamName": "n2",
+                    "Desc": {
+                        "Name": "peripheral1",
+                        "SensorType": "temperature"
+                    }
+                }
+            ]
+        },
+        "Expression": "max(0,(n1 == n1) ? n1 : NULL,(n2 == n2) ? n2 : NULL)"
     }
 ]
