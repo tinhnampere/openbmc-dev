@@ -2,6 +2,10 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 DEPENDS += "gpioplus libgpiod"
 
+SRC_URI += " \
+	      file://0001-Limit-power-actions-when-the-host-is-off.patch \
+	   "
+
 EXTRA_OEMESON:append = " \
                          -Dhost-gpios=enabled \
                          -Dboot-count-max-allowed=1 \
