@@ -8,4 +8,4 @@ DEPENDS = "boost sdbusplus systemd"
 
 S = "${WORKDIR}/git/ampere-cpld-fwupdate"
 SRC_URI = "git://github.com/ampere-openbmc/ampere-misc;protocol=https;branch=ampere"
-SRCREV= "273d7c93ea05ac5c5ef2beec17a937efffcf0512"
+SRCREV= "73b89517baa851749c6349296c3b8df7fccfae17"
