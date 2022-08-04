@@ -3,7 +3,7 @@ DESCRIPTION = "Daemon to monitor and report the platform peripheral status"
 HOMEPAGE = "https://github.com/ampere-openbmc/ampere-misc"
 PR = "r1"
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=1f1ec9217a57889c4e85d0d060512cdd"
 
 inherit meson pkgconfig
 inherit systemd
@@ -18,7 +18,7 @@ DEPENDS += "i2c-tools"
 S = "${WORKDIR}/git/peripheral-manager"
 SRC_URI = "git://github.com/ampere-openbmc/ampere-misc.git;protocol=https;branch=ampere"
 SRC_URI += " file://config.json"
-SRCREV = "11c6b42c4afadac64c27e5fe866f6e386ca50206"
+SRCREV = "f206458b3c87ec4e8791d09b0048f7b4a4293526"
 
 SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.peripheral.manager.service"
 
