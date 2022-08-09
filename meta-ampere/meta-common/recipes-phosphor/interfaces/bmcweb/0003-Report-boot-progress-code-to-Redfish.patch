@@ -1,0 +1,81 @@
+From 39242a533b778002bee25e9a55b69a3fbc78c9a9 Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Tue, 9 Aug 2022 14:53:20 +0700
+Subject: [PATCH 3/3] Report boot progress code to Redfish
+
+This commit support reports the boot progress code to Redfish by
+following:
+- Update Laststate to OEM when receiving boot progress code command
+- Add new OemLastState property to store boot progress code record
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ redfish-core/lib/systems.hpp | 38 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/redfish-core/lib/systems.hpp b/redfish-core/lib/systems.hpp
+index 81403370..9a7b7a0b 100644
+--- a/redfish-core/lib/systems.hpp
++++ b/redfish-core/lib/systems.hpp
+@@ -732,6 +732,12 @@ inline std::string dbusToRfBootProgress(const std::string& dbusBootProgress)
+     {
+         rfBpLastState = "OSRunning";
+     }
++    else if (dbusBootProgress ==
++             "xyz.openbmc_project.State.Boot.Progress.ProgressStages."
++             "OEM")
++    {
++        rfBpLastState = "OEM";
++    }
+     else
+     {
+         BMCWEB_LOG_DEBUG << "Unsupported D-Bus BootProgress "
+@@ -828,6 +834,37 @@ inline void getBootProgress(const std::shared_ptr<bmcweb::AsyncResp>& aResp)
+         });
+ }
+ 
++/**
++ * @brief Retrieves boot progress Oem of the system
++ *
++ * @param[in] aResp  Shared pointer for generating response message.
++ *
++ * @return None.
++ */
++inline void getBootProgressOem(const std::shared_ptr<bmcweb::AsyncResp>& aResp)
++{
++    crow::connections::systemBus->async_method_call(
++        [aResp](const boost::system::error_code ec,
++                const std::variant<std::string>& bootProgressOem) {
++            if (ec)
++                return;
++
++            const std::string* bootProgressOemStr =
++                std::get_if<std::string>(&bootProgressOem);
++
++            if (!bootProgressOemStr)
++            {
++                messages::internalError(aResp->res);
++                return;
++            }
++            aResp->res.jsonValue["BootProgress"]["OemLastState"] =
++            *bootProgressOemStr;
++        },
++        "xyz.openbmc_project.State.Host", "/xyz/openbmc_project/state/host0",
++        "org.freedesktop.DBus.Properties", "Get",
++        "xyz.openbmc_project.State.Boot.Progress", "BootProgressOem");
++}
++
+ /**
+  * @brief Retrieves boot override type over DBUS and fills out the response
+  *
+@@ -2940,6 +2977,7 @@ inline void requestRoutesSystems(App& app)
+         getHostState(asyncResp);
+         getBootProperties(asyncResp);
+         getBootProgress(asyncResp);
++        getBootProgressOem(asyncResp);
+         getPCIeDeviceList(asyncResp, "PCIeDevices");
+         getHostWatchdogTimer(asyncResp);
+         getPowerRestorePolicy(asyncResp);
+-- 
+2.25.1
+
