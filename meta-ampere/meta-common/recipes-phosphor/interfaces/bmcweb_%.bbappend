@@ -11,4 +11,5 @@ EXTRA_OEMESON:append = " \
 SRC_URI += " \
             file://0001-Re-enable-vm-nbdproxy-for-Virtual-Media.patch \
             file://0002-Redfish-Add-message-registries-for-Ampere-event.patch \
+            file://0003-Report-boot-progress-code-to-Redfish.patch \
            "
