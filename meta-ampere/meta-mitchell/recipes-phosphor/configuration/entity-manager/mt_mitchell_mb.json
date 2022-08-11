@@ -153,13 +153,13 @@
                         "Direction": "greater than",
                         "Name": "upper critical",
                         "Severity": 1,
-                        "Value": 1.05
+                        "Value": 1.085
                     },
                     {
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 0.96
+                        "Value": 0.97
                     },
                     {
                         "Direction": "less than",
@@ -188,13 +188,13 @@
                         "Direction": "greater than",
                         "Name": "upper critical",
                         "Severity": 1,
-                        "Value": 1.05
+                        "Value": 1.085
                     },
                     {
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 0.96
+                        "Value": 0.97
                     },
                     {
                         "Direction": "less than",
@@ -223,13 +223,13 @@
                         "Direction": "greater than",
                         "Name": "upper critical",
                         "Severity": 1,
-                        "Value": 1.05
+                        "Value": 1.085
                     },
                     {
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 0.96
+                        "Value": 0.97
                     },
                     {
                         "Direction": "less than",
@@ -258,13 +258,13 @@
                         "Direction": "greater than",
                         "Name": "upper critical",
                         "Severity": 1,
-                        "Value": 1.05
+                        "Value": 1.085
                     },
                     {
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 0.96
+                        "Value": 0.97
                     },
                     {
                         "Direction": "less than",
@@ -299,7 +299,7 @@
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 1.020
+                        "Value": 1.005
                     },
                     {
                         "Direction": "less than",
@@ -334,7 +334,7 @@
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 1.020
+                        "Value": 1.005
                     },
                     {
                         "Direction": "less than",
