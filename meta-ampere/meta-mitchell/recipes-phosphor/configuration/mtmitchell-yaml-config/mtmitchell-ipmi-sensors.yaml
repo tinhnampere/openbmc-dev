@@ -303,12 +303,12 @@
 86:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 30
-    multiplierM: 26
+    multiplierM: 27
     path: /xyz/openbmc_project/sensors/voltage/5V
 87:
     <<: *VOLTAGE_DEFAULTS
     entityInstance: 31
-    multiplierM: 26
+    multiplierM: 27
     path: /xyz/openbmc_project/sensors/voltage/5V_SB
 88:
     <<: *VOLTAGE_DEFAULTS
