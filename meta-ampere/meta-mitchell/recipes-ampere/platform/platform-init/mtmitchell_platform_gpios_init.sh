@@ -94,7 +94,6 @@ output_high_gpios_in_bmc_reboot=(
     "cpld-user-mode"
     "jtag-srst-n"
     "host0-shd-req-n"
-    "ocp-aux-pwren"
 )
 
 output_low_gpios_in_bmc_reboot=(
@@ -102,7 +101,6 @@ output_low_gpios_in_bmc_reboot=(
     "s0-rtc-lock"
     "hpm-fw-recovery"
     "led-fault"
-    "led-identify"
     "spi-nor-access"
     "host0-special-boot"
 )
@@ -131,7 +129,6 @@ input_gpios_in_bmc_reboot=(
     "jtag-dbgr-prsnt-n"
     "ps0-ac-loss-n"
     "ps1-ac-loss-n"
-    "identify-button"
     "s1-ddr-save"
     "sys-pgood"
     "presence-cpu1"
