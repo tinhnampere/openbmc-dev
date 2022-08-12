@@ -127,19 +127,19 @@ do_bp_cpld_flash() {
 	BP_TARGET=$2
 	if [[ $BP_TARGET == 1 ]]; then
 		echo "Flashing Front Backplane 1 CPLD"
-		ampere_cpldupdate_i2c -b 82 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		ampere_cpldupdate_i2c -b 101 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
 	elif [[ $BP_TARGET == 2 ]]; then
 		echo "Flashing Front Backplane 2 CPLD"
-		ampere_cpldupdate_i2c -b 84 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		ampere_cpldupdate_i2c -b 102 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
 	elif [[ $BP_TARGET == 3 ]]; then
 		echo "Flashing Front Backplane 3 CPLD"
-		ampere_cpldupdate_i2c -b 86 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		ampere_cpldupdate_i2c -b 100 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
 		elif [[ $BP_TARGET == 4 ]]; then
 		echo "Flashing Rear Backplane 1 CPLD"
-		ampere_cpldupdate_i2c -b 87 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		ampere_cpldupdate_i2c -b 103 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
 		elif [[ $BP_TARGET == 5 ]]; then
 		echo "Flashing Rear Backplane 2 CPLD"
-		ampere_cpldupdate_i2c -b 89 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
+		ampere_cpldupdate_i2c -b 104 -s 0x40 -t 2 -p "$BP_CPLD_IMAGE"
 	fi
 	
 	echo "Done"
