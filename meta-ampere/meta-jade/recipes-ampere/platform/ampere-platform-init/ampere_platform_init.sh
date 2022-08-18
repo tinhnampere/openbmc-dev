@@ -43,4 +43,3 @@ if [ "$bootstatus" == '32' ]; then
 	gpio_configure_output "$S1_SPECIAL_BOOT" 0
 fi
 
-gpio_configure_output "$BMC_READY" 1
