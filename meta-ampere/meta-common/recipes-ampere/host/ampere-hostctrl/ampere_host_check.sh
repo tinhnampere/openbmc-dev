@@ -27,4 +27,9 @@ do
 	sleep 1
 done
 
+if command -v ampere_post_check_fault_gpio.sh;
+then
+	ampere_post_check_fault_gpio.sh
+fi
+
 exit 1
