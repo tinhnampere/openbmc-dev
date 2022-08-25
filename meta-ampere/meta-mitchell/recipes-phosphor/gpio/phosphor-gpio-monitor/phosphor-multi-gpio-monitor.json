@@ -26,5 +26,12 @@
         "EventMon": "FALLING",
         "Target": "ampere_overtemp@1.service",
         "Continue": true
+    },
+    {
+        "Name": "ID_BUTTON",
+        "LineName": "identify-button",
+        "EventMon": "FALLING",
+        "Target": "id-button-pressed.service",
+        "Continue": true
     }
 ]

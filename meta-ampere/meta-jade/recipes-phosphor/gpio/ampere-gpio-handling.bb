@@ -12,7 +12,6 @@ RDEPENDS:${PN} += "bash"
 SRC_URI += " \
             file://toggle_fault_led.sh \
             file://ampere_psu_reset_hotswap.sh \
-            file://toggle_identify_led.sh \
             file://ampere_scp_failover.sh \
            "
 
@@ -65,7 +64,6 @@ SYSTEMD_LINK:${PN} += "${@compose_list(d, 'FMT', 'AMPERE_MONITOR_INSTANCES')}"
 do_install() {
     install -d ${D}${sbindir}
     install -m 0755 ${WORKDIR}/toggle_fault_led.sh ${D}${sbindir}/
-    install -m 0755 ${WORKDIR}/toggle_identify_led.sh ${D}${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_psu_reset_hotswap.sh ${D}${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_scp_failover.sh ${D}${sbindir}/
 }

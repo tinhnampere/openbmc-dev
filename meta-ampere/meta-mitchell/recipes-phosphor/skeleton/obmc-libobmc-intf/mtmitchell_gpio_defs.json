@@ -32,11 +32,6 @@
             "direction": "both"
         },
         {
-            "name": "ID_BTN",
-            "pin": "S2",
-            "direction": "both"
-        },
-        {
             "name": "OCP_MAIN_PWREN",
             "pin": "W1",
             "direction": "out"
