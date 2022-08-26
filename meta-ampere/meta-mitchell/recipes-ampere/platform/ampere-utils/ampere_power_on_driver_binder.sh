@@ -8,6 +8,12 @@ declare -a DRIVER_NAMEs=(
 							"102-0071"
 							"103-0071"
 							"104-0071"
+							"100-0050"
+							"101-0050"
+							"102-0050"
+							"100-004c"
+							"101-004c"
+							"102-004c"
 						)
 # Driver path should include / at the end
 declare -a DRIVER_PATHs=(
@@ -17,6 +23,12 @@ declare -a DRIVER_PATHs=(
 							"/sys/bus/i2c/drivers/pca954x/"
 							"/sys/bus/i2c/drivers/pca954x/"
 							"/sys/bus/i2c/drivers/pca954x/"
+							"/sys/bus/i2c/drivers/at24/"
+							"/sys/bus/i2c/drivers/at24/"
+							"/sys/bus/i2c/drivers/at24/"
+							"/sys/bus/i2c/drivers/lm75/"
+							"/sys/bus/i2c/drivers/lm75/"
+							"/sys/bus/i2c/drivers/lm75/"
 						)
 
 # get length of an array
@@ -26,8 +38,8 @@ arraylength=${#DRIVER_NAMEs[@]}
 for (( i=0; i<"${arraylength}"; i++ ));
 do
 	bindFile="${DRIVER_PATHs[$i]}bind"
-	unbindFile="${DRIVER_PATHs[$i]}unbind"
 	driverDir="${DRIVER_PATHs[$i]}${DRIVER_NAMEs[$i]}"
+	echo "binding ${DRIVER_NAMEs[$i]} path ${DRIVER_PATHs[$i]} on Chassi Power On"
 	if [ -d "$driverDir" ]; then
 		echo "Driver ${DRIVER_NAMEs[$i]} is already bound."
 	else

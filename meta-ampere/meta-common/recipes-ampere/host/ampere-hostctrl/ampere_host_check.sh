@@ -8,8 +8,20 @@ if [ "$st" == "Running\"" ]; then
 	exit 0
 fi
 
+# Five seconds after start ampere-host-on-host-check@.service is enough
+# to finish triggering PSON.
+# TODO:
+# Create one ampere-power-on@.target check point to indentify that the PSON
+# is already triggered to replace this timming solution.
+sleep 5
+echo "Try to bind driver after power on if does not"
+if command -v ampere_power_on_driver_binder.sh;
+then
+	ampere_power_on_driver_binder.sh
+fi
+
 # Time out checking for Host ON is 60s
-cnt=60
+cnt=55
 while [ "$cnt" -gt 0 ];
 do
 	cnt=$((cnt - 1))
@@ -18,6 +30,7 @@ do
 		Get ss xyz.openbmc_project.Condition.HostFirmware \
 		CurrentFirmwareCondition | cut -d"." -f6)
 	if [ "$st" == "Running\"" ]; then
+		echo "Try to bind driver after host on if does not"
 		if command -v ampere_driver_binder.sh;
 		then
 			ampere_driver_binder.sh
