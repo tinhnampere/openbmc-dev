@@ -1,0 +1,217 @@
+From 1ef0e4597517538a0254f45c2e64bf6cd28a71cd Mon Sep 17 00:00:00 2001
+From: Dung Cao <dung@os.amperecomputing.com>
+Date: Thu, 25 Aug 2022 07:27:22 +0000
+Subject: [PATCH] LogService: Add function to get AdditionalDataURI of FaultLog
+
+Add function to download cper/crashdump type of FaultLog.
+
+Example of fault log entry referencing CPER log:
+
+{
+  "@odata.id": "/redfish/v1/Managers/bmc/LogServices/FaultLog/Entries/1",
+  "@odata.type": "#LogEntry.v1_8_0.LogEntry",
+  "AdditionalDataURI": "/redfish/v1/Systems/system/LogServices/FaultLog/Entries/RAS_CPER_2022-10-05.09:09:21/attachment",
+  "Created": "2022-10-05T09:09:21.382499+00:00",
+  "DiagnosticDataType": "OEM",
+  "EntryType": "Oem",
+  "Id": "1",
+  "Name": "FaultLog Dump Entry",
+  "OEMDiagnosticDataType": "OpenBMC Fault Log",
+  "OemRecordFormat": "CPER"
+},
+
+Can download the CPER log via AdditionalDataURI:
+curl -k -H "X-Auth-Token: $token" -X GET  \
+/redfish/v1/Systems/system/LogServices/FaultLog/Entries/RAS_CPER_2022-10-05.09:09:21/attachment \
+--output cper.dump
+
+Example of fault log entry for BERT log:
+
+{
+"@odata.id": "/redfish/v1/Managers/bmc/LogServices/FaultLog/Entries/1",
+"@odata.type": "#LogEntry.v1_9_0.LogEntry",
+"AdditionalDataURI": "/redfish/v1/Systems/system/LogServices/Crashdump/Entries/RAS_BERT_2022-12-20.03:41:06",
+"Created": "2022-12-20T03:41:06.708+00:00",
+"DiagnosticDataType": "OEM",
+"EntryType": "Oem",
+"Id": "1",
+"Name": "FaultLog Dump Entry",
+"OEMDiagnosticDataType": "OpenBMC Fault Log",
+"OemRecordFormat": "Crashdump"
+},
+
+Can download the BERT data via AdditionalDataURI:
+
+curl -k -H "X-Auth-Token: $token" -X GET  \
+    /redfish/v1/Systems/system/LogServices/Crashdump/Entries/RAS_BERT_2022-12-20.03:41:06/attachment \
+    --output bert.dump
+
+Signed-off-by: Dung Cao <dung@os.amperecomputing.com>
+---
+ redfish-core/include/redfish.hpp  |   2 +
+ redfish-core/lib/log_services.hpp | 112 ++++++++++++++++++++++++++++--
+ 2 files changed, 108 insertions(+), 6 deletions(-)
+
+diff --git a/redfish-core/include/redfish.hpp b/redfish-core/include/redfish.hpp
+index e98a04cd..85b3007c 100644
+--- a/redfish-core/include/redfish.hpp
++++ b/redfish-core/include/redfish.hpp
+@@ -134,6 +134,8 @@ class RedfishService
+         requestRoutesFaultLogDumpEntryCollection(app);
+         requestRoutesFaultLogDumpEntry(app);
+         requestRoutesFaultLogDumpClear(app);
++
++        requestRoutesFaultLogDownload(app);
+ #endif
+ 
+ #ifndef BMCWEB_ENABLE_REDFISH_DBUS_LOG_ENTRIES
+diff --git a/redfish-core/lib/log_services.hpp b/redfish-core/lib/log_services.hpp
+index bf196d7b..4a68b0d1 100644
+--- a/redfish-core/lib/log_services.hpp
++++ b/redfish-core/lib/log_services.hpp
+@@ -570,15 +570,15 @@ inline void
+                 if (entryType == "CPER")
+                 {
+                     thisEntry["AdditionalDataURI"] =
+-                        "/redfish/v1/Systems/system/LogServices/" +
+-                        primaryLogId;
++                        "/redfish/v1/Systems/system/LogServices/FaultLog/Entries/" +
++                        primaryLogId + "/attachment";
+                     thisEntry["OemRecordFormat"] = "CPER";
+                 }
+                 else if (entryType == "Crashdump")
+                 {
+                     thisEntry["AdditionalDataURI"] =
+                         "/redfish/v1/Systems/system/LogServices/Crashdump/Entries/" +
+-                        primaryLogId;
++                        primaryLogId + "/attachment";
+                     thisEntry["OemRecordFormat"] = "Crashdump";
+                 }
+             }
+@@ -682,15 +682,15 @@ inline void
+                 if (entryType == "CPER")
+                 {
+                     asyncResp->res.jsonValue["AdditionalDataURI"] =
+-                        "/redfish/v1/Systems/system/LogServices/" +
+-                        primaryLogId;
++                            "/redfish/v1/Systems/system/LogServices/FaultLog/Entries/" +
++                            primaryLogId + "/attachment";
+                     asyncResp->res.jsonValue["OemRecordFormat"] = "CPER";
+                 }
+                 else if (entryType == "Crashdump")
+                 {
+                     asyncResp->res.jsonValue["AdditionalDataURI"] =
+                         "/redfish/v1/Systems/system/LogServices/Crashdump/Entries/" +
+-                        primaryLogId;
++                        primaryLogId + "/attachment";
+                     asyncResp->res.jsonValue["OemRecordFormat"] = "Crashdump";
+                 }
+             }
+@@ -4111,4 +4111,104 @@ inline void requestRoutesPostCodesEntry(App& app)
+         });
+ }
+ 
++inline void requestRoutesFaultLogDownload(App& app)
++{
++    // Note: Deviated from redfish privilege registry for GET & HEAD
++    // method for security reasons.
++    BMCWEB_ROUTE(
++        app,
++        "/redfish/v1/Systems/system/LogServices/FaultLog/Entries/<str>/attachment")
++        .privileges(redfish::privileges::getLogEntry)
++        .methods(boost::beast::http::verb::get)(
++            [&app](const crow::Request& req,
++               const std::shared_ptr<bmcweb::AsyncResp>& asyncResp,
++               const std::string& primaryLogId) {
++        if (!redfish::setUpRedfishRoute(app, req, asyncResp))
++        {
++            return;
++        }
++        std::string faultLogDir = "/run/bmcweb/redfish/v1/Systems/system/LogServices/";
++        std::string path = faultLogDir + primaryLogId;
++        FILE* fp = fopen(path.c_str(), "rb");
++        if (fp == NULL)
++        {
++            BMCWEB_LOG_ERROR << "The FaultLog Dir is not exist: " << path.c_str();
++            messages::internalError(asyncResp->res);
++            return;
++        }
++        auto fd = fileno(fp);
++        long long int size = lseek(fd, 0, SEEK_END);
++        if (size == -1)
++        {
++            messages::internalError(asyncResp->res);
++            return;
++        }
++
++        std::vector<char> data(static_cast<size_t>(size));
++        long long int rc = lseek(fd, 0, SEEK_SET);
++        if (rc == -1)
++        {
++            messages::internalError(asyncResp->res);
++            return;
++        }
++        rc = read(fd, data.data(), data.size());
++        if ((rc == -1) || (rc != size))
++        {
++            messages::internalError(asyncResp->res);
++            return;
++        }
++        close(fd);
++        std::string output(data.data(), data.size());
++        asyncResp->res.body() = std::move(output);
++        });
++
++    BMCWEB_ROUTE(
++        app,
++        "/redfish/v1/Systems/system/LogServices/Crashdump/Entries/<str>/attachment")
++        .privileges(redfish::privileges::getLogEntry)
++        .methods(boost::beast::http::verb::get)(
++            [&app](const crow::Request& req,
++               const std::shared_ptr<bmcweb::AsyncResp>& asyncResp,
++               const std::string& primaryLogId) {
++        if (!redfish::setUpRedfishRoute(app, req, asyncResp))
++        {
++            return;
++        }
++        std::string faultLogDir = "/run/bmcweb/redfish/v1/Systems/system/LogServices/";
++        std::string path = faultLogDir + primaryLogId;
++        FILE* fp = fopen(path.c_str(), "rb");
++        if (fp == NULL)
++        {
++            BMCWEB_LOG_ERROR << "The FaultLog Dir is not exist: " << path.c_str();
++            messages::internalError(asyncResp->res);
++            return;
++        }
++        auto fd = fileno(fp);
++        long long int size = lseek(fd, 0, SEEK_END);
++        if (size == -1)
++        {
++            messages::internalError(asyncResp->res);
++            return;
++        }
++
++        std::vector<char> data(static_cast<size_t>(size));
++        long long int rc = lseek(fd, 0, SEEK_SET);
++        if (rc == -1)
++        {
++            messages::internalError(asyncResp->res);
++            return;
++        }
++        rc = read(fd, data.data(), data.size());
++        if ((rc == -1) || (rc != size))
++        {
++            messages::internalError(asyncResp->res);
++            return;
++        }
++        close(fd);
++        std::string output(data.data(), data.size());
++        asyncResp->res.body() = std::move(output);
++        });
++}
++
++
+ } // namespace redfish
+-- 
+2.17.1
+

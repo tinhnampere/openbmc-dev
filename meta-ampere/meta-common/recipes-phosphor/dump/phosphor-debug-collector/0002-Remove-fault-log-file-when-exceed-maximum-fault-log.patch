@@ -1,0 +1,60 @@
+From 39fdd383a35db3204fb35d16856d6fff0be36bfb Mon Sep 17 00:00:00 2001
+From: Dung Cao <dung@os.amperecomputing.com>
+Date: Thu, 6 Oct 2022 03:42:06 +0000
+Subject: [PATCH 2/2] Remove fault log file when exceed maximum fault log
+
+When the number of fault log entries exceed the maximum limit,
+not only remove the oldest entry but also remove the fault log file
+that stored the additional data like cper, crashdump, etc.
+
+Signed-off-by: Dung Cao <dung@os.amperecomputing.com>
+---
+ dump_manager_faultlog.cpp | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
+
+diff --git a/dump_manager_faultlog.cpp b/dump_manager_faultlog.cpp
+index 750ca58..6550572 100644
+--- a/dump_manager_faultlog.cpp
++++ b/dump_manager_faultlog.cpp
+@@ -479,8 +479,36 @@ void Manager::saveEarliestEntry()
+         }
+         else
+         {
+-            // Delete earliest entry from fault log entries map
+-            (entries.at(earliestEntryId))->delete_();
++            // Delete earliest entry from save entries map
++            auto firstPtr = savedEntries->begin();
++            uint32_t delEntryId = firstPtr->first;
++            auto delEntryPtr = (firstPtr->second).get();
++            FaultDataType delEntryType =
++                dynamic_cast<faultlog::Entry*>(delEntryPtr)->type();
++            std::string primaryLogId =
++                dynamic_cast<faultlog::Entry*>(delEntryPtr)->primaryLogId();
++            // Remove fault log file
++            std::string faultLogFilePath;
++            switch (delEntryType) {
++            case FaultDataType::CPER:
++                faultLogFilePath = std::string(CPER_LOG_PATH) + primaryLogId;
++                break;
++            case FaultDataType::Crashdump:
++                faultLogFilePath = std::string(CORE_FILE_DIR) + primaryLogId;
++                break;
++            default:
++                faultLogFilePath = std::string(CPER_LOG_PATH) + primaryLogId;
++                break;
++            }
++            std::filesystem::remove(faultLogFilePath.c_str());
++            savedEntries->erase(delEntryId);
++            //Insert to save entries map
++            dynamic_cast<phosphor::dump::faultlog::Entry*>(
++                earliestEntry->second.get())
++                ->parentMap = savedEntries;
++            // Insert earliest entry into saved entries map
++            savedEntries->insert(std::make_pair(
++                earliestEntryId, std::move(earliestEntry->second)));
+         }
+     }
+ 
+-- 
+2.17.1
+
