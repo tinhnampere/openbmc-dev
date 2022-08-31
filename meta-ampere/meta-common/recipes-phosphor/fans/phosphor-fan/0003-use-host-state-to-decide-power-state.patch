@@ -1,0 +1,35 @@
+From 91ceff200d2dd0a4dc4d428e4f3607a3bf012bcd Mon Dec 09 00:00:00 2022
+From: Chau Ly <chaul@amperecomputing.com>
+Date: Fri, 09 Dec 2022 17:01:59 +0700
+Subject: [PATCH 3/3] Use host state to decide power state
+
+phosphos-fan-monitor service is using pgood to decide the power state.
+When power state is off, phosphor-fan-monitor should not check
+functionality of fans. However, with Ampere's Softoff (e.g via power cycle),
+it takes long for pgood to change state after the command to power cycle host
+is taken, so phosphor-fan-monitor fails to detect the power state is off, and
+continues to check functionality. This results in fans being marked non-functional
+when host is off during power cycle. This patch changes to using CurrentHostState
+to decide the power state. When the CurrentHostState is TransitioningToOff, which
+is set right after the power cycle command, the power state will be considered as
+off.
+
+Tested:
+1. $ ipmitool power cycle
+-> No non-functional log of fan is logged.
+
+Signed-off-by: Chau Ly <chaul@amperecomputing.com>
+
+diff --git a/monitor/system.cpp b/monitor/system.cpp
+index 6a57427..c824715 100644
+--- a/monitor/system.cpp
++++ b/monitor/system.cpp
+@@ -52,7 +52,7 @@ System::System(Mode mode, sdbusplus::bus_t& bus,
+                const sdeventplus::Event& event) :
+     _mode(mode),
+     _bus(bus), _event(event),
+-    _powerState(std::make_unique<PGoodState>(
++    _powerState(std::make_unique<HostPowerState>(
+         bus, std::bind(std::mem_fn(&System::powerStateChanged), this,
+                        std::placeholders::_1))),
+     _thermalAlert(bus, THERMAL_ALERT_OBJPATH)
