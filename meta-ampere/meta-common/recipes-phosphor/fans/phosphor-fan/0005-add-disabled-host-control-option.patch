@@ -1,0 +1,75 @@
+From 337dfaebac66479b0f975e58d9529a6f4b3ccdde Mon Sep 17 00:00:00 2001
+From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+Date: Wed, 24 Aug 2022 17:01:59 +0700
+Subject: [PATCH 5/6] add disabled-host-control option
+
+Some openBmc platforms use dbus-sensor and entity-manager to create
+the fan sensors and phosphor-fan to control the fans.
+In those systems, Phosphor-fan-monitor starts before the fan sensors
+are created. Fan monitor is designed to shutdown the host when there
+are no fan tach sensors. This is not necessary for those systems which
+usualy have the secondary mechanism to set fan at default speed.
+This commit supports the package option to disable host control in
+fan monitor.
+
+Tested:
+1. The host state should not be changed when BMC boots up with the
+host is on.
+
+Signed-off-by: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
+---
+ meson.build        | 4 ++++
+ meson_options.txt  | 6 ++++++
+ monitor/system.cpp | 4 +++-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index 0307a1f..d82b153 100644
+--- a/meson.build
++++ b/meson.build
+@@ -95,6 +95,10 @@ conf.set(
+     'NUM_MONITOR_LOG_ENTRIES', get_option('num-monitor-log-entries'))
+ conf.set_quoted(
+     'FAN_MONITOR_YAML_FILE', get_option('fan-monitor-yaml-file'))
++if get_option('prevent-host-control').enabled()
++    conf.set('PREVENT_HOST_CONTROL', '')
++endif
++
+ 
+ # JSON-or-YAML (all programs)
+ if get_option('json-config').enabled()
+diff --git a/meson_options.txt b/meson_options.txt
+index 50a8b4f..0130d5b 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -64,6 +64,12 @@ option(
+     description: 'Maximum number of entries in the monitor log.'
+ )
+ 
++option(
++    'prevent-host-control', value : 'enabled', type: 'feature',
++    description: 'Disable host control when the power is on and the fan tach sensors are offline.',
++)
++
++
+ # Presence
+ 
+ option(
+diff --git a/monitor/system.cpp b/monitor/system.cpp
+index 1dfb5a2..8f9cbba 100644
+--- a/monitor/system.cpp
++++ b/monitor/system.cpp
+@@ -375,7 +375,9 @@ void System::powerStateChanged(bool powerStateOn)
+                 return fan->numSensorsOnDBusAtPowerOn() == 0;
+             }))
+         {
+-            handleOfflineFanController();
++#ifndef PREVENT_HOST_CONTROL
++                handleOfflineFanController();
++#endif
+             return;
+         }
+ 
+-- 
+2.25.1
+

@@ -1,0 +1,192 @@
+From 353142d3a58e01c82d5eea5589d626d40103fdd1 Mon Sep 17 00:00:00 2001
+From: Chanh Nguyen <chanh@os.amperecomputing.com>
+Date: Sat, 19 Mar 2022 05:34:06 +0000
+Subject: [PATCH 2/6] control: Support target_path option in configuration file
+
+The target path contain the interface xyz.openbmc_project.control.Fan* can be
+difference between phosphor-hwmon and dbus-sensor.
+
+In phosphor-hwmon, it is "/xyz/openbmc_project/sensors/fan_tach/".
+In dbus-sensor, it is "/xyz/openbmc_project/control/fanpwm/"
+
+This commit supports setting this option in the configuration file.
+By default, it is "/xyz/openbmc_project/sensors/fan_tach/"
+
+Tested:  Make sure phosphor-fan-control can control the fan.
+
+Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
+---
+ control/example/fans.yaml                |  5 +++++
+ control/fan.cpp                          | 14 +++++++++++++-
+ control/gen-fan-zone-defs.py             |  3 +++
+ control/json/fan.cpp                     | 11 +++++++++++
+ control/json/fan.hpp                     | 18 ++++++++++++++++++
+ control/templates/fan_zone_defs.mako.cpp |  3 ++-
+ control/types.hpp                        |  3 ++-
+ 7 files changed, 54 insertions(+), 3 deletions(-)
+
+diff --git a/control/example/fans.yaml b/control/example/fans.yaml
+index 2583256..81a12d3 100644
+--- a/control/example/fans.yaml
++++ b/control/example/fans.yaml
+@@ -11,6 +11,10 @@
+ #   sensors: [The list of sensors for this fan]
+ #   target_interface: [The interface implemented by the fan target.
+ #                      Default is xyz.openbmc_project.Control.FanSpeed]
++#   target_path: [The full target path, which implement
++#                 xyz.openbmc_project.Control.FanSpeed or
++#                 xyz.openbmc_project.Control.FanPwm interface
++#                 Default is /xyz/openbmc_project/sensors/fan_tach/
+ 
+ #The cooling zone, a number, and the cooling profile, a string,
+ #have to match the corresponding values in the fan zone yaml
+@@ -30,3 +34,4 @@
+ #    sensors:
+ #     - fan1
+ #    target_interface: xyz.openbmc_project.Control.FanPwm
++#    target_path: /xyz/openbmc_project/control/fanpwm/PWM1
+diff --git a/control/fan.cpp b/control/fan.cpp
+index d368791..fbe9dcd 100644
+--- a/control/fan.cpp
++++ b/control/fan.cpp
+@@ -36,11 +36,23 @@ Fan::Fan(sdbusplus::bus_t& bus, const FanDefinition& def) :
+     _bus(bus), _name(std::get<fanNamePos>(def)),
+     _interface(std::get<targetInterfacePos>(def))
+ {
++    std::string controlPath = std::get<targetControlPathPos>(def);
++
+     std::string path;
+     auto sensors = std::get<sensorListPos>(def);
+     for (auto& s : sensors)
+     {
+-        path = FAN_SENSOR_PATH + s;
++        if(controlPath.empty())
++        {
++            // If not set the target_path in fans config,
++            // by default is /xyz/openbmc_project/sensors/fan_tach/
++            path = FAN_SENSOR_PATH + s;
++        }
++        else
++        {
++            path = controlPath;
++        }
++
+         auto service = util::SDBusPlus::getService(bus, path, _interface);
+         _sensors[path] = service;
+     }
+diff --git a/control/gen-fan-zone-defs.py b/control/gen-fan-zone-defs.py
+index 72c416d..1166141 100755
+--- a/control/gen-fan-zone-defs.py
++++ b/control/gen-fan-zone-defs.py
+@@ -697,6 +697,9 @@ def getFansInZone(zone_num, profiles, fan_data):
+         fan['target_interface'] = f.get(
+             'target_interface',
+             'xyz.openbmc_project.Control.FanSpeed')
++        fan['target_path'] = f.get(
++            'target_path',
++            '')
+         fans.append(fan)
+ 
+     return fans
+diff --git a/control/json/fan.cpp b/control/json/fan.cpp
+index b9c5a58..4105e45 100644
+--- a/control/json/fan.cpp
++++ b/control/json/fan.cpp
+@@ -38,6 +38,7 @@ Fan::Fan(const json& jsonObj) :
+     setInterface(jsonObj);
+     setSensors(jsonObj);
+     setZone(jsonObj);
++    setControlPath(jsonObj);
+ }
+ 
+ void Fan::setInterface(const json& jsonObj)
+@@ -156,4 +157,14 @@ void Fan::unlockTarget(uint64_t target)
+     }
+ }
+ 
++void Fan::setControlPath(const json& jsonObj)
++{
++    if (!jsonObj.contains("target_path"))
++    {
++        log<level::ERR>("Missing fan sensor control path interface",
++                        entry("JSON=%s", jsonObj.dump().c_str()));
++    }
++    _controlPath = jsonObj["target_path"].get<std::string>();
++}
++
+ } // namespace phosphor::fan::control::json
+diff --git a/control/json/fan.hpp b/control/json/fan.hpp
+index cac8dd2..dee7b2e 100644
+--- a/control/json/fan.hpp
++++ b/control/json/fan.hpp
+@@ -103,6 +103,17 @@ class Fan : public ConfigBase
+         return _target;
+     }
+ 
++    /**
++     * @brief Get the sensors' control path
++     *
++     * @return Path interface containing `xyz.openbmc_project.Control.FanPwm`
++     *         to use on sensors
++     */
++    inline const auto& getControlPath() const
++    {
++        return _controlPath;
++    }
++
+     /**
+      * Sets the target value on all contained sensors
+      *
+@@ -161,6 +172,12 @@ class Fan : public ConfigBase
+     /* The zone this fan belongs to */
+     std::string _zone;
+ 
++    /**
++     * Path interface containing the `xyz.openbmc_project.Control.FanPwm`
++     * interface to use in controlling the fan's speed
++     */
++    std::string _controlPath;
++
+     /**
+      * @brief Parse and set the fan's sensor interface
+      *
+@@ -188,6 +205,7 @@ class Fan : public ConfigBase
+      * Sets the zone this fan is included in.
+      */
+     void setZone(const json& jsonObj);
++    void setControlPath(const json& jsonObj);
+ };
+ 
+ } // namespace phosphor::fan::control::json
+diff --git a/control/templates/fan_zone_defs.mako.cpp b/control/templates/fan_zone_defs.mako.cpp
+index 214df56..687106f 100644
+--- a/control/templates/fan_zone_defs.mako.cpp
++++ b/control/templates/fan_zone_defs.mako.cpp
+@@ -90,7 +90,8 @@ const std::vector<ZoneGroup> Manager::_zoneLayouts
+                             "${sensor}",
+                         %endfor
+                         },
+-                        "${fan['target_interface']}"
++                        "${fan['target_interface']}",
++                        "${fan['target_path']}"
+                     },
+                 %endfor
+                 },
+diff --git a/control/types.hpp b/control/types.hpp
+index 570cf35..ca0fe44 100644
+--- a/control/types.hpp
++++ b/control/types.hpp
+@@ -35,8 +35,9 @@ using PropertyVariantType =
+ constexpr auto fanNamePos = 0;
+ constexpr auto sensorListPos = 1;
+ constexpr auto targetInterfacePos = 2;
++constexpr auto targetControlPathPos = 3;
+ using FanDefinition =
+-    std::tuple<std::string, std::vector<std::string>, std::string>;
++    std::tuple<std::string, std::vector<std::string>, std::string, std::string>;
+ 
+ constexpr auto pathPos = 0;
+ constexpr auto intfPos = 1;
+-- 
+2.25.1
+
