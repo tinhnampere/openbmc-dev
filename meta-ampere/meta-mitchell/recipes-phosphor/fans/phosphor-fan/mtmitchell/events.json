@@ -48,6 +48,11 @@
         "property": { "name": "Functional" }
       },
       {
+        "name": "fan3 rotor inventory",
+        "interface": "xyz.openbmc_project.State.Decorator.OperationalStatus",
+        "property": { "name": "Functional" }
+      },
+      {
         "name": "fan4 rotor inventory",
         "interface": "xyz.openbmc_project.State.Decorator.OperationalStatus",
         "property": { "name": "Functional" }
@@ -159,159 +164,59 @@
       }
     ]
   },
+
   {
-    // Collect group temperatures each iteration the repeating timer expires
-    "name": "Fan control timer loop",
-    "groups": [
-      {
-        "name": "CPU temps",
-        "interface": "xyz.openbmc_project.Sensor.Value",
-        "property": { "name": "Value" }
-      }
-    ],
-    "triggers": [
-      {
-        "class": "timer",
-        "type": "repeating",
-        "interval": 1000000,
-        "preload_groups": true
-      }
-    ],
-    "actions": [
-      {
-        "name": "set_net_increase_target",
-        "groups": [
-          {
-            "name": "CPU temps",
-            "interface": "xyz.openbmc_project.Sensor.Value",
-            "property": { "name": "Value" }
-          }
-        ],
-        "delta": 0.1,
-        "state_parameter_name": "cpu_temp_param"
-      },
-      {
-        "name": "set_net_decrease_target",
-        "groups": [
-          {
-            "name": "CPU temps",
-            "interface": "xyz.openbmc_project.Sensor.Value",
-            "property": { "name": "Value" }
-          }
-        ],
-        "delta": 3,
-        "state_parameter_name": "cpu_temp_param"
-      }
-    ]
-  },
-  {
-    "name": "Set offset parameter",
-    "groups": [
-      {
-        "name": "CPU temps",
-        "interface": "xyz.openbmc_project.Sensor.Value",
-        "property": { "name": "Value" }
-      }
-    ],
-    "triggers": [
-      {
-        "class": "init",
-        "method": "get_properties"
-      },
-      {
-        "class": "signal",
-        "signal": "interfaces_added"
-      },
-      {
-        "class": "timer",
-        "type": "repeating",
-        "interval": 500000,
-        "preload_groups": true
-      }
-    ],
-    "actions": [
-      {
-        "name": "set_parameter_from_group_max",
-        "parameter_name": "cpu_temp_param",
-        "modifier": {
-          "operator": "less_than",
-          "default_value": 24.0,
-          "value": [
-            { "arg_value": 8.1, "parameter_value": 255.0 },
-            { "arg_value": 9.1, "parameter_value": 243.0 },
-            { "arg_value": 10.1, "parameter_value": 230.0 },
-            { "arg_value": 11.1, "parameter_value": 217.0 },
-            { "arg_value": 12.1, "parameter_value": 204.0 },
-            { "arg_value": 13.1, "parameter_value": 192.0 },
-            { "arg_value": 14.1, "parameter_value": 179.0 },
-            { "arg_value": 15.1, "parameter_value": 166.0 },
-            { "arg_value": 25.1, "parameter_value": 115.0 },
-            { "arg_value": 30.1, "parameter_value": 90.0 },
-            { "arg_value": 35.1, "parameter_value": 64.0 },
-            { "arg_value": 104.1, "parameter_value": 64.0 }
+      "name": "Target mapping from CPU temps",
+      "groups": [
+        {
+          "name": "CPU temps",
+          "interface": "xyz.openbmc_project.Sensor.Value",
+          "property": { "name": "Value" }
+        }
+      ],
+      "triggers": [
+        {
+          "class": "init",
+          "method": "get_properties"
+        },
+        {
+          "class": "signal",
+          "signal": "properties_changed"
+        },
+        {
+          "class": "timer",
+          "type": "repeating",
+          "interval": 1000000,
+          "preload_groups": true
+        }
+      ],
+      "actions": [
+        {
+          "name": "target_from_group_max",
+          "groups": [
+            {
+              "name": "CPU temps",
+              "interface": "xyz.openbmc_project.Sensor.Value",
+              "property": { "name": "Value" }
+            }
+          ],
+          "neg_hysteresis": 0,
+          "pos_hysteresis": 0,
+          "map": [
+                { "value": 8.1, "target": 255.0 },
+                { "value": 9.1, "target": 243.0 },
+                { "value": 10.1, "target": 230.0 },
+                { "value": 11.1, "target": 217.0 },
+                { "value": 12.1, "target": 204.0 },
+                { "value": 13.1, "target": 192.0 },
+                { "value": 14.1, "target": 179.0 },
+                { "value": 15.1, "target": 166.0 },
+                { "value": 25.1, "target": 115.0 },
+                { "value": 30.1, "target": 90.0 },
+                { "value": 35.1, "target": 64.0 },
+                { "value": 104.1, "target": 64.0 }
           ]
         }
-      }
-    ]
-  },
-  {
-    "name": "Fan floors",
-    "groups": [
-      {
-        "name": "CPU temps",
-        "interface": "xyz.openbmc_project.Sensor.Value",
-        "property": { "name": "Value" }
-      }
-    ],
-    "triggers": [
-      {
-        "class": "init",
-        "method": "get_properties"
-      },
-      {
-        "class": "signal",
-        "signal": "properties_changed"
-      },
-      {
-        "class": "signal",
-        "signal": "interfaces_added"
-      },
-      {
-        "class": "parameter",
-        "parameter": "cpu_temp_param"
-      }
-    ],
-    "actions": [
-      {
-        "name": "mapped_floor",
-        "key_group": "CPU temps",
-        "fan_floors": [
-          {
-            "key": 200.0,
-            "default_floor": 255.0,
-            "group": "CPU temps",
-            "floors": [
-              {
-                "parameter": "cpu_temp_param",
-                "floors": [
-                    { "value": 64.0, "floor": 64.0 },
-                    { "value": 90.0, "floor": 90.0 },
-                    { "value": 115.0, "floor": 115.0 },
-                    { "value": 141.0, "floor": 141.0 },
-                    { "value": 166.0, "floor": 166.0 },
-                    { "value": 179.0, "floor": 179.0 },
-                    { "value": 192.0, "floor": 192.0 },
-                    { "value": 204.0, "floor": 204.0 },
-                    { "value": 217.0, "floor": 217.0 },
-                    { "value": 230.0, "floor": 230.0 },
-                    { "value": 242.0, "floor": 242.0 },
-                    { "value": 255.0, "floor": 255.0 }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+      ]
+    }
 ]
