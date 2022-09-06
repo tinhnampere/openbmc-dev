@@ -2051,6 +2051,18 @@
                 "Type": "TMP75"
             },
             {
+		"Address": "0x6a",
+		"Bus": 80,
+		"Name": "m2nvme0",
+		"Type": "NVME1000"
+            },
+            {
+                "Address": "0x6a",
+                "Bus": 81,
+                "Name": "m2nvme1",
+                "Type": "NVME1000"
+            },
+            {
                 "Address": "0x58",
                 "Bus": 2,
                 "Labels": [
