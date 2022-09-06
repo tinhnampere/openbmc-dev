@@ -313,22 +313,22 @@
         "Params":{
             "DbusParam": [
                 {
-                    "ParamName": "n24",
+                    "ParamName": "n0",
                     "Desc": {
-                        "Name": "nvme24",
+                        "Name": "m2nvme0",
                         "SensorType": "temperature"
                     }
                 },
                 {
-                    "ParamName": "n25",
+                    "ParamName": "n1",
                     "Desc": {
-                        "Name": "nvme25",
+                        "Name": "m2nvme1",
                         "SensorType": "temperature"
                     }
                 }
             ]
         },
-        "Expression": "max(0,(n24 == n24) ? n24 : NULL,(n25 == n25) ? n25 : NULL)"
+        "Expression": "max(0,(n0 == n0) ? n0 : NULL,(n1 == n1) ? n1 : NULL)"
     },
     {
         "Desc":{
