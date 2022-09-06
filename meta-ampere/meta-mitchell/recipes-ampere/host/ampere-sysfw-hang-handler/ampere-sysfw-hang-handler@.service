@@ -1,0 +1,12 @@
+[Unit]
+Description=Ampere System Firmware Hang Handler %i
+After=obmc-host-already-on@%i.target
+BindTo=obmc-host-already-on@%i.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env ampere_sysfw_hang_handler.sh
+SyslogIdentifier=ampere_sysfw_hang
+
+[Install]
+WantedBy=obmc-host-already-on@%i.target

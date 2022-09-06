@@ -10,12 +10,20 @@ inherit obmc-phosphor-systemd
 RDEPENDS:${PN} = "bash"
 FILESEXTRAPATHS:append := "${THISDIR}/${PN}:"
 
+SYSTEMD_PACKAGES = "${PN}"
+
 SRC_URI = " \
-           file://ampere-sysfw-hang-handler.service \
+           file://ampere-sysfw-hang-handler@.service \
            file://ampere_sysfw_hang_handler.sh \
           "
 
-SYSTEMD_SERVICE:${PN} = "ampere-sysfw-hang-handler.service"
+SYSTEMD_SERVICE:${PN} += "ampere-sysfw-hang-handler@.service"
+
+SYSFW_HANG_TGT = "ampere-sysfw-hang-handler@.service"
+SYSFW_HANG_INSTMPL = "ampere-sysfw-hang-handler@{0}.service"
+AMPER_HOST_RUNNING = "obmc-host-already-on@{0}.target"
+SYSFW_HANG_TARGET_FMT = "../${SYSFW_HANG_TGT}:${AMPER_HOST_RUNNING}.wants/${SYSFW_HANG_INSTMPL}"
+SYSTEMD_LINK:${PN} += "${@compose_list_zip(d, 'SYSFW_HANG_TARGET_FMT', 'OBMC_HOST_INSTANCES')}"
 
 do_install() {
     install -d ${D}/usr/sbin
