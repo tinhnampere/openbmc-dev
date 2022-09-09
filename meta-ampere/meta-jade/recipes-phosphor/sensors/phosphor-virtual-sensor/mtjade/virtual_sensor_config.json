@@ -259,7 +259,7 @@
                 }
             ]
         },
-        "Expression": "max(0,(CH0 == CH0) ? CH0 : NULL,(CH1 == CH1) ? CH1 : NULL,(CH2 == CH2) ? CH2 : NULL,(CH3 == CH3) ? CH3 : NULL)"
+        "Expression": "max((CH0 == CH0) ? CH0 : 0,(CH1 == CH1) ? CH1 : 0,(CH2 == CH2) ? CH2 : 0,(CH3 == CH3) ? CH3 : 0)"
     },
     {
         "Desc": {
@@ -315,7 +315,7 @@
                 }
             ]
         },
-        "Expression": "max(0,(CH0 == CH0) ? CH0 : NULL,(CH1 == CH1) ? CH1 : NULL,(CH2 == CH2) ? CH2 : NULL,(CH3 == CH3) ? CH3 : NULL)"
+        "Expression": "max((CH0 == CH0) ? CH0 : 0,(CH1 == CH1) ? CH1 : 0,(CH2 == CH2) ? CH2 : 0,(CH3 == CH3) ? CH3 : 0)"
     },
     {
         "Desc": {
@@ -371,7 +371,7 @@
                 }
             ]
         },
-        "Expression": "max(0,(CH4 == CH4) ? CH4 : NULL,(CH5 == CH5) ? CH5 : NULL,(CH6 == CH6) ? CH6 : NULL,(CH7 == CH7) ? CH7 : NULL)"
+        "Expression": "max((CH4 == CH4) ? CH4 : 0,(CH5 == CH5) ? CH5 : 0,(CH6 == CH6) ? CH6 : 0,(CH7 == CH7) ? CH7 : 0)"
     },
     {
         "Desc": {
@@ -427,7 +427,7 @@
                 }
             ]
         },
-        "Expression": "max(0,(CH4 == CH4) ? CH4 : NULL,(CH5 == CH5) ? CH5 : NULL,(CH6 == CH6) ? CH6 : NULL,(CH7 == CH7) ? CH7 : NULL)"
+        "Expression": "max((CH4 == CH4) ? CH4 : 0,(CH5 == CH5) ? CH5 : 0,(CH6 == CH6) ? CH6 : 0,(CH7 == CH7) ? CH7 : 0)"
     },
     {
         "Desc": {
