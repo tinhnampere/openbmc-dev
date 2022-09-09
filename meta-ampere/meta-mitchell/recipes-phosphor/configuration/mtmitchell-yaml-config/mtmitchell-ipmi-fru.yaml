@@ -16,3 +16,30 @@
         BOARD_SERIAL_NUMBER:
           IPMIFruProperty: Serial Number
           IPMIFruSection: Board
+2:
+  /xyz/openbmc_project/FruDevice/BP1:
+    entityID: 7
+    entityInstance: 3
+    interfaces:
+      xyz.openbmc_project.FruDevice:
+        BOARD_SERIAL_NUMBER:
+          IPMIFruProperty: Serial Number
+          IPMIFruSection: Board
+3:
+  /xyz/openbmc_project/FruDevice/BP2:
+    entityID: 7
+    entityInstance: 4
+    interfaces:
+      xyz.openbmc_project.FruDevice:
+        BOARD_SERIAL_NUMBER:
+          IPMIFruProperty: Serial Number
+          IPMIFruSection: Board
+4:
+  /xyz/openbmc_project/FruDevice/BP3:
+    entityID: 7
+    entityInstance: 5
+    interfaces:
+      xyz.openbmc_project.FruDevice:
+        BOARD_SERIAL_NUMBER:
+          IPMIFruProperty: Serial Number
+          IPMIFruSection: Board
