@@ -24,18 +24,21 @@ SRCREV = "1c1b25be4fdf4cc6dc8d5811fd57d42866d9378b"
 SRC_URI += " \
     file://xyz.openbmc_project.AmpereMctpCtrl.service \
     file://ampere-slave-present.sh \
+    file://ampere_s1_ready.sh \
     "
 
 SYSTEMD_SERVICE:${PN} += "xyz.openbmc_project.AmpereMctpCtrl.service"
 
 EXTRA_OEMESON = " \
         -Ddelay-before-add-terminus=1000 \
+        -Dchecking-s1-ready-time-out=20000 \
         "
 
 do_install () {
     install -d ${D}/usr/sbin
     install -m 0755 ${WORKDIR}/build/ampere-mctp-ctrl ${D}/${sbindir}/
     install -m 0755 ${WORKDIR}/ampere-slave-present.sh ${D}/${sbindir}/
+    install -m 0755 ${WORKDIR}/ampere_s1_ready.sh ${D}/${sbindir}/
     install -d ${D}${systemd_unitdir}/system/
     install -m 0644 ${WORKDIR}/xyz.openbmc_project.AmpereMctpCtrl.service ${D}${systemd_unitdir}/system
 }
