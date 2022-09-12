@@ -17,7 +17,7 @@ SRC_URI = " \
            file://ampere-bmc-heartbeat.service \
            file://ampere_platform_init.sh \
            file://ampere_bmc_heartbeat.sh \
-           file://${MACHINE}_platform_gpios_init.sh \
+           file://mtmitchell_platform_gpios_init.sh \
            file://gpio-lib.sh \
           "
 SYSTEMD_PACKAGES = "${PN}"
@@ -28,7 +28,7 @@ do_install () {
     install -m 0755 ${WORKDIR}/gpio-lib.sh ${D}${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_platform_init.sh ${D}${sbindir}/
     install -m 0755 ${WORKDIR}/ampere_bmc_heartbeat.sh ${D}${sbindir}/
-    install -m 0755 ${WORKDIR}/${MACHINE}_platform_gpios_init.sh ${D}${sbindir}/platform_gpios_init.sh
+    install -m 0755 ${WORKDIR}/mtmitchell_platform_gpios_init.sh ${D}${sbindir}/platform_gpios_init.sh
     install -d ${D}${systemd_unitdir}/system/
     install -m 0644 ${WORKDIR}/ampere-platform-init.service ${D}${systemd_unitdir}/system
 }

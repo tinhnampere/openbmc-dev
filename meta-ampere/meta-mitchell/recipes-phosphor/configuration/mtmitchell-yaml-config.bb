@@ -8,16 +8,16 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI = " \
     file://${MACHINE}-ipmi-sensors.yaml \
-    file://${MACHINE}-ipmi-fru.yaml \
+    file://mtmitchell-ipmi-fru.yaml \
     "
 
 S = "${WORKDIR}"
 
 do_install() {
     install -m 0644 -D ${MACHINE}-ipmi-sensors.yaml \
-        ${D}${datadir}/${BPN}/ipmi-sensors.yaml
-    install -m 0644 -D ${MACHINE}-ipmi-fru.yaml \
-        ${D}${datadir}/${BPN}/ipmi-fru-read.yaml
+    ${D}${datadir}/${BPN}/ipmi-sensors.yaml
+    install -m 0644 -D mtmitchell-ipmi-fru.yaml \
+    ${D}${datadir}/${BPN}/ipmi-fru-read.yaml
 }
 
 FILES:${PN}-dev = " \
