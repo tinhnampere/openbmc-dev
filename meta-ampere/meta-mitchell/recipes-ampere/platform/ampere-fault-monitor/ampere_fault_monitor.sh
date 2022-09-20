@@ -15,6 +15,8 @@ source /usr/sbin/gpio-lib.sh
 	retry=5
 	wait_sec=30
 
+    overtemp_fault_flag='/tmp/fault_overtemp'
+
 # Host variables
 	host_is_on="false"
 	host_state_service='xyz.openbmc_project.State.Host'
@@ -42,16 +44,9 @@ source /usr/sbin/gpio-lib.sh
 	# Bit[10]: Fan faults
 	psu_fault_bitmask=0x43e
 
-# System Fault variables
-	sys_failed="false"
-
 # led variables
-	led_service='xyz.openbmc_project.LED.GroupManager'
-	led_fault_path='/xyz/openbmc_project/led/groups/system_fault'
-	led_fault_interface='xyz.openbmc_project.Led.Group'
 	fan_fault_led_status=$off
 	psu_fault_led_status=$off
-	sys_fault_led_status=$off
 	led_bus=15
 	led_addr=0x22
 	led_port0_config=0x06
@@ -221,8 +216,20 @@ control_psu_fault_led() {
 	fi
 }
 
+check_overtemp_occured() {
+    if [[ -f $overtemp_fault_flag ]]; then
+        echo "Over temperature occured, turn on fault LED"
+        overtemp_occured="true"
+    else
+        overtemp_occured="false"
+    fi
+}
+
+
+
 check_fault() {
-	if [[ "$fan_failed" == "true" ]] || [[ "$psu_failed" == "true" ]]; then
+	if [[ "$fan_failed" == "true" ]] || [[ "$psu_failed" == "true" ]] \
+                                    || [[ "$overtemp_occured" == "true" ]]; then
 		fault="true"
 	else
 		fault="false"
@@ -256,6 +263,7 @@ do
 	# Monitors PSU presence
 	check_psu_failed
 
+	check_overtemp_occured
 	# Check fault to update fail
 	check_fault
 	control_sys_fault_led
