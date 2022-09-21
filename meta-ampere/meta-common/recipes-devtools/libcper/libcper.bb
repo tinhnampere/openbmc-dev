@@ -8,8 +8,12 @@ inherit cmake pkgconfig
 
 DEPENDS = "json-c"
 
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI = "git://git.gitlab.arm.com/server_management/libcper.git;protocol=https;branch=master"
+SRC_URI = "git://git.gitlab.arm.com/server_management/libcper.git;protocol=https;branch=master \
+           file://0001-Support-convert-cper-data-from-text-to-binary.patch \
+           file://0002-Support-Ampere-Specific.patch \
+          "
 SRCREV = "${AUTOREV}"
 
 

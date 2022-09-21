@@ -1,0 +1,101 @@
+From c80cf3e3cb6b48962b00da514c3fea7e4b29e72b Mon Sep 17 00:00:00 2001
+From: Dung Cao <dung@os.amperecomputing.com>
+Date: Tue, 20 Sep 2022 08:23:14 +0000
+Subject: [PATCH] Support convert cper data from text to binary
+
+Signed-off-by: Dung Cao <dung@os.amperecomputing.com>
+---
+ cli-app/cper-convert.c | 58 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 57 insertions(+), 1 deletion(-)
+
+diff --git a/cli-app/cper-convert.c b/cli-app/cper-convert.c
+index 86a6d6f..121c544 100644
+--- a/cli-app/cper-convert.c
++++ b/cli-app/cper-convert.c
+@@ -17,6 +17,7 @@ void cper_to_json(char *in_file, char *out_file, int is_single_section);
+ void json_to_cper(char *in_file, char *out_file, char *specification_file,
+ 		  char *program_dir, int no_validate, int debug);
+ void print_help(void);
++void text_to_bin(char *in_file, char *out_file);
+ 
+ int main(int argc, char *argv[])
+ {
+@@ -70,6 +71,8 @@ int main(int argc, char *argv[])
+ 	} else if (strcmp(argv[1], "to-cper") == 0) {
+ 		json_to_cper(input_file, output_file, specification_file,
+ 			     argv[0], no_validate, debug);
++	} else if (strcmp(argv[1], "to-bin") == 0) {
++		text_to_bin(input_file, output_file);
+ 	} else {
+ 		printf("Unrecognised argument '%s'. See 'cper-convert --help' for command information.\n",
+ 		       argv[1]);
+@@ -79,6 +82,59 @@ int main(int argc, char *argv[])
+ 	return 0;
+ }
+ 
++//Command for converting a provided CPER text file into binary.
++void text_to_bin(char *in_file, char *out_file)
++{
++	unsigned char *buf;
++	unsigned char str[2];
++	int size, i, j, len;
++	//Get a handle for the log file.
++	FILE *cper_text = fopen(in_file, "r");
++	if (cper_text == NULL) {
++		printf("Could not open provided CPER text file '%s', file handle returned null.\n",
++		       in_file);
++		return;
++	}
++	fseek(cper_text, 0, SEEK_END);
++	size = (int) ftell(cper_text) - 1;
++	buf = (unsigned char *) malloc(sizeof(unsigned char) * (size/2 +1));
++	i = 0;
++	j = 0;
++	long int d;
++	fseek(cper_text, 0, SEEK_SET);
++	while (i < size) {
++		fread(str, sizeof(unsigned char), 2, cper_text);
++		buf[j] = (unsigned char) strtol(str, 0, 16);
++		i = i + 2;
++		j++;
++	}
++	fclose(cper_text);
++	len = j;
++
++	// Revert 4 byte of SignatureStart
++	unsigned char tmp;
++	tmp = buf[0];
++	buf[0] = buf[3];
++	buf[3] = tmp;
++	tmp = buf[1];
++	buf[1] = buf[2];
++	buf[2] = tmp;
++	//Open a read for the output file.
++	FILE *cper_bin = fopen(out_file, "w");
++	if (cper_bin == NULL) {
++		printf("Could not open output file '%s', file handle returned null.\n",
++		       out_file);
++		return;
++	}
++	//Open a stream to the CPER event data.
++	FILE* stream = fmemopen((void*)buf, sizeof(unsigned char) *len, "r");
++	json_object* cper_json;
++	cper_json = cper_to_ir(stream);
++	ir_to_cper(cper_json, cper_bin);
++	fclose(cper_bin);
++	free(buf);
++
++}
+ //Command for converting a provided CPER log file or CPER single section file into JSON.
+ void cper_to_json(char *in_file, char *out_file, int is_single_section)
+ {
+@@ -216,4 +272,4 @@ void print_help(void)
+ 	printf("\tIf '--debug' is set, then debug output for JSON specification parsing will be printed to stdout.\n");
+ 	printf("\n:: --help\n");
+ 	printf("\tDisplays help information to the console.\n");
+-}
+\ No newline at end of file
++}
+-- 
+2.17.1
+

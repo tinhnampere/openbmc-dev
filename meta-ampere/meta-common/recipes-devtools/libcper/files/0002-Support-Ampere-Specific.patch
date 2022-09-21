@@ -1,0 +1,283 @@
+From c47c4be4e2caac231e9ddbaeb20842a7924f598f Mon Sep 17 00:00:00 2001
+From: Dung Cao <dung@os.amperecomputing.com>
+Date: Wed, 21 Sep 2022 06:05:59 +0000
+Subject: [PATCH 2/2] Support Ampere Specific
+
+Signed-off-by: Dung Cao <dung@os.amperecomputing.com>
+---
+ edk/Cper.c                     |  5 ++-
+ edk/Cper.h                     |  5 +++
+ sections/cper-section-ampere.c | 69 ++++++++++++++++++++++++++++++++++
+ sections/cper-section-ampere.h | 17 +++++++++
+ sections/cper-section-arm.c    | 56 ++++++++++++++++++++++++++-
+ sections/cper-section.c        |  5 ++-
+ 6 files changed, 153 insertions(+), 4 deletions(-)
+ create mode 100644 sections/cper-section-ampere.c
+ create mode 100644 sections/cper-section-ampere.h
+
+diff --git a/edk/Cper.c b/edk/Cper.c
+index a772939..1a9019b 100644
+--- a/edk/Cper.c
++++ b/edk/Cper.c
+@@ -57,4 +57,7 @@ EFI_GUID gEfiCxlMldPortErrorSectionGuid = { 0x8dc44363, 0x0c96, 0x4710, { 0xb7,
+ EFI_GUID gEfiIa32x64ErrorTypeCacheCheckGuid = { 0xA55701F5, 0xE3EF, 0x43de, {0xAC, 0x72, 0x24, 0x9B, 0x57, 0x3F, 0xAD, 0x2C } };
+ EFI_GUID gEfiIa32x64ErrorTypeTlbCheckGuid = { 0xFC06B535, 0x5E1F, 0x4562, {0x9F, 0x25, 0x0A, 0x3B, 0x9A, 0xDB, 0x63, 0xC3 } };
+ EFI_GUID gEfiIa32x64ErrorTypeBusCheckGuid = { 0x1CF3F8B3, 0xC5B1, 0x49a2, {0xAA, 0x59, 0x5E, 0xEF, 0x92, 0xFF, 0xA6, 0x3C } };
+-EFI_GUID gEfiIa32x64ErrorTypeMsCheckGuid = { 0x48AB7F57, 0xDC34, 0x4f6c, {0xA7, 0xD3, 0xB0, 0xB5, 0xB0, 0xA7, 0x43, 0x14 } };
+\ No newline at end of file
++EFI_GUID gEfiIa32x64ErrorTypeMsCheckGuid = { 0x48AB7F57, 0xDC34, 0x4f6c, {0xA7, 0xD3, 0xB0, 0xB5, 0xB0, 0xA7, 0x43, 0x14 } };
++
++//Ampere Specific
++EFI_GUID gEfiAmpereSpecificSectionGuid  = { 0x2826cc9f, 0x448c, 0x4c2b, { 0x86, 0xb6, 0xa9, 0x53, 0x94, 0xb7, 0xef, 0x33 } };
+diff --git a/edk/Cper.h b/edk/Cper.h
+index 201bbfe..88624c8 100644
+--- a/edk/Cper.h
++++ b/edk/Cper.h
+@@ -221,6 +221,10 @@ typedef struct {
+   { \
+     0x036f84e1, 0x7f37, 0x428c, { 0xa7, 0x9e, 0x57, 0x5f, 0xdf, 0xaa, 0x84, 0xec } \
+   }
++#define EFI_ERROR_SECTION_AMPERE_SPECIFIC_GUID \
++  { \
++	0x2826cc9f, 0x448c, 0x4c2b, { 0x86, 0xb6, 0xa9, 0x53, 0x94, 0xb7, 0xef, 0x33 } \
++  }
+ ///@}
+ 
+ ///
+@@ -1273,6 +1277,7 @@ extern EFI_GUID   gEfiCxlMemoryModuleErrorSectionGuid;
+ extern EFI_GUID   gEfiCxlPhysicalSwitchErrorSectionGuid;
+ extern EFI_GUID   gEfiCxlVirtualSwitchErrorSectionGuid;
+ extern EFI_GUID   gEfiCxlMldPortErrorSectionGuid;
++extern EFI_GUID   gEfiAmpereSpecificSectionGuid;
+ #pragma pack()
+ 
+ #if defined (MDE_CPU_IA32) || defined (MDE_CPU_X64)
+diff --git a/sections/cper-section-ampere.c b/sections/cper-section-ampere.c
+new file mode 100644
+index 0000000..e82a6c1
+--- /dev/null
++++ b/sections/cper-section-ampere.c
+@@ -0,0 +1,69 @@
++#include <stdio.h>
++#include <json.h>
++#include "b64.h"
++#include "../edk/Cper.h"
++#include "../cper-utils.h"
++#include "cper-section-ampere.h"
++
++
++//Converts the given processor-generic CPER section into JSON IR.
++json_object *cper_section_ampere_to_ir(void *section,
++				    EFI_ERROR_SECTION_DESCRIPTOR *descriptor)
++{
++	amp_specific_header_t *record = (amp_specific_header_t *)section;
++	json_object *section_ir = json_object_new_object();
++
++	json_object_object_add(section_ir, "typeId",
++			       json_object_new_int(record->type_id));
++	json_object_object_add(section_ir, "subTypeId",
++			       json_object_new_int(record->sub_type_id));
++	json_object_object_add(section_ir, "instanceId",
++			       json_object_new_int(record->instance_id));
++
++	unsigned char * next_pos  = (unsigned char *)section
++				    + sizeof(amp_specific_header_t);
++	long remain_len = descriptor->SectionLength -
++			      sizeof(amp_specific_header_t);
++	char *encoded = b64_encode(next_pos , remain_len);
++	json_object_object_add(section_ir, "remainData",
++			       json_object_new_string(encoded));
++	free(encoded);
++
++	return section_ir;
++}
++
++//Converts a single CPER-JSON ARM error section into CPER binary, outputting to the given stream.
++void ir_section_ampere_to_cper(json_object *section, FILE *out)
++{
++	amp_specific_header_t *section_cper =
++		(amp_specific_header_t *)calloc(1, sizeof(amp_specific_header_t));
++	long starting_stream_pos = ftell(out);
++
++	//Count of error/context info structures.
++	section_cper->type_id = json_object_get_int(
++		json_object_object_get(section, "typeId"));
++	section_cper->sub_type_id = json_object_get_int(
++		json_object_object_get(section, "subTypeId"));
++	section_cper->instance_id = json_object_get_int(
++		json_object_object_get(section, "instanceId"));
++
++	//Flush header to stream.
++	fwrite(section_cper, sizeof(amp_specific_header_t), 1, out);
++	fflush(out);
++
++	//Free remaining resources.
++	free(section_cper);
++
++	json_object *vendor_info_string =
++		json_object_object_get(section, "remainData");
++	int vendor_specific_len =
++		json_object_get_string_len(vendor_info_string);
++	UINT8 *decoded =
++		b64_decode(json_object_get_string(vendor_info_string),
++			   vendor_specific_len);
++	//Write out to file.
++	long cur_stream_pos = ftell(out);
++	fwrite(decoded, vendor_specific_len, 1, out);
++	fflush(out);
++	free(decoded);
++}
+diff --git a/sections/cper-section-ampere.h b/sections/cper-section-ampere.h
+new file mode 100644
+index 0000000..a1799bd
+--- /dev/null
++++ b/sections/cper-section-ampere.h
+@@ -0,0 +1,17 @@
++#ifndef CPER_SECTION_AMPERE_H
++#define CPER_SECTION_AMPERE_H
++
++#include <json.h>
++#include "../edk/Cper.h"
++
++typedef struct
++{
++	UINT16 type_id;
++	UINT16 sub_type_id;
++	UINT32 instance_id;
++}__attribute__((packed)) amp_specific_header_t;
++
++json_object* cper_section_ampere_to_ir(void* section, EFI_ERROR_SECTION_DESCRIPTOR* descriptor);
++void ir_section_ampere_to_cper(json_object* section, FILE* out);
++
++#endif
+diff --git a/sections/cper-section-arm.c b/sections/cper-section-arm.c
+index 6537f40..dafb5a3 100644
+--- a/sections/cper-section-arm.c
++++ b/sections/cper-section-arm.c
+@@ -11,6 +11,7 @@
+ #include "../edk/Cper.h"
+ #include "../cper-utils.h"
+ #include "cper-section-arm.h"
++#include "cper-section-ampere.h"
+ 
+ //Private pre-definitions.
+ json_object *
+@@ -121,12 +122,32 @@ json_object *cper_section_arm_to_ir(void *section,
+ 	//Is there any vendor-specific information following?
+ 	if (cur_pos < section + record->SectionLength) {
+ 		json_object *vendor_specific = json_object_new_object();
++#if 0
+ 		char *encoded =
+ 			b64_encode((unsigned char *)cur_pos,
+ 				   section + record->SectionLength - cur_pos);
+ 		json_object_object_add(vendor_specific, "data",
+ 				       json_object_new_string(encoded));
+ 		free(encoded);
++#else
++		//Ampere Specific
++		amp_specific_header_t *p = (amp_specific_header_t *) cur_pos;
++		json_object_object_add(vendor_specific, "typeId",
++				       json_object_new_int(p->type_id));
++		json_object_object_add(vendor_specific, "subTypeId",
++				       json_object_new_int(p->sub_type_id));
++		json_object_object_add(vendor_specific, "instanceId",
++				       json_object_new_int(p->instance_id));
++		unsigned char * next_pos  = (unsigned char *)cur_pos
++					    + sizeof(amp_specific_header_t);
++		long remain_len = section + record->SectionLength - cur_pos
++				      - sizeof(amp_specific_header_t);
++		char *encoded =
++			b64_encode(next_pos , remain_len);
++		json_object_object_add(vendor_specific, "remainData",
++				       json_object_new_string(encoded));
++		free(encoded);
++#endif
+ 
+ 		json_object_object_add(section_ir, "vendorSpecificInfo",
+ 				       vendor_specific);
+@@ -529,6 +550,7 @@ void ir_section_arm_to_cper(json_object *section, FILE *out)
+ 	json_object *vendor_specific_info =
+ 		json_object_object_get(section, "vendorSpecificInfo");
+ 	if (vendor_specific_info != NULL) {
++#if 0
+ 		json_object *vendor_info_string =
+ 			json_object_object_get(vendor_specific_info, "data");
+ 		int vendor_specific_len =
+@@ -536,7 +558,6 @@ void ir_section_arm_to_cper(json_object *section, FILE *out)
+ 		UINT8 *decoded =
+ 			b64_decode(json_object_get_string(vendor_info_string),
+ 				   vendor_specific_len);
+-
+ 		//Write out to file.
+ 		long cur_stream_pos = ftell(out);
+ 		fwrite(decoded,
+@@ -545,6 +566,37 @@ void ir_section_arm_to_cper(json_object *section, FILE *out)
+ 		       1, out);
+ 		fflush(out);
+ 		free(decoded);
++#else
++		amp_specific_header_t p;
++		p.type_id = json_object_get_int(
++			json_object_object_get(vendor_specific_info, "typeId"));
++		p.sub_type_id = json_object_get_int(
++			json_object_object_get(vendor_specific_info, "subTypeId"));
++
++		p.instance_id = json_object_get_int(
++			json_object_object_get(vendor_specific_info, "instanceId"));
++		//Write out to file.
++		fwrite(&p, sizeof(amp_specific_header_t), 1, out);
++		fflush(out);
++
++		json_object *vendor_info_string =
++			json_object_object_get(vendor_specific_info, "remainData");
++		int vendor_specific_len =
++			json_object_get_string_len(vendor_info_string);
++		UINT8 *decoded =
++			b64_decode(json_object_get_string(vendor_info_string),
++				   vendor_specific_len);
++		//Write out to file.
++		long cur_stream_pos = ftell(out);
++		fwrite(decoded,
++		       starting_stream_pos + section_cper->SectionLength -
++		       cur_stream_pos,
++		       1, out);
++		fflush(out);
++		free(decoded);
++
++#endif
++
+ 	}
+ 
+ 	//Free remaining resources.
+@@ -896,4 +948,4 @@ void ir_arm_unknown_register_to_cper(json_object *registers,
+ 	fwrite(&decoded, header->RegisterArraySize, 1, out);
+ 	fflush(out);
+ 	free(decoded);
+-}
+\ No newline at end of file
++}
+diff --git a/sections/cper-section.c b/sections/cper-section.c
+index 82a44a5..20021c8 100644
+--- a/sections/cper-section.c
++++ b/sections/cper-section.c
+@@ -20,6 +20,7 @@
+ #include "cper-section-ccix-per.h"
+ #include "cper-section-cxl-protocol.h"
+ #include "cper-section-cxl-component.h"
++#include "cper-section-ampere.h"
+ 
+ //Definitions of all sections available to the CPER parser.
+ CPER_SECTION_DEFINITION section_definitions[] = {
+@@ -44,5 +45,7 @@ CPER_SECTION_DEFINITION section_definitions[] = {
+     {&gEfiCxlPhysicalSwitchErrorSectionGuid, "CXL Physical Switch Component Error", cper_section_cxl_component_to_ir, ir_section_cxl_component_to_cper},
+     {&gEfiCxlVirtualSwitchErrorSectionGuid, "CXL Virtual Switch Component Error", cper_section_cxl_component_to_ir, ir_section_cxl_component_to_cper},
+     {&gEfiCxlMldPortErrorSectionGuid, "CXL MLD Port Component Error", cper_section_cxl_component_to_ir, ir_section_cxl_component_to_cper},
++    {&gEfiAmpereSpecificSectionGuid, "Ampere Specific", cper_section_ampere_to_ir, ir_section_ampere_to_cper},
++
+ };
+-const size_t section_definitions_len = sizeof(section_definitions) / sizeof(CPER_SECTION_DEFINITION);
+\ No newline at end of file
++const size_t section_definitions_len = sizeof(section_definitions) / sizeof(CPER_SECTION_DEFINITION);
+-- 
+2.17.1
+
