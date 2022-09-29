@@ -1,0 +1,255 @@
+From 3b0348017c3256679ef7f8c53767329b1424222c Mon Sep 17 00:00:00 2001
+From: Hieu Huynh <hieuh@os.amperecomputing.com>
+Date: Tue, 1 Nov 2022 11:00:44 +0700
+Subject: [PATCH 7/7] Support Redfish Hostinterface schema
+
+Support the HostInterface schema as defined in the DSP0268_2021.2
+Redfish Schema Supplement.pdf and satisfy requirements specified at
+section B.1.5.2 in the DEN0069D_SBMR_2.0.pdf document.
+
+Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
+---
+ redfish-core/include/redfish.hpp    |   3 +
+ redfish-core/lib/host_interface.hpp | 181 ++++++++++++++++++++++++++++
+ redfish-core/lib/managers.hpp       |   2 +
+ scripts/update_schemas.py           |   2 +
+ 4 files changed, 188 insertions(+)
+ create mode 100644 redfish-core/lib/host_interface.hpp
+
+diff --git a/redfish-core/include/redfish.hpp b/redfish-core/include/redfish.hpp
+index 85b3007c..3927833c 100644
+--- a/redfish-core/include/redfish.hpp
++++ b/redfish-core/include/redfish.hpp
+@@ -23,6 +23,7 @@
+ #include "environment_metrics.hpp"
+ #include "ethernet.hpp"
+ #include "event_service.hpp"
++#include "host_interface.hpp"
+ #include "hypervisor_system.hpp"
+ #include "log_services.hpp"
+ #include "manager_diagnostic_data.hpp"
+@@ -75,6 +76,8 @@ class RedfishService
+         requestRoutesNetworkProtocol(app);
+         requestRoutesSession(app);
+         requestEthernetInterfacesRoutes(app);
++        requestRoutesHostInterface(app);
++        requestRoutesHostInterfaceCollection(app);
+ #ifdef BMCWEB_ALLOW_DEPRECATED_POWER_THERMAL
+         requestRoutesThermal(app);
+         requestRoutesPower(app);
+diff --git a/redfish-core/lib/host_interface.hpp b/redfish-core/lib/host_interface.hpp
+new file mode 100644
+index 00000000..fee51770
+--- /dev/null
++++ b/redfish-core/lib/host_interface.hpp
+@@ -0,0 +1,181 @@
++/*
++// Copyright (c) 2022 Ampere Computing
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//      http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++*/
++#pragma once
++
++#include "app.hpp"
++#include "query.hpp"
++#include "registries/privilege_registry.hpp"
++#include "utils/chassis_utils.hpp"
++#include "utils/json_utils.hpp"
++
++namespace redfish
++{
++
++inline void handleHostInterfacePatch(
++    App& app, const crow::Request& req,
++    const std::shared_ptr<bmcweb::AsyncResp>& asyncResp)
++{
++    if (!redfish::setUpRedfishRoute(app, req, asyncResp))
++    {
++        return;
++    }
++    std::optional<bool> enabled;
++    std::optional<bool> enableAfterReset;
++
++    if (!json_util::readJsonPatch(
++            req, asyncResp->res, "CredentialBootstrapping/Enabled", enabled,
++            "CredentialBootstrapping/EnableAfterReset", enableAfterReset))
++    {
++        return;
++    }
++
++    if (enabled)
++    {
++        crow::connections::systemBus->async_method_call(
++            [asyncResp](const boost::system::error_code ec) {
++            if (ec)
++            {
++                messages::internalError(asyncResp->res);
++                return;
++            }
++            messages::success(asyncResp->res);
++            },
++            "xyz.openbmc_project.User.Manager",
++            "/xyz/openbmc_project/user/root",
++            "org.freedesktop.DBus.Properties", "Set",
++            "xyz.openbmc_project.HostInterface.CredentialBootstrapping",
++            "Enabled",
++            dbus::utility::DbusVariantType(*enabled));
++    }
++
++    if (enableAfterReset)
++    {
++        crow::connections::systemBus->async_method_call(
++            [asyncResp](const boost::system::error_code ec) {
++            if (ec)
++            {
++                messages::internalError(asyncResp->res);
++                return;
++            }
++            messages::success(asyncResp->res);
++            },
++            "xyz.openbmc_project.User.Manager",
++            "/xyz/openbmc_project/user/root",
++            "org.freedesktop.DBus.Properties", "Set",
++            "xyz.openbmc_project.HostInterface.CredentialBootstrapping",
++            "EnableAfterReset",
++            dbus::utility::DbusVariantType(*enableAfterReset));
++    }
++}
++
++inline void requestRoutesHostInterfaceCollection(App& app)
++{
++    BMCWEB_ROUTE(app, "/redfish/v1/Managers/bmc/HostInterfaces/")
++        .privileges(redfish::privileges::getHostInterfaceCollection)
++        .methods(boost::beast::http::verb::get)(
++            [&app](const crow::Request& req,
++                   const std::shared_ptr<bmcweb::AsyncResp>& asyncResp) {
++        if (!redfish::setUpRedfishRoute(app, req, asyncResp))
++        {
++            return;
++        }
++
++        asyncResp->res.jsonValue["@odata.context"] =
++            "/redfish/v1/$metadata#HostInterfaceCollection.HostInterfaceCollection";
++        asyncResp->res.jsonValue["@odata.id"] =
++            "/redfish/v1/Managers/bmc/HostInterfaces";
++        asyncResp->res.jsonValue["@odata.type"] =
++            "#HostInterfaceCollection.HostInterfaceCollection";
++        asyncResp->res.jsonValue["Name"] = "HostInterface Collection";
++        asyncResp->res.jsonValue["Description"] =
++            "Collection of HostInterfaces";
++        asyncResp->res.jsonValue["Members"]["@odata.id"] =
++            "/redfish/v1/Managers/bmc/HostInterfaces/bmc";
++        asyncResp->res.jsonValue["Members@odata.count"] = 1;
++        });
++}
++
++inline void requestRoutesHostInterface(App& app)
++{
++    BMCWEB_ROUTE(app, "/redfish/v1/Managers/bmc/HostInterfaces/bmc/")
++        .privileges(redfish::privileges::getHostInterface)
++        .methods(boost::beast::http::verb::get)(
++            [&app](const crow::Request& req,
++                   const std::shared_ptr<bmcweb::AsyncResp>& asyncResp) {
++        BMCWEB_LOG_DEBUG << "requestRoutesHostInterface";
++        if (!redfish::setUpRedfishRoute(app, req, asyncResp))
++        {
++            return;
++        }
++
++        asyncResp->res.jsonValue["@odata.context"] =
++            "/redfish/v1/$metadata#HostInterface.HostInterface";
++        asyncResp->res.jsonValue["@odata.id"] =
++            "/redfish/v1/Managers/bmc/HostInterfaces";
++        asyncResp->res.jsonValue["@odata.type"] =
++            "#HostInterface.v1_3_0.HostInterface";
++        asyncResp->res.jsonValue["Description"] = "Host Interface";
++        asyncResp->res.jsonValue["Id"] = "bmc";
++        asyncResp->res.jsonValue["ExternallyAccessible"] = false;
++        asyncResp->res.jsonValue["HostInterfaceType"] = "NetworkHostInterface";
++        asyncResp->res.jsonValue["Status"]["State"] = "Enabled";
++        asyncResp->res.jsonValue["Status"]["Health"] = "OK";
++
++        asyncResp->res.jsonValue["CredentialBootstrappingRole"]["@odata.id"] =
++            "/redfish/v1/AccountService/Roles/HostInterfaceAdministrator";
++
++        sdbusplus::asio::getProperty<bool>(
++            *crow::connections::systemBus, "xyz.openbmc_project.User.Manager",
++            "/xyz/openbmc_project/user/root",
++            "xyz.openbmc_project.HostInterface.CredentialBootstrapping",
++            "EnableAfterReset",
++            [asyncResp](const boost::system::error_code ec,
++                        const bool enableAfterReset) {
++            if (ec)
++            {
++                return;
++            }
++
++            asyncResp->res
++                .jsonValue["CredentialBootstrapping"]["EnableAfterReset"] =
++                enableAfterReset;
++            });
++        sdbusplus::asio::getProperty<bool>(
++            *crow::connections::systemBus, "xyz.openbmc_project.User.Manager",
++            "/xyz/openbmc_project/user/root",
++            "xyz.openbmc_project.HostInterface.CredentialBootstrapping",
++            "Enabled",
++            [asyncResp](const boost::system::error_code ec,
++                        const bool enabled) {
++            if (ec)
++            {
++                return;
++            }
++
++            asyncResp->res.jsonValue["CredentialBootstrapping"]["Enabled"] =
++                enabled;
++            });
++        asyncResp->res.jsonValue["CredentialBootstrapping"]["RoleId"] =
++            "HostInterfaceAdministrator";
++        });
++
++    BMCWEB_ROUTE(app, "/redfish/v1/Managers/bmc/HostInterfaces/bmc/")
++        .privileges(redfish::privileges::patchHostInterface)
++        .methods(boost::beast::http::verb::patch)(
++            std::bind_front(handleHostInterfacePatch, std::ref(app)));
++}
++
++} // namespace redfish
+diff --git a/redfish-core/lib/managers.hpp b/redfish-core/lib/managers.hpp
+index 55c3949c..61b69cad 100644
+--- a/redfish-core/lib/managers.hpp
++++ b/redfish-core/lib/managers.hpp
+@@ -1976,6 +1976,8 @@ inline void requestRoutesManager(App& app)
+             "/redfish/v1/Managers/bmc/NetworkProtocol";
+         asyncResp->res.jsonValue["EthernetInterfaces"]["@odata.id"] =
+             "/redfish/v1/Managers/bmc/EthernetInterfaces";
++        asyncResp->res.jsonValue["HostInterfaces"]["@odata.id"] =
++            "/redfish/v1/Managers/bmc/HostInterfaces";
+ 
+ #ifdef BMCWEB_ENABLE_VM_NBDPROXY
+         asyncResp->res.jsonValue["VirtualMedia"]["@odata.id"] =
+diff --git a/scripts/update_schemas.py b/scripts/update_schemas.py
+index da9c3460..67775ca5 100755
+--- a/scripts/update_schemas.py
++++ b/scripts/update_schemas.py
+@@ -51,6 +51,8 @@ include_list = [
+     "EventService",
+     "Fan",
+     "FanCollection",
++    "HostInterface",
++    "HostInterfaceCollection",
+     "IPAddresses",
+     "JsonSchemaFile",
+     "JsonSchemaFileCollection",  # redfish/v1/JsonSchemas
+-- 
+2.25.1
+
