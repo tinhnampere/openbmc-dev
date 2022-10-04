@@ -1,0 +1,252 @@
+From ead44daf384512c60226773ec59f316162b9cef6 Mon Sep 17 00:00:00 2001
+From: Thu Nguyen <thu@os.amperecomputing.com>
+Date: Tue, 4 Oct 2022 08:12:48 +0700
+Subject: [PATCH] Support value "ChassisOn" for "powerState" option
+
+There are some sensors need to be read when the chassis power is On
+regardless the boot state of host. Even when the host is failed to
+boot the values of these sensors can be used to debug the failure in
+power rails.
+The current code of dbus-sensors only supports the values "On",
+"BiosPost" and "Always" for "powerState" option which can not used
+for these kinds of sensors.
+This commit adds "ChassisOn" value for "powerState" sensor option.
+This value will be used for sensors which will only be read when the
+CurrentPowerState is On.
+
+Tested:
+    1. Add setting PowerState="ChassisOn" to some sensors.
+    2. Force the CurrentPowerState to
+xyz.openbmc_project.State.Chassis.PowerState.Off.
+    3. The value D-Bus properties of those sensors should be nan.
+    4. Force the CurrentPowerState to
+xyz.openbmc_project.State.Chassis.PowerState.On.
+    5. The value D-Bus properties of those sensors should be the real
+sensor values.
+
+Signed-off-by: Thu Nguyen <thu@os.amperecomputing.com>
+Change-Id: Icdb9d9cf1ac77c891113fa9b69b33b8bfdb082f7
+---
+ include/Utils.hpp  | 18 +++++++++-
+ include/sensor.hpp |  8 +++--
+ src/Utils.cpp      | 90 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 113 insertions(+), 3 deletions(-)
+
+diff --git a/include/Utils.hpp b/include/Utils.hpp
+index b39492e..f56ede4 100644
+--- a/include/Utils.hpp
++++ b/include/Utils.hpp
+@@ -52,7 +52,8 @@ enum class PowerState
+ {
+     on,
+     biosPost,
+-    always
++    always,
++    chassisOn
+ };
+ 
+ std::optional<std::string> openAndRead(const std::string& hwmonFile);
+@@ -67,6 +68,7 @@ bool findFiles(const std::filesystem::path& dirPath,
+                int symlinkDepth = 1);
+ bool isPowerOn(void);
+ bool hasBiosPost(void);
++bool isChassisOn(void);
+ void setupPowerMatchCallback(
+     const std::shared_ptr<sdbusplus::asio::connection>& conn,
+     std::function<void(PowerState type, bool state)>&& callback);
+@@ -121,6 +123,16 @@ const static constexpr char* interface = "xyz.openbmc_project.State.Host";
+ const static constexpr char* path = "/xyz/openbmc_project/state/host0";
+ const static constexpr char* property = "CurrentHostState";
+ } // namespace power
++
++namespace chassis
++{
++const static constexpr char* busname = "xyz.openbmc_project.State.Chassis";
++const static constexpr char* interface = "xyz.openbmc_project.State.Chassis";
++const static constexpr char* path = "/xyz/openbmc_project/state/chassis0";
++const static constexpr char* property = "CurrentPowerState";
++const static constexpr char* sOn = "On";
++} // namespace chassis
++
+ namespace post
+ {
+ const static constexpr char* busname =
+@@ -179,6 +191,10 @@ inline void setReadState(const std::string& str, PowerState& val)
+     {
+         val = PowerState::always;
+     }
++    else if (str == "ChassisOn")
++    {
++        val = PowerState::chassisOn;
++    }
+ }
+ 
+ inline PowerState getPowerState(const SensorBaseConfigMap& cfg)
+diff --git a/include/sensor.hpp b/include/sensor.hpp
+index 290b78b..4578935 100644
+--- a/include/sensor.hpp
++++ b/include/sensor.hpp
+@@ -252,7 +252,8 @@ struct Sensor
+                               const std::string& label = std::string(),
+                               size_t thresholdSize = 0)
+     {
+-        if (readState == PowerState::on || readState == PowerState::biosPost)
++        if (readState == PowerState::on || readState == PowerState::biosPost ||
++            readState == PowerState::chassisOn)
+         {
+             setupPowerMatch(dbusConnection);
+         }
+@@ -431,7 +432,10 @@ struct Sensor
+         {
+             return false;
+         }
+-
++        if (readState == PowerState::chassisOn && !isChassisOn())
++        {
++            return false;
++        }
+         return true;
+     }
+ 
+diff --git a/src/Utils.cpp b/src/Utils.cpp
+index 700b336..3a2ea2a 100644
+--- a/src/Utils.cpp
++++ b/src/Utils.cpp
+@@ -38,9 +38,11 @@ namespace fs = std::filesystem;
+ static bool powerStatusOn = false;
+ static bool biosHasPost = false;
+ static bool manufacturingMode = false;
++static bool chassisStatusOn = false;
+ 
+ static std::unique_ptr<sdbusplus::bus::match_t> powerMatch = nullptr;
+ static std::unique_ptr<sdbusplus::bus::match_t> postMatch = nullptr;
++static std::unique_ptr<sdbusplus::bus::match_t> chassisMatch = nullptr;
+ 
+ /**
+  * return the contents of a file
+@@ -303,6 +305,15 @@ bool hasBiosPost(void)
+     return biosHasPost;
+ }
+ 
++bool isChassisOn(void)
++{
++    if (!chassisMatch)
++    {
++        throw std::runtime_error("Chassis On Match Not Created");
++    }
++    return chassisStatusOn;
++}
++
+ bool readingStateGood(const PowerState& powerState)
+ {
+     if (powerState == PowerState::on && !isPowerOn())
+@@ -313,6 +324,10 @@ bool readingStateGood(const PowerState& powerState)
+     {
+         return false;
+     }
++    if (powerState == PowerState::chassisOn && !isChassisOn())
++    {
++        return false;
++    }
+ 
+     return true;
+ }
+@@ -383,11 +398,45 @@ static void
+         post::interface, post::property);
+ }
+ 
++static void
++    getChassisStatus(const std::shared_ptr<sdbusplus::asio::connection>& conn,
++                     size_t retries = 2)
++{
++    conn->async_method_call(
++        [conn, retries](boost::system::error_code ec,
++                        const std::variant<std::string>& state) {
++        if (ec)
++        {
++            if (retries != 0U)
++            {
++                auto timer = std::make_shared<boost::asio::steady_timer>(
++                    conn->get_io_context());
++                timer->expires_after(std::chrono::seconds(15));
++                timer->async_wait(
++                    [timer, conn, retries](boost::system::error_code) {
++                    getChassisStatus(conn, retries - 1);
++                });
++                return;
++            }
++
++            // we commonly come up before power control, we'll capture the
++            // property change later
++            std::cerr << "error getting chassis power status " << ec.message()
++                      << "\n";
++            return;
++        }
++        chassisStatusOn = std::get<std::string>(state).ends_with(chassis::sOn);
++        },
++        chassis::busname, chassis::path, properties::interface, properties::get,
++        chassis::interface, chassis::property);
++}
++
+ void setupPowerMatchCallback(
+     const std::shared_ptr<sdbusplus::asio::connection>& conn,
+     std::function<void(PowerState type, bool state)>&& hostStatusCallback)
+ {
+     static boost::asio::steady_timer timer(conn->get_io_context());
++    static boost::asio::steady_timer timerChassisOn(conn->get_io_context());
+     // create a match for powergood changes, first time do a method call to
+     // cache the correct value
+     if (powerMatch)
+@@ -457,8 +506,49 @@ void setupPowerMatchCallback(
+         }
+         });
+ 
++    chassisMatch = std::make_unique<sdbusplus::bus::match_t>(
++        static_cast<sdbusplus::bus_t&>(*conn),
++        "type='signal',interface='" + std::string(properties::interface) +
++            "',path='" + std::string(chassis::path) + "',arg0='" +
++            std::string(chassis::interface) + "'",
++        [hostStatusCallback](sdbusplus::message_t& message) {
++        std::string objectName;
++        boost::container::flat_map<std::string, std::variant<std::string>>
++            values;
++        message.read(objectName, values);
++        auto findState = values.find(chassis::property);
++        if (findState != values.end())
++        {
++            bool on = std::get<std::string>(findState->second)
++                          .ends_with(chassis::sOn);
++            if (!on)
++            {
++                timerChassisOn.cancel();
++                chassisStatusOn = false;
++                hostStatusCallback(PowerState::chassisOn, chassisStatusOn);
++                return;
++            }
++            // on comes too quickly
++            timerChassisOn.expires_after(std::chrono::seconds(10));
++            timerChassisOn.async_wait(
++                [hostStatusCallback](boost::system::error_code ec) {
++                if (ec == boost::asio::error::operation_aborted)
++                {
++                    return;
++                }
++                if (ec)
++                {
++                    std::cerr << "Timer error " << ec.message() << "\n";
++                    return;
++                }
++                chassisStatusOn = true;
++                hostStatusCallback(PowerState::chassisOn, chassisStatusOn);
++            });
++        }
++        });
+     getPowerStatus(conn);
+     getPostStatus(conn);
++    getChassisStatus(conn);
+ }
+ 
+ void setupPowerMatch(const std::shared_ptr<sdbusplus::asio::connection>& conn)
+-- 
+2.17.1
+
