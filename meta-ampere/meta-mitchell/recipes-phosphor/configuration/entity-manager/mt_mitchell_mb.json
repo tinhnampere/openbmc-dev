@@ -2,7 +2,7 @@
     {
         "Exposes": [
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 0,
                 "Name": "S0_0V8_D2D",
                 "PollRate": 1,
@@ -37,7 +37,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 1,
                 "Name": "S1_0V8_D2D",
                 "PollRate": 1,
@@ -72,7 +72,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 2,
                 "Name": "S0_0V85_SOC",
                 "PollRate": 1,
@@ -107,7 +107,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 3,
                 "Name": "S1_0V85_SOC",
                 "PollRate": 1,
@@ -142,7 +142,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 4,
                 "Name": "S0_0V85_RC_DDR0",
                 "PollRate": 1,
@@ -177,7 +177,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 5,
                 "Name": "S1_0V85_RC_DDR0",
                 "PollRate": 1,
@@ -212,7 +212,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 6,
                 "Name": "S0_0V85_RC_DDR1",
                 "PollRate": 1,
@@ -247,7 +247,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 7,
                 "Name": "S1_0V85_RC_DDR1",
                 "PollRate": 1,
@@ -282,7 +282,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 8,
                 "Name": "S0_0V9_RC5A",
                 "PollRate": 1,
@@ -317,7 +317,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 9,
                 "Name": "S1_0V9_RC5A",
                 "PollRate": 1,
@@ -352,7 +352,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 10,
                 "Name": "S0_1V8_RC5A",
                 "PollRate": 1,
@@ -387,7 +387,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 11,
                 "Name": "S1_1V8_RC5A",
                 "PollRate": 1,
@@ -422,7 +422,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 12,
                 "Name": "S0_1V2_SOC",
                 "PollRate": 1,
@@ -457,7 +457,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 13,
                 "Name": "S1_1V2_SOC",
                 "PollRate": 1,
@@ -492,7 +492,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 14,
                 "Name": "S0_EXT_VREF",
                 "PollRate": 1,
@@ -527,7 +527,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 15,
                 "Name": "S1_EXT_VREF",
                 "PollRate": 1,
@@ -562,7 +562,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 16,
                 "Name": "S0_1V1_VDDQ4567",
                 "PollRate": 1,
@@ -597,7 +597,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 17,
                 "Name": "S1_1V1_VDDQ4567",
                 "PollRate": 1,
@@ -632,7 +632,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 18,
                 "Name": "S0_1V8_SOC",
                 "PollRate": 1,
@@ -667,7 +667,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 19,
                 "Name": "S1_1V8_SOC",
                 "PollRate": 1,
@@ -702,7 +702,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 20,
                 "Name": "S0_0V75_PCP",
                 "PollRate": 1,
@@ -737,7 +737,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 21,
                 "Name": "S1_0V75_PCP",
                 "PollRate": 1,
@@ -772,7 +772,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 22,
                 "Name": "S0_1V1_VDDQ0123",
                 "PollRate": 1,
@@ -807,7 +807,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 23,
                 "Name": "S1_1V1_VDDQ0123",
                 "PollRate": 1,
@@ -848,7 +848,7 @@
                         "Polarity": "High"
                     }
                 ],
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 24,
                 "Name": "VBAT_RTC",
                 "PollRate": 1,
@@ -882,7 +882,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 25,
                 "Name": "12V_SB",
                 "PollRate": 1,
@@ -916,7 +916,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 26,
                 "Name": "12V_S0",
                 "PollRate": 1,
@@ -951,7 +951,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 27,
                 "Name": "12V_S1",
                 "PollRate": 1,
@@ -986,7 +986,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 28,
                 "Name": "3V3_SB",
                 "PollRate": 1,
@@ -1020,7 +1020,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 29,
                 "Name": "3V3",
                 "PollRate": 1,
@@ -1054,7 +1054,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 30,
                 "Name": "5V",
                 "PollRate": 1,
@@ -1088,7 +1088,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 31,
                 "Name": "5V_SB",
                 "PollRate": 1,
@@ -1122,7 +1122,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 32,
                 "Name": "3V3_OCP0_SB",
                 "ScaleFactor": 0.4118,
@@ -1156,7 +1156,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 33,
                 "Name": "12V_OCP1_SB",
                 "ScaleFactor": 0.1129,
@@ -1190,7 +1190,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 34,
                 "Name": "3V3_OCP1_SB",
                 "ScaleFactor": 0.4118,
@@ -1224,7 +1224,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 35,
                 "Name": "12V_HDD",
                 "ScaleFactor": 0.1129,
@@ -1258,7 +1258,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 36,
                 "Name": "12V_FAN",
                 "ScaleFactor": 0.1129,
@@ -1292,7 +1292,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 37,
                 "Name": "12V_PCIe",
                 "ScaleFactor": 0.1129,
@@ -1326,7 +1326,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 38,
                 "Name": "12V_NIC_SB",
                 "ScaleFactor": 0.1129,
@@ -1360,7 +1360,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 39,
                 "Name": "12V_GPU0",
                 "ScaleFactor": 0.1129,
@@ -1394,7 +1394,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 40,
                 "Name": "12V_GPU1",
                 "ScaleFactor": 0.1129,
@@ -1428,7 +1428,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 41,
                 "Name": "12V_GPU2",
                 "ScaleFactor": 0.1129,
@@ -1462,7 +1462,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 42,
                 "Name": "1V8_SB",
                 "ScaleFactor": 0.75,
@@ -1496,7 +1496,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 43,
                 "Name": "12V_OCP0_SB",
                 "ScaleFactor": 0.1129,
@@ -1530,7 +1530,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 44,
                 "Name": "1V05_SB",
                 "ScaleFactor": 0.9971,
@@ -1564,7 +1564,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 45,
                 "Name": "1V25_SB",
                 "ScaleFactor": 0.9968,
@@ -1598,7 +1598,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 46,
                 "Name": "3V3_M2",
                 "ScaleFactor": 0.4118,
@@ -1632,7 +1632,7 @@
                 "Type": "ADC"
             },
             {
-                "ChassisState": "On",
+                "PowerState": "ChassisOn",
                 "Index": 47,
                 "Name": "12V_HDD_I",
                 "ScaleFactor": 0.1129,
