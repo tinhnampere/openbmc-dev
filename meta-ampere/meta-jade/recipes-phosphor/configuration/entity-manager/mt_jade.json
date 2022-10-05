@@ -2,7 +2,7 @@
     "Exposes": [
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 0,
             "Name": "S0_0V8_VDDC_SOC",
             "PollRate": 1,
@@ -25,7 +25,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 1,
             "Name": "S1_0V8_VDDC_SOC",
             "PollRate": 1,
@@ -94,7 +94,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 4,
             "Name": "S0_1V2_VDDQ0123",
             "PollRate": 1,
@@ -117,7 +117,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 5,
             "Name": "S1_1V2_VDDQ0123",
             "PollRate": 1,
@@ -140,7 +140,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 6,
             "Name": "S0_0V6_VTT0123",
             "PollRate": 1,
@@ -163,7 +163,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 7,
             "Name": "S1_0V6_VTT0123",
             "PollRate": 1,
@@ -186,7 +186,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 8,
             "Name": "S0_2V5_VPP0123",
             "PollRate": 1,
@@ -209,7 +209,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 9,
             "Name": "S1_2V5_VPP0123",
             "PollRate": 1,
@@ -232,7 +232,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 10,
             "Name": "S0_1V2_VDDQ4567",
             "PollRate": 1,
@@ -255,7 +255,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 11,
             "Name": "S1_1V2_VDDQ4567",
             "PollRate": 1,
@@ -278,7 +278,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 12,
             "Name": "S0_0V6_VTT4567",
             "PollRate": 1,
@@ -301,7 +301,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 13,
             "Name": "S1_0V6_VTT4567",
             "PollRate": 1,
@@ -324,7 +324,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 14,
             "Name": "S0_2V5_VPP4567",
             "PollRate": 1,
@@ -347,7 +347,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 15,
             "Name": "S1_2V5_VPP4567",
             "PollRate": 1,
@@ -370,7 +370,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 16,
             "Name": "S0_0V85_RCA",
             "PollRate": 1,
@@ -393,7 +393,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 17,
             "Name": "S1_0V85_RCA",
             "PollRate": 1,
@@ -416,7 +416,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 18,
             "Name": "S0_1V8_VDDH",
             "PollRate": 1,
@@ -439,7 +439,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 19,
             "Name": "S1_1V8_VDDH",
             "PollRate": 1,
@@ -462,7 +462,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 20,
             "Name": "S0_1V5_VDDH",
             "PollRate": 1,
@@ -485,7 +485,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 21,
             "Name": "S1_1V5_VDDH",
             "PollRate": 1,
@@ -508,7 +508,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 22,
             "Name": "S0_1V8_SOC",
             "PollRate": 1,
@@ -531,7 +531,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 23,
             "Name": "S1_1V8_SOC",
             "PollRate": 1,
@@ -600,7 +600,7 @@
         },
         {
             "CPURequired": 1,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 26,
             "Name": "S0_3V3_SOC",
             "PollRate": 1,
@@ -623,7 +623,7 @@
         },
         {
             "CPURequired": 2,
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Index": 27,
             "Name": "S1_3V3_SOC",
             "PollRate": 1,
@@ -693,7 +693,7 @@
             "Type": "ADC"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 2,
                 "PwmName": "PWM3"
@@ -718,7 +718,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 2,
                 "PwmName": "PWM3"
@@ -743,7 +743,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 3,
                 "PwmName": "PWM4"
@@ -768,7 +768,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 3,
                 "PwmName": "PWM4"
@@ -793,7 +793,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 4,
                 "PwmName": "PWM5"
@@ -818,7 +818,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 4,
                 "PwmName": "PWM5"
@@ -843,7 +843,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 5,
                 "PwmName": "PWM6"
@@ -868,7 +868,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 5,
                 "PwmName": "PWM6"
@@ -893,7 +893,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 6,
                 "PwmName": "PWM7"
@@ -918,7 +918,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 6,
                 "PwmName": "PWM7"
@@ -943,7 +943,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 7,
                 "PwmName": "PWM8"
@@ -968,7 +968,7 @@
             "Type": "AspeedFan"
         },
         {
-            "ChassisState": "On",
+            "PowerState": "ChassisOn",
             "Connector": {
                 "Pwm": 7,
                 "PwmName": "PWM8"
