@@ -1,0 +1,56 @@
+From 0239062d47ebe827f1419a0cadb21d165383c1aa Mon Sep 17 00:00:00 2001
+From: Thu Nguyen <thu@os.amperecomputing.com>
+Date: Thu, 6 Oct 2022 11:25:56 +0700
+Subject: [PATCH] Add name filter for the nameOwnerChanged signal matching
+
+Matching nameOwnerChanged signal in entity-manger is used for
+detecting the exit of a process for any reason. This can causes the
+removal of entity-configuration in entity-manger. When one well-known
+name service exits it will create the nameOwnerChanged signal with
+well-known name.
+Entity-manger wants to claiming a well-known name service by adding
+sender='org.freedesktop.DBus'. But calling "busctl" commands can cause
+the nameownerchanged with the same sender. Appling the name filter is
+necessary.
+As dbus specification, "Bus names that start with a colon (':')
+character are unique connection names. Other bus names are called
+well-known bus names.". This patch adds the well-known name filter to
+the matching of the nameOwnerChanged signal.
+
+Tested:
+1. "systemctl stop xyz.openbmc_project.AmpereMctpCtrl.service" can
+cause the reload of entity configuration.
+2. "busctl ..." command will be bypassed by matching nameOwnerChanged
+signal code.
+
+Signed-off-by: Thu Nguyen <thu@os.amperecomputing.com>
+---
+ src/entity_manager.cpp | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/src/entity_manager.cpp b/src/entity_manager.cpp
+index bfda895..5f5385c 100644
+--- a/src/entity_manager.cpp
++++ b/src/entity_manager.cpp
+@@ -1096,7 +1096,17 @@ int main()
+     sdbusplus::bus::match_t nameOwnerChangedMatch(
+         static_cast<sdbusplus::bus_t&>(*systemBus),
+         sdbusplus::bus::match::rules::nameOwnerChanged(),
+-        [&](sdbusplus::message_t&) {
++        [&](sdbusplus::message_t& msg) {
++            std::string name, oldOwner, newOwner;
++            msg.read(name, oldOwner, newOwner);
++            // As dbus specification: Bus names that start with a colon (':')
++            // character are unique connection names. Other bus names are called
++            // well-known bus names.
++            if (name.starts_with(':'))
++            {
++                // We should do nothing with unique-name connections.
++                return;
++            }
+             propertiesChangedCallback(systemConfiguration, objServer);
+         });
+     // We also need a poke from DBus when new interfaces are created or
+-- 
+2.17.1
+

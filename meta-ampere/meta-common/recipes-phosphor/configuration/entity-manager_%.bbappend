@@ -2,8 +2,9 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
             file://artesyn_psu.json \
-	    file://0001-meta-ampere-FruDevice-Support-parsing-Multirecord-UU.patch \
+            file://0001-meta-ampere-FruDevice-Support-parsing-Multirecord-UU.patch \
             file://0002-Support-generate-UUID-if-does-not-exist-in-FRU.patch \
+            file://0003-Add-name-filter-for-the-nameOwnerChanged-signal-matc.patch \
            "
 
 TARGET_LDFLAGS += "-luuid"
