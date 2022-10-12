@@ -13,6 +13,26 @@ function set_postcode()
 		xyz.openbmc_project.State.Boot.Raw Value \(tay\) "$postcode" 0
 }
 
+function update_boot_progress_last_state_time()
+{
+	# Get BMC current time
+	bp_last_state_time=$(busctl get-property xyz.openbmc_project.Time.Manager \
+		/xyz/openbmc_project/time/bmc \
+		xyz.openbmc_project.Time.EpochTime \
+		Elapsed | cut -d' ' -f2)
+	# Boot Progress LastStateTime in millisecond
+	# ToDo: This will remove after rebase from community with this commit:
+	# https://github.com/openbmc/bmcweb/commit/b6d5d45ce974b4cc3dce0f524843da4ac6e5f7f8
+	bp_last_state_time=$((bp_last_state_time / 1000))
+
+	# Update the Boot Progress LastStateTime
+	busctl set-property xyz.openbmc_project.State.Host \
+		/xyz/openbmc_project/state/host0 \
+		xyz.openbmc_project.State.Boot.Progress \
+		BootProgressLastUpdate t \
+		"$bp_last_state_time"
+}
+
 function update_boot_progress()
 {
 	bootprog=$1
@@ -22,6 +42,9 @@ function update_boot_progress()
 		xyz.openbmc_project.State.Boot.Progress \
 		BootProgress s \
 		"xyz.openbmc_project.State.Boot.Progress.ProgressStages.$bootprog"
+
+	# Update Boot Progress LastStateTime
+	update_boot_progress_last_state_time
 }
 
 function get_boot_stage_string()
