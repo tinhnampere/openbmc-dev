@@ -17,10 +17,13 @@ SRC_URI += " \
             file://ampere_fault_monitor.sh \
             file://ampere_check_fault_gpio.sh \
             file://ampere_post_check_fault_gpio.sh \
+            file://ampere_fan_status_monitor.sh \
+            file://ampere_post_fan_status_monitor.sh \
            "
 
 SYSTEMD_SERVICE:${PN} = " \
                          ampere_fault_monitor.service \
+                         ampere_fan_status_monitor.service \
                         "
 
 FAULT_GPIO_START_S0_TGT = "ampere_check_fault_gpio_start_S0_host@.service"
@@ -49,9 +52,18 @@ FAULT_GPIO_STOP_FMT = "../${FAULT_GPIO_STOP_TGT}:${HOST_ON_STARTMIN_TGTFMT}.want
 SYSTEMD_LINK:${PN} += "${@compose_list_zip(d, 'FAULT_GPIO_STOP_FMT', 'OBMC_HOST_INSTANCES')}"
 SYSTEMD_SERVICE:${PN} += "${FAULT_GPIO_STOP_TGT}"
 
+CHECK_FAN_STATUS_TGT = "ampere_fan_status_monitor.service"
+CHECK_FAN_STATUS_INSTMPL = "ampere_fan_status_monitor.service"
+AMPERE_HOST_RUNNING = "obmc-host-already-on@{0}.target"
+CHECK_FAN_STATUS_FMT = "../${CHECK_FAN_STATUS_TGT}:${AMPERE_HOST_RUNNING}.wants/${CHECK_FAN_STATUS_INSTMPL}"
+SYSTEMD_LINK:${PN} += "${@compose_list_zip(d, 'CHECK_FAN_STATUS_FMT', 'OBMC_HOST_INSTANCES')}"
+SYSTEMD_SERVICE:${PN} += "${CHECK_FAN_STATUS_TGT}"
+
 do_install() {
     install -d ${D}/${sbindir}
     install -m 755 ${WORKDIR}/ampere_fault_monitor.sh ${D}/${sbindir}/
     install -m 755 ${WORKDIR}/ampere_check_fault_gpio.sh ${D}/${sbindir}/
     install -m 755 ${WORKDIR}/ampere_post_check_fault_gpio.sh ${D}/${sbindir}/
+    install -m 755 ${WORKDIR}/ampere_fan_status_monitor.sh ${D}/${sbindir}/
+    install -m 755 ${WORKDIR}/ampere_post_fan_status_monitor.sh ${D}/${sbindir}/
 }
