@@ -1,0 +1,14 @@
+[Unit]
+Description=Ampere check fan status
+After=obmc-host-already-on@0.target
+BindTo=obmc-host-already-on@0.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "ampere_fan_status_monitor.sh"
+ExecStop=/bin/sh -c "ampere_post_fan_status_monitor.sh"
+SyslogIdentifier=check_fan_status
+RemainAfterExit=no
+
+[Install]
+WantedBy=obmc-host-already-on@0.target
