@@ -7,10 +7,6 @@
 # shellcheck source=/dev/null
 
 # common variables
-	platform=$(uname -a | cut -d' ' -f2)
-	fan_sensor_path='/xyz/openbmc_project/inventory/system/chassis/Mt_Jade/.*/'
-	inventory_service_name='xyz.openbmc_project.Inventory.Manager'
-
 	warning_fault_flag='/tmp/fault_warning'
 	error_fault_flag='/tmp/fault_err'
 	overtemp_fault_flag='/tmp/fault_overtemp'
@@ -25,20 +21,9 @@
 
 	gpio_fault="false"
 
-	retry=5
-	wait_sec=30
-
-	host_is_on="false"
-
-	host_state_service='xyz.openbmc_project.State.Host'
-	host_state_path='/xyz/openbmc_project/state/host0'
-	host_state_interface='xyz.openbmc_project.State.Host'
-
-	delay_check_host=60
-
 # fan variables
 	fan_failed="false"
-	fan_interface='xyz.openbmc_project.State.Decorator.OperationalStatus'
+	fan_failed_flag='/tmp/fan_failed'
 
 # PSU variables
 	psu_failed="false"
@@ -62,61 +47,12 @@
 	fault_led_status=$off
 
 # functions declaration
-check_fan_control_ready() {
-	local cnt=0
-	local tmp
-
-	while [ $cnt -le $retry ]
-	do
-		tmp=$(systemctl status phosphor-fan-control-init@0.service | grep Process | cut -d'/' -f5 | cut -d')' -f0)
-		if [  "$tmp" == "SUCCESS" ]; then
-			break
-		fi
-		cnt=$(( cnt + 1 ))
-		echo "Retry $cnt: fan control not ready"
-		sleep $wait_sec
-	done
-}
-
-get_fan_list() {
-	if [ "$platform" == "mtjade" ]; then
-		mapfile -t fan_list < <(busctl tree $inventory_service_name --list | grep "$fan_sensor_path")
-	else
-		echo "Error: Platform not support"
-		exit 1
-	fi
-}
-
-check_host_status() {
-	local tmp
-
-	tmp=$(busctl get-property $host_state_service $host_state_path $host_state_interface CurrentHostState | cut -d"." -f6)
-	if [ "$tmp" == "Running\"" ]; then
-		host_is_on="true"
-	else
-		host_is_on="false"
-		sleep "$1"
-	fi
-}
-
 check_fan_failed() {
-	check_host_status 0
-	if [ "$host_is_on" == "false" ]; then
-		return
-	fi
-
-	local tmp
-
-	for each in "${fan_list[@]}"
-	do
-		tmp=$(busctl get-property $inventory_service_name "$each" $fan_interface Functional | cut -d' ' -f2)
-		if [ "$tmp" == "false" ]; then
-			echo "Error: Fan $each failed"
-			fan_failed="true"
-			break
-		fi
+	if [[ -f $fan_failed_flag ]]; then
+		fan_failed="true"
+	else
 		fan_failed="false"
-	done
+	fi
 }
 
 turn_on_off_fault_led() {	
@@ -234,14 +170,6 @@ check_overtemp_occured() {
 }
 
 # daemon start
-check_host_status $delay_check_host
-
-if [ "$host_is_on" == "true" ]; then
-	check_fan_control_ready
-fi
-
-get_fan_list
-
 while true
 do
 	check_gpio_fault
