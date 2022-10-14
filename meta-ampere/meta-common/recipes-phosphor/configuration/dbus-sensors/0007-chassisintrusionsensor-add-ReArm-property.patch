@@ -1,0 +1,303 @@
+From c4374519deacdaeae51e2cd29bd32bea9261ace5 Tue Sep 27 00:00:00 2022
+From: "Chau Ly" <chaul@amperecomputing.com>
+Date: Tue, 27 Sep 2022 17:03:37 +0700
+Subject: [PATCH] Add ReArm property for intrusionsensor
+
+This patch adds ReArm property to intrusionsensor service, under
+"xyz.openbmc_project.Chassis.Intrusion" interface, to specify the method
+for updating the "Status" property. This property is optional. If not set,
+"ReArm" will default to "Automatic", which will directly update the raw 
+chassis intrusion status to the "Status" property. If set to "Manual", after
+an  intrusion event, the "Status" property will be kept to "HardwareIntrusion",
+no update accepted, until a reset event happends. Technically, in Manual mode,
+after an intrusion event, intrusionsensor will only update the "Status" property
+normally again if the current value of "Status" property on Dbus is set to "Normal"
+by other services (Redfish/ipmi-oem command).
+
+Example:
+{
+     "Class": "Hwmon",
+     "Name": "Chassis_Intrusion_Status",
+     "Input": "intrusion0_alarm",
+     "ReArm": "Manual",
+     "Type": "ChassisIntrusionSensor"
+}
+
+Signed-off-by: Chau Ly <chaul@amperecomputing.com>
+
+diff --git a/include/ChassisIntrusionSensor.hpp b/include/ChassisIntrusionSensor.hpp
+index 775e03d..d145a42 100644
+--- a/include/ChassisIntrusionSensor.hpp
++++ b/include/ChassisIntrusionSensor.hpp
+@@ -25,18 +25,20 @@ class ChassisIntrusionSensor
+ 
+     ~ChassisIntrusionSensor();
+ 
+-    void start(IntrusionSensorType type, int busId, int slaveAddr,
+-               bool gpioInverted, std::string hwmonName);
++    void start(IntrusionSensorType type, std::string reArm,
++               int busId, int slaveAddr, bool gpioInverted,
++               std::string hwmonName);
+ 
+   private:
+     std::shared_ptr<sdbusplus::asio::dbus_interface> mIface;
+     std::shared_ptr<sdbusplus::asio::connection> mDbusConn;
+ 
+     IntrusionSensorType mType{IntrusionSensorType::gpio};
++    std::string mReArm{"Automatic"};
+ 
+     // intrusion status. 0: not intruded, 1: intruded
+     std::string mValue = "unknown";
+-    std::string mOldValue = "unknown";
++    bool mRearmFlag = false;
+ 
+     // valid if it is PCH register via i2c
+     int mBusId{-1};
+diff --git a/src/ChassisIntrusionSensor.cpp b/src/ChassisIntrusionSensor.cpp
+index 1bf6d79..977481b 100644
+--- a/src/ChassisIntrusionSensor.cpp
++++ b/src/ChassisIntrusionSensor.cpp
+@@ -52,40 +52,51 @@ const static constexpr size_t pchRegMaskIntrusion = 0x01;
+ 
+ void ChassisIntrusionSensor::updateValue(const std::string& newValue)
+ {
+-    // Take no action if value already equal
++    // Take no action if the hardware status does not change
+     // Same semantics as Sensor::updateValue(const double&)
+     if (newValue == mValue)
+     {
+         return;
+     }
+ 
+-    // indicate that it is internal set call
++    // Automatic ReArm mode allows direct update
++    // Manual ReArm mode requires a rearm action to clear the intrusion
++    // status after the the chassis has been intruded
++    if (mReArm == "Manual" && mValue != "unknown")
++    {
++        if (newValue == "Normal")
++        {
++            // Chassis is first closed from being open. If it has been
++            // rearmed externally, reset the flag, update mValue and 
++            // return, without having to write "Normal" to Dbus (because
++            // the rearm action already did). Otherwise, return with
++            // no more action
++            if (mRearmFlag)
++            {
++                mRearmFlag = false;
++                mValue = newValue;
++                return;
++            }
++            else
++            {
++                return;
++            }
++        }
++    }
++
++    // Flush the rearm flag everytime it allows an update to Dbus
++    if (mRearmFlag)
++    {
++        mRearmFlag = false;
++    }
++
++    // indicate that this is an internal set call
++    mOverridenState = false;
+     mInternalSet = true;
+     mIface->set_property("Status", newValue);
+     mInternalSet = false;
+ 
+     mValue = newValue;
+-
+-    if (mOldValue == "Normal" && mValue != "Normal")
+-    {
+-        std::cerr << "save to SEL for intrusion assert event \n";
+-        // TODO: call add SEL log API, depends on patch #13956
+-        std::string eventName = "Chassis Intrusion Detected";
+-        std::string messageID = "OpenBMC.0.1.ChassisIntrusionDetected";
+-        lg2::info("{EVENT} assert", "EVENT", eventName,
+-                              "REDFISH_MESSAGE_ID", messageID);
+-        mOldValue = mValue;
+-    }
+-    else if (mOldValue != "Normal" && mValue == "Normal")
+-    {
+-        std::cerr << "save to SEL for intrusion de-assert event \n";
+-        // TODO: call add SEL log API, depends on patch #13956
+-        std::string eventName = "Chassis Intrusion ReSet";
+-        std::string messageID = "OpenBMC.0.1.ChassisIntrusionReset";
+-        lg2::info("{EVENT} deassert", "EVENT", eventName,
+-                              "REDFISH_MESSAGE_ID", messageID);
+-        mOldValue = mValue;
+-    }
+ }
+ 
+ int ChassisIntrusionSensor::i2cReadFromPch(int busId, int slaveAddr)
+@@ -297,8 +308,8 @@ void ChassisIntrusionSensor::readHwmon()
+ 		}
+ 		if (newValue != "unknown" && mValue != newValue)
+ 		{
+-			std::cout << "update value from " << mValue << " to " << newValue
+-					  << "\n";
++			// std::cout << "update value from " << mValue << " to " << newValue
++			// 		  << "\n";
+ 			updateValue(newValue);
+ 		}
+ 
+@@ -366,20 +377,52 @@ void ChassisIntrusionSensor::initHwmonDevicePath()
+ int ChassisIntrusionSensor::setSensorValue(const std::string& req,
+                                            std::string& propertyValue)
+ {
++    // External call
+     if (!mInternalSet)
+     {
++        if (req != "Normal")
++        {
++            return 1;
++        }
++        if (mReArm == "Manual")
++        {
++            mRearmFlag = true;
++        }
+         propertyValue = req;
+         mOverridenState = true;
+     }
++    // Internal call
+     else if (!mOverridenState)
+     {
+         propertyValue = req;
+     }
++    else
++    {
++        return 1;
++    }
++    if ((mValue == "Normal" || mValue == "unknown") && propertyValue != "Normal")
++    {
++        std::cerr << "save to SEL for intrusion assert event \n";
++        // TODO: call add SEL log API, depends on patch #13956
++        std::string eventName = "Chassis Intrusion Detected";
++        std::string messageID = "OpenBMC.0.1.ChassisIntrusionDetected";
++        lg2::info("{EVENT} assert", "EVENT", eventName,
++                              "REDFISH_MESSAGE_ID", messageID);
++    }
++    else if (mValue != "Normal" && propertyValue == "Normal")
++    {
++        std::cerr << "save to SEL for intrusion de-assert event \n";
++        // TODO: call add SEL log API, depends on patch #13956
++        std::string eventName = "Chassis Intrusion ReSet";
++        std::string messageID = "OpenBMC.0.1.ChassisIntrusionReset";
++        lg2::info("{EVENT} deassert", "EVENT", eventName,
++                              "REDFISH_MESSAGE_ID", messageID);
++    }
+     return 1;
+ }
+ 
+-void ChassisIntrusionSensor::start(IntrusionSensorType type, int busId,
+-                                   int slaveAddr, bool gpioInverted,
++void ChassisIntrusionSensor::start(IntrusionSensorType type, std::string reArm,
++                                   int busId, int slaveAddr, bool gpioInverted,
+                                    std::string hwmonName)
+ {
+     if (debug)
+@@ -413,6 +456,7 @@ void ChassisIntrusionSensor::start(IntrusionSensorType type, int busId,
+     }
+ 
+     mType = type;
++    mReArm = reArm;
+     mBusId = busId;
+     mSlaveAddr = slaveAddr;
+     mGpioInverted = gpioInverted;
+@@ -430,6 +474,7 @@ void ChassisIntrusionSensor::start(IntrusionSensorType type, int busId,
+                 [&](const std::string& req, std::string& propertyValue) {
+                 return setSensorValue(req, propertyValue);
+                 });
++            mIface->register_property("ReArm", mReArm);
+             mIface->initialize();
+ 
+             if (mType == IntrusionSensorType::gpio)
+@@ -491,8 +536,7 @@ void ChassisIntrusionSensor::start(IntrusionSensorType type, int busId,
+ ChassisIntrusionSensor::ChassisIntrusionSensor(
+     boost::asio::io_service& io,
+     std::shared_ptr<sdbusplus::asio::dbus_interface> iface) :
+-    mIface(std::move(iface)),
+-    mValue("unknown"), mOldValue("unknown"), mPchPollTimer(io),
++    mIface(std::move(iface)), mValue("unknown"), mPchPollTimer(io),
+     mGpioFd(io), mHwmonPollTimer(io)
+ {}
+ 
+diff --git a/src/IntrusionSensorMain.cpp b/src/IntrusionSensorMain.cpp
+index 450a191..221784d 100644
+--- a/src/IntrusionSensorMain.cpp
++++ b/src/IntrusionSensorMain.cpp
+@@ -51,8 +51,8 @@ namespace fs = std::filesystem;
+ 
+ static bool getIntrusionSensorConfig(
+     const std::shared_ptr<sdbusplus::asio::connection>& dbusConnection,
+-    IntrusionSensorType* pType, int* pBusId, int* pSlaveAddr,
+-    bool* pGpioInverted, std::string& pHwmonname)
++    IntrusionSensorType* pType, std::string& pReArm, int* pBusId,
++    int* pSlaveAddr, bool* pGpioInverted, std::string& pHwmonname)
+ {
+     // find matched configuration according to sensor type
+     ManagedObjectType sensorConfigurations;
+@@ -85,6 +85,23 @@ static bool getIntrusionSensorConfig(
+ 
+         baseConfiguration = &(*sensorBase);
+ 
++        //ReArm defaults to "Automatic" mode
++        pReArm = "Automatic";
++        auto findReArm = baseConfiguration->second.find("ReArm");       
++        if (findReArm != baseConfiguration->second.end())
++        {
++            if ((std::get<std::string>(findReArm->second) == "Automatic")
++                || (std::get<std::string>(findReArm->second) == "Manual"))
++            {
++                pReArm = std::get<std::string>(findReArm->second);
++            }
++            else
++            {
++                std::cerr << "Wrong ReArm input, automatically " <<
++                            " set to Automatic \n";
++            }     
++        }
++
+         // judge class, "Gpio" or "I2C"
+         auto findClass = baseConfiguration->second.find("Class");
+         if (findClass != baseConfiguration->second.end() &&
+@@ -452,6 +469,7 @@ int main()
+     bool gpioInverted = false;
+     std::string hwmonName("");
+     IntrusionSensorType type = IntrusionSensorType::gpio;
++    std::string reArm("Automatic");
+ 
+     // setup connection to dbus
+     boost::asio::io_service io;
+@@ -468,11 +486,11 @@ int main()
+ 
+     ChassisIntrusionSensor chassisIntrusionSensor(io, ifaceChassis);
+ 
+-    if (getIntrusionSensorConfig(systemBus, &type, &busId, &slaveAddr,
++    if (getIntrusionSensorConfig(systemBus, &type, reArm, &busId, &slaveAddr,
+                                  &gpioInverted, hwmonName))
+     {
+-        chassisIntrusionSensor.start(type, busId, slaveAddr, gpioInverted,
+-                                     hwmonName);
++        chassisIntrusionSensor.start(type, reArm, busId, slaveAddr,
++                                     gpioInverted, hwmonName);
+     }
+ 
+     // callback to handle configuration change
+@@ -485,11 +503,11 @@ int main()
+         }
+ 
+         std::cout << "rescan due to configuration change \n";
+-        if (getIntrusionSensorConfig(systemBus, &type, &busId, &slaveAddr,
++        if (getIntrusionSensorConfig(systemBus, &type, reArm, &busId, &slaveAddr,
+                                      &gpioInverted, hwmonName))
+         {
+-            chassisIntrusionSensor.start(type, busId, slaveAddr, gpioInverted,
+-                                         hwmonName);
++            chassisIntrusionSensor.start(type, reArm, busId, slaveAddr,
++                                         gpioInverted, hwmonName);
+         }
+     };
+ 

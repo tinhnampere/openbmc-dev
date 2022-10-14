@@ -1,0 +1,124 @@
+From db2a3114420d6bda18364cd822484e0aad7743d4 Mon Sep 17 00:00:00 2001
+From: Chau Ly <chaul@amperecomputing.com>
+Date: Tue, 1 Nov 2022 10:54:20 +0700
+Subject: [PATCH 6/6] Support IntrusionSensor patch and IntrusionSensorReArm
+
+This patch adds patch handler for "Intrusionsensor" and supports
+"IntrusionSensorReArm" property under "PhysicalSecurity". The
+"IntrusionSensorReArm" property is updated following the "ReArm"
+property under xyz.openbmc_project.Chassis.Intrusion interface on
+Dbus.
+Patch handler for "Intrusionsensor" will update the "Status" property
+under xyz.openbmc_project.Chassis.Intrusion interface on Dbus to "Normal"
+as a reset event. In "Manual" ReArm mode, this allows the "Status" property
+to be updated normally again after an intrusion event .
+
+Signed-off-by: Chau Ly <chaul@amperecomputing.com>
+---
+ redfish-core/lib/chassis.hpp | 56 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 53 insertions(+), 3 deletions(-)
+
+diff --git a/redfish-core/lib/chassis.hpp b/redfish-core/lib/chassis.hpp
+index 26141150..1b082a4b 100644
+--- a/redfish-core/lib/chassis.hpp
++++ b/redfish-core/lib/chassis.hpp
+@@ -101,6 +101,29 @@ inline void getIntrusionByService(std::shared_ptr<bmcweb::AsyncResp> aResp,
+         });
+ }
+ 
++inline void getIntrusionReArmByService(std::shared_ptr<bmcweb::AsyncResp> aResp,
++                                  const std::string& service,
++                                  const std::string& objPath)
++{
++    BMCWEB_LOG_DEBUG << "Get intrusion rearm by service \n";
++
++    sdbusplus::asio::getProperty<std::string>(
++        *crow::connections::systemBus, service, objPath,
++        "xyz.openbmc_project.Chassis.Intrusion", "ReArm",
++        [aResp{std::move(aResp)}](const boost::system::error_code ec,
++                                  const std::string& value) {
++        if (ec)
++        {
++            // do not add err msg in redfish response, because this is not
++            //     mandatory property
++            BMCWEB_LOG_ERROR << "DBUS response error " << ec << "\n";
++            return;
++        }
++
++        aResp->res.jsonValue["PhysicalSecurity"]["IntrusionSensorReArm"] = value;
++    });
++}
++
+ /**
+  * Retrieves physical security properties over dbus
+  */
+@@ -123,6 +146,7 @@ inline void getPhysicalSecurityData(std::shared_ptr<bmcweb::AsyncResp> aResp)
+             for (const auto& service : object.second)
+             {
+                 getIntrusionByService(aResp, service.first, object.first);
++                getIntrusionReArmByService(aResp, service.first, object.first);
+                 return;
+             }
+         }
+@@ -466,12 +490,40 @@ inline void
+     }
+     std::optional<bool> locationIndicatorActive;
+     std::optional<std::string> indicatorLed;
++    std::optional<std::string> intrusionSensor;
+ 
+     if (param.empty())
+     {
+         return;
+     }
+ 
++    const std::string& chassisId = param;
++
++    if (!json_util::readJsonPatch(
++            req, asyncResp->res, "PhysicalSecurity/IntrusionSensor",
++            intrusionSensor))
++    {
++        return;
++    }
++
++    if (intrusionSensor && (intrusionSensor.value() == "Normal"))
++    {
++        crow::connections::systemBus->async_method_call(
++            [asyncResp, chassisId, intrusionSensor](const boost::system::error_code ec) {
++            if (ec)
++            {
++                messages::internalError(asyncResp->res);
++                return;
++            }
++            messages::success(asyncResp->res);
++            },
++            "xyz.openbmc_project.IntrusionSensor",
++            "/xyz/openbmc_project/Intrusion/Chassis_Intrusion",
++            "org.freedesktop.DBus.Properties", "Set",
++            "xyz.openbmc_project.Chassis.Intrusion", "Status",
++            dbus::utility::DbusVariantType(*intrusionSensor));
++    }
++
+     if (!json_util::readJsonPatch(
+             req, asyncResp->res, "LocationIndicatorActive",
+             locationIndicatorActive, "IndicatorLED", indicatorLed))
+@@ -482,7 +534,7 @@ inline void
+     // TODO (Gunnar): Remove IndicatorLED after enough time has passed
+     if (!locationIndicatorActive && !indicatorLed)
+     {
+-        return; // delete this when we support more patch properties
++        //return; // delete this when we support more patch properties
+     }
+     if (indicatorLed)
+     {
+@@ -495,8 +547,6 @@ inline void
+         "xyz.openbmc_project.Inventory.Item.Board",
+         "xyz.openbmc_project.Inventory.Item.Chassis"};
+ 
+-    const std::string& chassisId = param;
+-
+     crow::connections::systemBus->async_method_call(
+         [asyncResp, chassisId, locationIndicatorActive,
+          indicatorLed](const boost::system::error_code ec,
+-- 
+2.25.1
+

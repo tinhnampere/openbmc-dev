@@ -6,6 +6,8 @@ SRC_URI += " \
             file://0003-amperecpu-Support-PresenceGpio-option.patch \
             file://0004-Support-value-chassisOn-for-powerState-option.patch \
             file://0005-adcsensor-Disable-io_uring-build.patch \
+            file://0006-chassisintrusionsensor-hwmon-adding.patch \
+            file://0007-chassisintrusionsensor-add-ReArm-property.patch \
            "
 
 PACKAGECONFIG[amperecpusensor] = "-Dampere-cpu=enabled, -Dampere-cpu=disabled"
