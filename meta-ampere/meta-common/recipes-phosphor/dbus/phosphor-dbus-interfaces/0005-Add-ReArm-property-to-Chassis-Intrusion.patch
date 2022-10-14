@@ -1,0 +1,39 @@
+From c4374519deacdaeae51e2cd29bd32bea9261ace5 Tue Sep 27 00:00:00 2022
+From: "Chau Ly" <chaul@amperecomputing.com>
+Date: Tue, 27 Sep 2022 17:03:37 +0700
+Subject: [PATCH] Add hwmon method for intrusionsensor
+
+This patch adds ReArm property under "xyz.openbmc_project.Chassis.Intrusion"
+interface, to specify the method for updating the "Status" property.
+This property is optional and can take "Automatic" or "Manual". If not set,
+"ReArm" will default to "Automatic", which will directly update the raw chassis
+intrusion status to the "Status" property. If set to "Manual", after an intrusion
+event, the "Status" property will be kept to "HardwareIntrusion", no update
+accepted, until a reset event happends.
+
+Example:
+{
+     "Class": "Hwmon",
+     "Name": "Chassis_Intrusion_Status",
+     "Input": "intrusion0_alarm",
+     "ReArm": "Manual",
+     "Type": "ChassisIntrusionSensor"
+}
+
+Signed-off-by: Chau Ly <chaul@amperecomputing.com>
+
+diff --git a/yaml/xyz/openbmc_project/Chassis/Intrusion.interface.yaml b/yaml/xyz/openbmc_project/Chassis/Intrusion.interface.yaml
+index 2f9f50f..d464228 100644
+--- a/yaml/xyz/openbmc_project/Chassis/Intrusion.interface.yaml
++++ b/yaml/xyz/openbmc_project/Chassis/Intrusion.interface.yaml
+@@ -8,3 +8,9 @@ properties:
+           Status string of chassis intrusion detector.
+           The value is defined in chassis redfish schema.
+           Can be "Normal" or "HardwareIntrusion".
++    - name: ReArm
++      type: string
++      description: >
++          Mode string of chassis intrusion detector.
++          The value is defined in chassis redfish schema.
++          Can be "Automatic" or "Manual".
+\ No newline at end of file

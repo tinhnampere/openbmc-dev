@@ -1,0 +1,72 @@
+From d3f1c8cc7274cfa6c73b28aedbbbc6ac02cb2155 Tue Sep 27 00:00:00 2022
+From: "Chau Ly" <chaul@amperecomputing.com>
+Date: Tue, 27 Sep 2022 17:03:37 +0700
+Subject: [PATCH] Read chassis intrusion status
+
+This patch supports reading chassis intrusion status from "Status"
+property under xyz.openbmc_project.Chassis.Intrusion on Dbus and
+shows it to "Chassis Intrusion" field of ipmi command "chassis status".
+
+"Chassis Intrusion: active" means "HardwareIntrusion"
+"Chassis Intrusion: inactive" means "Normal"
+
+diff --git a/chassishandler.cpp b/chassishandler.cpp
+index c2ed807..014e0ca 100644
+--- a/chassishandler.cpp
++++ b/chassishandler.cpp
+@@ -1095,6 +1095,33 @@ static bool setButtonEnabled(ipmi::Context::ptr& ctx,
+     return true;
+ }
+ 
++static std::optional<bool> getChassisIntrusionStatus()
++{
++    constexpr const char* chassisIntrusionPath =
++        "/xyz/openbmc_project/Intrusion/Chassis_Intrusion";
++    constexpr const char* chassisIntrusionInf =
++        "xyz.openbmc_project.Chassis.Intrusion";
++    std::shared_ptr<sdbusplus::asio::connection> bus = getSdBus();
++    try
++    {
++        std::string service = ipmi::getService(*bus, chassisIntrusionInf,
++                                        chassisIntrusionPath);
++        std::string chassisIntrusionStr = std::get<std::string>(
++            ipmi::getDbusProperty(*bus, service, chassisIntrusionPath,
++                                        chassisIntrusionInf, "Status"));
++        bool ret = (chassisIntrusionStr == "HardwareIntrusion") ? true : false;
++        return std::make_optional(ret);
++    }
++    catch (const sdbusplus::exception_t& e)
++    {
++        log<level::ERR>("Fail to get Chassis Intrusion Status property",
++                        entry("PATH=%s", chassisIntrusionPath),
++                        entry("INTERFACE=%s", chassisIntrusionInf),
++                        entry("ERROR=%s", e.what()));
++        return std::nullopt;
++    }
++}
++
+ //----------------------------------------------------------------------
+ // Get Chassis Status commands
+ //----------------------------------------------------------------------
+@@ -1168,6 +1195,13 @@ ipmi::RspType<bool,    // Power is on
+ 
+     bool powerDownAcFailed = power_policy::getACFailStatus();
+ 
++    bool chassisIntrusionActive = false;
++    std::optional<bool> chassisIntrusionStatus = getChassisIntrusionStatus();
++    if (chassisIntrusionStatus)
++    {
++        chassisIntrusionActive = chassisIntrusionStatus.value();
++    }
++
+     // This response has a lot of hard-coded, unsupported fields
+     // They are set to false or 0
+     constexpr bool powerOverload = false;
+@@ -1178,7 +1212,6 @@ ipmi::RspType<bool,    // Power is on
+     constexpr bool powerDownInterlock = false;
+     constexpr bool powerDownPowerFault = false;
+     constexpr bool powerStatusIPMI = false;
+-    constexpr bool chassisIntrusionActive = false;
+     constexpr bool frontPanelLockoutActive = false;
+     constexpr bool driveFault = false;
+     constexpr bool coolingFanFault = false;
