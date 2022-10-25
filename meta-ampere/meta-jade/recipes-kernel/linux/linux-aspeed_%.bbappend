@@ -6,4 +6,4 @@ SRC_URI += " \
             file://mtjade.cfg \
            "
 
-SRCREV="b035f27088c4e2490ffd555edc4d4107551ff609"
+SRCREV="463c3ff9447252a24adca9882bcf2c98822914c0"
