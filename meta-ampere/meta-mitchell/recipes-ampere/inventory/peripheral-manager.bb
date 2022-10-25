@@ -18,7 +18,7 @@ DEPENDS += "i2c-tools"
 S = "${WORKDIR}/git/peripheral-manager"
 SRC_URI = "git://github.com/ampere-openbmc/ampere-misc.git;protocol=https;branch=ampere"
 SRC_URI += " file://config.json"
-SRCREV = "f206458b3c87ec4e8791d09b0048f7b4a4293526"
+SRCREV = "b4f4ecc5d8071c8322c76d5c02373e790fceaa37"
 
 SYSTEMD_SERVICE:${PN} = "xyz.openbmc_project.peripheral.manager.service"
 
