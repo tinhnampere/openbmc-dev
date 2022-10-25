@@ -1,7 +1,7 @@
-From 7990b1351ea29485bb9dd148a247c359c50f6f32 Mon Sep 17 00:00:00 2001
+From 2fc087911821463f9056334839f9972d5366cc2d Mon Sep 17 00:00:00 2001
 From: "Thang Q. Nguyen" <thang@os.amperecomputing.com>
 Date: Wed, 16 Mar 2022 04:39:55 +0000
-Subject: [PATCH 6/8] Revert "Confirm presence of NIC devices described in
+Subject: [PATCH 6/7] Revert "Confirm presence of NIC devices described in
  channel_config"
 
 The purpose of the commit 0a2abc8 is compares the LAN interfaces defined

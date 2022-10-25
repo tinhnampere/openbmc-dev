@@ -1,7 +1,7 @@
-From 3d112a37226b79f5a3b1730b13c948406c513b37 Mon Sep 17 00:00:00 2001
+From f0259faaccff3c63ea459c5c7a73ccea3afa13b0 Mon Sep 17 00:00:00 2001
 From: Thang Tran <thuutran@amperecomputing.com>
 Date: Mon, 27 Jun 2022 14:08:29 +0700
-Subject: [PATCH 7/8] dbus-sdr: support static FRU's ID configuration
+Subject: [PATCH 7/7] dbus-sdr: support static FRU's ID configuration
 
 Currently, dynamic sensor library generate FRU's ID via hashing
 function, it makes the ID of FRU device can be changed is users replace
@@ -38,7 +38,7 @@ Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
  3 files changed, 91 insertions(+)
 
 diff --git a/dbus-sdr/storagecommands.cpp b/dbus-sdr/storagecommands.cpp
-index 83d505e..d68cd5a 100644
+index ab1c95c..253861d 100644
 --- a/dbus-sdr/storagecommands.cpp
 +++ b/dbus-sdr/storagecommands.cpp
 @@ -35,6 +35,11 @@

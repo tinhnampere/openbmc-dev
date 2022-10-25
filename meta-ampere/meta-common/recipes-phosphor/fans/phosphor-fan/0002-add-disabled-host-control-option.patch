@@ -1,7 +1,7 @@
-From 337dfaebac66479b0f975e58d9529a6f4b3ccdde Mon Sep 17 00:00:00 2001
+From 91ceff200d2dd0a4dc4d428e4f3607a3bf012bcd Mon Sep 17 00:00:00 2001
 From: Thu Ba Nguyen <tbnguyen@amperecomputing.com>
 Date: Wed, 24 Aug 2022 17:01:59 +0700
-Subject: [PATCH 5/6] add disabled-host-control option
+Subject: [PATCH 2/2] add disabled-host-control option
 
 Some openBmc platforms use dbus-sensor and entity-manager to create
 the fan sensors and phosphor-fan to control the fans.
@@ -39,10 +39,10 @@ index 0307a1f..d82b153 100644
  # JSON-or-YAML (all programs)
  if get_option('json-config').enabled()
 diff --git a/meson_options.txt b/meson_options.txt
-index 50a8b4f..0130d5b 100644
+index 718ca7f..dbc0c3f 100644
 --- a/meson_options.txt
 +++ b/meson_options.txt
-@@ -64,6 +64,12 @@ option(
+@@ -67,6 +67,12 @@ option(
      description: 'Maximum number of entries in the monitor log.'
  )
  
@@ -56,10 +56,10 @@ index 50a8b4f..0130d5b 100644
  
  option(
 diff --git a/monitor/system.cpp b/monitor/system.cpp
-index 1dfb5a2..8f9cbba 100644
+index bcd9e33..6a57427 100644
 --- a/monitor/system.cpp
 +++ b/monitor/system.cpp
-@@ -375,7 +375,9 @@ void System::powerStateChanged(bool powerStateOn)
+@@ -377,7 +377,9 @@ void System::powerStateChanged(bool powerStateOn)
                  return fan->numSensorsOnDBusAtPowerOn() == 0;
              }))
          {

@@ -1,23 +1,25 @@
-From 39242a533b778002bee25e9a55b69a3fbc78c9a9 Mon Sep 17 00:00:00 2001
+From c919a9f7117825c7609fc1ecde2cbdd1cc17a48b Mon Sep 17 00:00:00 2001
 From: Hieu Huynh <hieuh@os.amperecomputing.com>
-Date: Tue, 9 Aug 2022 14:53:20 +0700
-Subject: [PATCH 3/3] Report boot progress code to Redfish
+Date: Tue, 20 Sep 2022 07:27:45 +0000
+Subject: [PATCH] Report boot progress code to Redfish
 
 This commit support reports the boot progress code to Redfish by
 following:
 - Update Laststate to OEM when receiving boot progress code command
 - Add new OemLastState property to store boot progress code record
+- Get the Progress.BootProgressLastUpdate D-bus then update to Redfish
+BootProgress.LastStateTime.
 
 Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
 ---
- redfish-core/lib/systems.hpp | 38 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ redfish-core/lib/systems.hpp | 72 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
 diff --git a/redfish-core/lib/systems.hpp b/redfish-core/lib/systems.hpp
-index 81403370..9a7b7a0b 100644
+index 975e90bc..bb1f1fe0 100644
 --- a/redfish-core/lib/systems.hpp
 +++ b/redfish-core/lib/systems.hpp
-@@ -732,6 +732,12 @@ inline std::string dbusToRfBootProgress(const std::string& dbusBootProgress)
+@@ -759,6 +759,12 @@ inline std::string dbusToRfBootProgress(const std::string& dbusBootProgress)
      {
          rfBpLastState = "OSRunning";
      }
@@ -30,7 +32,7 @@ index 81403370..9a7b7a0b 100644
      else
      {
          BMCWEB_LOG_DEBUG << "Unsupported D-Bus BootProgress "
-@@ -828,6 +834,37 @@ inline void getBootProgress(const std::shared_ptr<bmcweb::AsyncResp>& aResp)
+@@ -855,6 +861,70 @@ inline void getBootProgress(const std::shared_ptr<bmcweb::AsyncResp>& aResp)
          });
  }
  
@@ -65,17 +67,51 @@ index 81403370..9a7b7a0b 100644
 +        "xyz.openbmc_project.State.Boot.Progress", "BootProgressOem");
 +}
 +
++/**
++ * @brief Retrieves boot progress Last Update of the system
++ *
++ * @param[in] aResp  Shared pointer for generating response message.
++ *
++ * @return None.
++ */
++inline void
++    getBootProgressLastStateTime(const std::shared_ptr<bmcweb::AsyncResp>& aResp)
++{
++    sdbusplus::asio::getProperty<uint64_t>(
++        *crow::connections::systemBus, "xyz.openbmc_project.State.Host",
++        "/xyz/openbmc_project/state/host0", "xyz.openbmc_project.State.Boot.Progress",
++        "BootProgressLastUpdate",
++        [aResp](const boost::system::error_code ec,
++                const uint64_t lastStateTime) {
++        if (ec)
++        {
++            BMCWEB_LOG_DEBUG << "D-BUS response error " << ec;
++            return;
++        }
++
++        // LastStateTime is epoch time, in milliseconds
++        // https://github.com/openbmc/phosphor-dbus-interfaces/blob/master/
++        // yaml/xyz/openbmc_project/State/Boot/Progress.interface.yaml#L11
++        uint64_t lastStateTimeStamp = lastStateTime / 1000;
++
++        // Convert to ISO 8601 standard
++        aResp->res.jsonValue["BootProgress"]["LastStateTime"] =
++            redfish::time_utils::getDateTimeUint(lastStateTimeStamp);
++        });
++}
++
  /**
   * @brief Retrieves boot override type over DBUS and fills out the response
   *
-@@ -2940,6 +2977,7 @@ inline void requestRoutesSystems(App& app)
+@@ -2984,6 +3054,8 @@ inline void requestRoutesSystems(App& app)
          getHostState(asyncResp);
          getBootProperties(asyncResp);
          getBootProgress(asyncResp);
 +        getBootProgressOem(asyncResp);
++        getBootProgressLastStateTime(asyncResp);
          getPCIeDeviceList(asyncResp, "PCIeDevices");
          getHostWatchdogTimer(asyncResp);
          getPowerRestorePolicy(asyncResp);
 -- 
-2.25.1
+2.17.1
 

@@ -1,7 +1,7 @@
-From 8b49b54ff86e11068e78c98559bddce2945130f5 Mon Sep 17 00:00:00 2001
+From 6dad9a563571064015df089dc4ca5daaff079090 Mon Sep 17 00:00:00 2001
 From: Thang Tran <thuutran@amperecomputing.com>
 Date: Fri, 24 Jun 2022 10:15:45 +0000
-Subject: [PATCH 3/8] Disable SDR and SEL ipmi commands in dynamic library
+Subject: [PATCH 3/7] Disable SDR and SEL ipmi commands in dynamic library
 
 Ampere's platforms are using SDR and SEL commands of libipmi20 library,
 it will disable SDR and SEL commands of Dynamic library, only enable FRU
@@ -184,10 +184,10 @@ index 522cbb8..75bd6cd 100644
  }
  } // namespace ipmi
 diff --git a/dbus-sdr/storagecommands.cpp b/dbus-sdr/storagecommands.cpp
-index aaf97e1..83d505e 100644
+index d5f6d4d..ab1c95c 100644
 --- a/dbus-sdr/storagecommands.cpp
 +++ b/dbus-sdr/storagecommands.cpp
-@@ -1295,35 +1295,38 @@ void registerStorageFunctions()
+@@ -1296,35 +1296,38 @@ void registerStorageFunctions()
                            ipmi::storage::cmdWriteFruData,
                            ipmi::Privilege::Operator, ipmiStorageWriteFruData);
  
@@ -256,7 +256,7 @@ index aaf97e1..83d505e 100644
  } // namespace storage
  } // namespace ipmi
 diff --git a/sensorhandler.cpp b/sensorhandler.cpp
-index 53d1b42..06ae286 100644
+index 1a24c42..d58a2d4 100644
 --- a/sensorhandler.cpp
 +++ b/sensorhandler.cpp
 @@ -1468,9 +1468,6 @@ ipmi_ret_t ipmicmdPlatformEvent(ipmi_netfn_t, ipmi_cmd_t,

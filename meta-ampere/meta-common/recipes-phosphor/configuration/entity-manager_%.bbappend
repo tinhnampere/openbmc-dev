@@ -4,7 +4,6 @@ SRC_URI += " \
             file://artesyn_psu.json \
 	    file://0001-meta-ampere-FruDevice-Support-parsing-Multirecord-UU.patch \
             file://0002-Support-generate-UUID-if-does-not-exist-in-FRU.patch \
-            file://0005-FruDevice-Correct-the-host-on-match-string.patch \
            "
 
 TARGET_LDFLAGS += "-luuid"

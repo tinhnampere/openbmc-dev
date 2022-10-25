@@ -1,7 +1,7 @@
-From 3f0aeebf575133a789904bb4903f01bd8dd4d10c Mon Sep 17 00:00:00 2001
-From: ThuBaNguyen <thu@os.amperecomputing.com>
+From 527a09adf0822eab63cc4796d9f85929ce9aabf8 Mon Sep 17 00:00:00 2001
+From: Thu Nguyen <thu@os.amperecomputing.com>
 Date: Sat, 24 Apr 2021 21:40:05 +0700
-Subject: [PATCH 1/5] amperecpu: Add Ampere CPU daemon
+Subject: [PATCH] amperecpu: Add Ampere CPU daemon
 
 Ampere SoCs use the SCP register map interface to communicate with the
 BMC firmware to report the host sensors, states, events and also the
@@ -25,17 +25,17 @@ Tested:
     3. Check the host sensors dbus objects in dbus interface
     xyz.openbmc_project.AmpereCPUSensor.
 
-Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
+Signed-off-by: Thu Nguyen <thu@os.amperecomputing.com>
 Change-Id: If55d9bfad5bfc7022865365d7f718df259f118a9
 ---
- include/AmpereCPU.hpp                         |  58 ++
+ include/AmpereCPU.hpp                         |  59 ++
  meson_options.txt                             |   1 +
  service_files/meson.build                     |   1 +
  ...yz.openbmc_project.amperecpusensor.service |  13 +
- src/AmpereCPU.cpp                             | 180 ++++++
- src/AmpereCPUMain.cpp                         | 600 ++++++++++++++++++
+ src/AmpereCPU.cpp                             | 174 ++++++
+ src/AmpereCPUMain.cpp                         | 588 ++++++++++++++++++
  src/meson.build                               |  19 +
- 7 files changed, 872 insertions(+)
+ 7 files changed, 855 insertions(+)
  create mode 100644 include/AmpereCPU.hpp
  create mode 100644 service_files/xyz.openbmc_project.amperecpusensor.service
  create mode 100644 src/AmpereCPU.cpp
@@ -43,17 +43,18 @@ Change-Id: If55d9bfad5bfc7022865365d7f718df259f118a9
 
 diff --git a/include/AmpereCPU.hpp b/include/AmpereCPU.hpp
 new file mode 100644
-index 0000000..c3ab5e3
+index 0000000..04f24c2
 --- /dev/null
 +++ b/include/AmpereCPU.hpp
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,59 @@
 +#pragma once
 +
 +#include <Thresholds.hpp>
-+#include <boost/asio/streambuf.hpp>
++#include <boost/asio/random_access_file.hpp>
 +#include <sdbusplus/asio/object_server.hpp>
 +#include <sensor.hpp>
 +
++#include <array>
 +#include <memory>
 +#include <string>
 +#include <utility>
@@ -69,23 +70,24 @@ index 0000000..c3ab5e3
 +                    boost::asio::io_service& io, const std::string& sensorName,
 +                    std::vector<thresholds::Threshold>&& thresholds,
 +                    const std::string& sensorConfiguration,
-+                    std::string& sensorTypeName, unsigned int factor,
-+                    double max, double min, const std::string& label,
-+                    size_t tSize, PowerState readState);
++                    std::string& sensorTypeName, double factor, double max,
++                    double min, const std::string& label, size_t tSize,
++                    PowerState readState);
 +    ~AmpereCPUSensor() override;
 +    void setupRead(void);
 +
 +  private:
 +    sdbusplus::asio::object_server& objServer;
-+    boost::asio::posix::stream_descriptor inputDev;
-+    boost::asio::deadline_timer waitTimer;
-+    std::shared_ptr<boost::asio::streambuf> readBuf;
++    boost::asio::random_access_file inputDev;
++    boost::asio::steady_timer waitTimer;
++    std::array<char, 128> readBuf{};
 +    std::string path;
-+    unsigned int sensorFactor;
-+    void handleResponse(const boost::system::error_code& err);
++    double sensorFactor;
++    void restartRead();
++    void handleResponse(const boost::system::error_code& err, size_t bytesRead);
 +    void checkThresholds(void) override;
 +
-+    int fd;
++    int fd{};
 +    static constexpr unsigned int sensorPollMs = 1000;
 +    static constexpr size_t warnAfterErrorCount = 10;
 +};
@@ -93,17 +95,16 @@ index 0000000..c3ab5e3
 +class AmpereCPUProperty
 +{
 +  public:
-+    AmpereCPUProperty(std::string name, double max, double min,
-+                      unsigned int factor) :
-+        labelTypeName(std::move(name)),
-+        maxReading(max), minReading(min), sensorScaleFactor(factor)
++    AmpereCPUProperty(std::string name, double max, double min, double factor) :
++        labelTypeName(std::move(name)), maxReading(max), minReading(min),
++        sensorScaleFactor(factor)
 +    {}
 +    ~AmpereCPUProperty() = default;
 +
 +    std::string labelTypeName;
 +    double maxReading;
 +    double minReading;
-+    unsigned int sensorScaleFactor;
++    double sensorScaleFactor;
 +};
 diff --git a/meson_options.txt b/meson_options.txt
 index d6a8b96..629e302 100644
@@ -150,12 +151,12 @@ index 0000000..aeaf70b
 +WantedBy=multi-user.target
 diff --git a/src/AmpereCPU.cpp b/src/AmpereCPU.cpp
 new file mode 100644
-index 0000000..f5b581e
+index 0000000..4dbfff8
 --- /dev/null
 +++ b/src/AmpereCPU.cpp
-@@ -0,0 +1,180 @@
+@@ -0,0 +1,174 @@
 +/*
-+// Copyright 2021 Ampere Computing LLC
++// Copyright 2022 Ampere Computing LLC
 +//
 +// Licensed under the Apache License, Version 2.0 (the "License");
 +// you may not use this file except in compliance with the License.
@@ -173,13 +174,15 @@ index 0000000..f5b581e
 +#include <unistd.h>
 +
 +#include <AmpereCPU.hpp>
++#include <Utils.hpp>
 +#include <boost/algorithm/string/predicate.hpp>
-+#include <boost/algorithm/string/replace.hpp>
++#include <boost/asio/random_access_file.hpp>
 +#include <boost/asio/read_until.hpp>
 +#include <boost/date_time/posix_time/posix_time.hpp>
 +#include <sdbusplus/asio/connection.hpp>
 +#include <sdbusplus/asio/object_server.hpp>
 +
++#include <charconv>
 +#include <iostream>
 +#include <istream>
 +#include <limits>
@@ -188,8 +191,9 @@ index 0000000..f5b581e
 +#include <vector>
 +
 +static constexpr const char* sensorPathPrefix = "/xyz/openbmc_project/sensors/";
++// scaling factor from hwmon
 +static constexpr unsigned int sensorScaleFactor = 1000;
-+static constexpr double roundFactor = 10000; // 3 decimal places
++static constexpr double roundFactor = 10000.000; // 3 decimal places
 +
 +AmpereCPUSensor::AmpereCPUSensor(
 +    const std::string& path, const std::string& objectType,
@@ -198,24 +202,17 @@ index 0000000..f5b581e
 +    boost::asio::io_service& io, const std::string& sensorName,
 +    std::vector<thresholds::Threshold>&& thresholdsIn,
 +    const std::string& sensorConfiguration, std::string& sensorTypeName,
-+    unsigned int factor, double max, double min, const std::string& label,
++    double factor, double max, double min, const std::string& label,
 +    size_t tSize, PowerState readState) :
-+    Sensor(boost::replace_all_copy(sensorName, " ", "_"),
-+           std::move(thresholdsIn), sensorConfiguration, objectType, false,
-+           false, max, min, conn, readState),
-+    std::enable_shared_from_this<AmpereCPUSensor>(), objServer(objectServer),
-+    inputDev(io), waitTimer(io), path(path), sensorFactor(factor)
++    Sensor(escapeName(sensorName), std::move(thresholdsIn), sensorConfiguration,
++           objectType, false, false, max, min, conn, readState),
++    objServer(objectServer),
++    inputDev(io, path, boost::asio::random_access_file::read_only),
++    waitTimer(io), path(path), sensorFactor(factor)
 +{
-+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg
-+    fd = open(path.c_str(), O_RDONLY);
-+    if (fd < 0)
-+    {
-+        std::cerr << "SOC sensor failed to open file\n";
-+        return;
-+    }
-+    inputDev.assign(fd);
++    std::string unitPath = sensor_paths::getPathForUnits(sensorTypeName);
 +
-+    std::string dbusPath = sensorPathPrefix + sensorTypeName + name;
++    std::string dbusPath = sensorPathPrefix + unitPath + "/" + name;
 +    sensorInterface = objectServer.add_interface(
 +        dbusPath, "xyz.openbmc_project.Sensor.Value");
 +    for (const auto& threshold : thresholds)
@@ -252,72 +249,30 @@ index 0000000..f5b581e
 +    objServer.remove_interface(association);
 +}
 +
-+void AmpereCPUSensor::setupRead(void)
++void AmpereCPUSensor::setupRead()
 +{
-+    std::shared_ptr<boost::asio::streambuf> buffer =
-+        std::make_shared<boost::asio::streambuf>();
-+    std::weak_ptr<AmpereCPUSensor> weakRef = weak_from_this();
-+    boost::asio::async_read_until(
-+        inputDev, *buffer, '\n',
-+        [weakRef, buffer](const boost::system::error_code& ec,
-+                          std::size_t /*bytes_transfered*/) {
-+            std::shared_ptr<AmpereCPUSensor> self = weakRef.lock();
-+            if (self)
-+            {
-+                self->readBuf = buffer;
-+                self->handleResponse(ec);
-+            }
++    std::weak_ptr<AmpereCPUSensor> weak = weak_from_this();
++    inputDev.async_read_some_at(
++        0, boost::asio::buffer(readBuf),
++        [weak](const boost::system::error_code& ec, size_t bytesRead) {
++        std::shared_ptr<AmpereCPUSensor> self = weak.lock();
++        if (self)
++        {
++            self->handleResponse(ec, bytesRead);
++        }
 +        });
 +}
 +
-+void AmpereCPUSensor::handleResponse(const boost::system::error_code& err)
++void AmpereCPUSensor::restartRead(void)
 +{
-+    if (!err)
-+    {
-+        std::string response;
-+        try
-+        {
-+            std::istream responseStream(readBuf.get());
-+            std::getline(responseStream, response);
-+            rawValue = std::stod(response);
-+            responseStream.clear();
-+            double nvalue = (rawValue / sensorScaleFactor) / sensorFactor;
-+            nvalue = std::round(nvalue * roundFactor) / roundFactor;
-+
-+            updateValue(nvalue);
-+        }
-+        catch (const std::invalid_argument&)
-+        {
-+            std::cerr << "Could not parse " << response << "\n";
-+        }
-+    }
-+
-+    if (err == boost::system::errc::no_such_device ||
-+        err == boost::system::errc::no_such_device_or_address)
-+    {
-+        updateValue(std::numeric_limits<double>::quiet_NaN());
-+    }
-+    inputDev.close();
-+
-+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
-+    int fd = open(path.c_str(), O_RDONLY);
-+    if (fd < 0)
-+    {
-+        std::cerr << "AmpereCPU sensor " << name << " not valid " << path
-+                  << "\n";
-+        return;
-+    }
-+
-+    inputDev.assign(fd);
 +    std::weak_ptr<AmpereCPUSensor> weakRef = weak_from_this();
-+    waitTimer.expires_from_now(boost::posix_time::milliseconds(sensorPollMs));
++    waitTimer.expires_from_now(std::chrono::milliseconds(sensorPollMs));
 +    waitTimer.async_wait([weakRef](const boost::system::error_code& ec) {
-+        std::shared_ptr<AmpereCPUSensor> self = weakRef.lock();
 +        if (ec == boost::asio::error::operation_aborted)
 +        {
-+            std::cerr << "Failed to reschedule\n";
 +            return;
 +        }
++        std::shared_ptr<AmpereCPUSensor> self = weakRef.lock();
 +        if (self)
 +        {
 +            self->setupRead();
@@ -325,7 +280,47 @@ index 0000000..f5b581e
 +    });
 +}
 +
-+void AmpereCPUSensor::checkThresholds(void)
++void AmpereCPUSensor::handleResponse(const boost::system::error_code& err,
++                                     size_t bytesRead)
++{
++    if (err == boost::asio::error::operation_aborted)
++    {
++        std::cerr << "Read aborted\n";
++        return;
++    }
++    if ((err == boost::system::errc::bad_file_descriptor) ||
++        (err == boost::asio::error::misc_errors::not_found))
++    {
++        std::cerr << "Bad file descriptor for " << path << "\n";
++        return;
++    }
++
++    if (!err)
++    {
++        try
++        {
++            const char* bufEnd = readBuf.data() + bytesRead;
++            int rawValue = 0;
++            std::from_chars_result ret =
++                std::from_chars(readBuf.data(), bufEnd, rawValue);
++            if (ret.ec == std::errc())
++            {
++                double nvalue =
++                    ((double)rawValue / sensorScaleFactor) / sensorFactor;
++                nvalue = std::round(nvalue * roundFactor) / roundFactor;
++                updateValue(nvalue);
++            }
++        }
++        catch (const std::invalid_argument&)
++        {
++            std::cerr << "Could not parse  input from " << path << "\n";
++        }
++    }
++
++    restartRead();
++}
++
++void AmpereCPUSensor::checkThresholds()
 +{
 +    if (!readingStateGood())
 +    {
@@ -336,10 +331,10 @@ index 0000000..f5b581e
 +}
 diff --git a/src/AmpereCPUMain.cpp b/src/AmpereCPUMain.cpp
 new file mode 100644
-index 0000000..55b8b09
+index 0000000..d982dd2
 --- /dev/null
 +++ b/src/AmpereCPUMain.cpp
-@@ -0,0 +1,600 @@
+@@ -0,0 +1,588 @@
 +/*
 +// Copyright 2021 Ampere Computing LLC
 +//
@@ -366,7 +361,6 @@ index 0000000..55b8b09
 +#include <sdbusplus/asio/object_server.hpp>
 +#include <sdbusplus/bus/match.hpp>
 +
-+#include <array>
 +#include <cmath>
 +#include <filesystem>
 +#include <fstream>
@@ -374,13 +368,13 @@ index 0000000..55b8b09
 +#include <iostream>
 +#include <regex>
 +#include <string>
-+#include <string_view>
 +#include <utility>
 +#include <variant>
 +#include <vector>
 +
 +namespace fs = std::filesystem;
 +
++const constexpr char* ampereDbusName = "xyz.openbmc_project.AmpereCPUSensor";
 +static const char* smproDevType =
 +    "xyz.openbmc_project.Configuration.smpro_hwmon";
 +static const std::string smproDrvName = "smpro_hwmon";
@@ -391,9 +385,7 @@ index 0000000..55b8b09
 +static std::vector<AmpereCPUProperty> socProperties;
 +static std::regex i2cDevRegex(R"((\d+)-([a-fA-F0-9]+))");
 +
-+static bool createdSensors = false;
-+
-+bool getDeviceInfo(const std::string& devPath, size_t* bus, size_t* addr)
++static bool getDeviceInfo(const std::string& devPath, size_t* bus, size_t* addr)
 +{
 +    std::smatch match;
 +    std::regex_search(devPath, match, i2cDevRegex);
@@ -422,13 +414,13 @@ index 0000000..55b8b09
 +    return true;
 +}
 +
-+bool findMatchConfig(
++static bool findMatchConfig(
 +    const ManagedObjectType& sensorConfigs,
-+    std::pair<std::string,
-+              boost::container::flat_map<std::string, BasicVariantType>>*
++    const std::shared_ptr<std::pair<std::string, SensorBaseConfigMap>>&
 +        baseConfig,
-+    SensorData* sensorData, std::string* interfacePath, std::string* devType,
-+    size_t bus, size_t addr)
++    const std::shared_ptr<SensorData>& sensorData,
++    const std::shared_ptr<std::string>& interfacePath,
++    const std::shared_ptr<std::string>& devType, size_t bus, size_t addr)
 +{
 +    for (const std::pair<sdbusplus::message::object_path, SensorData>& sensor :
 +         sensorConfigs)
@@ -454,10 +446,10 @@ index 0000000..55b8b09
 +            continue;
 +        }
 +
-+        const uint64_t* confBus = nullptr;
-+        const uint64_t* confAddr = nullptr;
-+        if (!(confBus = std::get_if<uint64_t>(&(configBus->second))) ||
-+            !(confAddr = std::get_if<uint64_t>(&(configAddress->second))))
++        const uint64_t* confBus = std::get_if<uint64_t>(&(configBus->second));
++        const uint64_t* confAddr =
++            std::get_if<uint64_t>(&(configAddress->second));
++        if ((confBus == nullptr) || (confAddr == nullptr))
 +        {
 +            std::cerr << "Cannot get bus or address, invalid configuration\n";
 +            continue;
@@ -475,19 +467,19 @@ index 0000000..55b8b09
 +    return false;
 +}
 +
-+static bool matchSensor(
++static bool matchAndCreateSensor(
 +    boost::asio::io_service& io, sdbusplus::asio::object_server& objectServer,
 +    std::shared_ptr<sdbusplus::asio::connection>& dbusConnection,
 +    const std::pair<std::string,
-+                    boost::container::flat_map<std::string, BasicVariantType>>*
++                    boost::container::flat_map<std::string, BasicVariantType>>&
 +        baseConfig,
-+    SensorData* sensorData, const std::string& interfacePath,
++    const SensorData& sensorData, const std::string& interfacePath,
 +    const std::string& devType, const fs::path& sensorPath,
 +    const std::vector<std::string>& findLabels, PowerState readState)
 +{
 +    bool maxLabel = false;
 +    std::regex sensorNameRegEx("([A-Za-z]+)[0-9]*_");
-+    std::string sensorNameSubStr{""};
++    std::string sensorNameSubStr;
 +    std::string sensorNameStr = sensorPath.filename();
 +    std::string sensorPathStr = sensorPath.string();
 +    std::smatch matches;
@@ -497,7 +489,15 @@ index 0000000..55b8b09
 +    {
 +        // hwmon *_input filename without number:
 +        // in, curr, power, temp, ...
-+        sensorNameSubStr = matches[1];
++        try
++        {
++            sensorNameSubStr = matches[1];
++        }
++        catch (const std::exception& e)
++        {
++            std::cerr << "Failed to match sensor name with RegEx" << '\n';
++            return false;
++        }
 +    }
 +    else
 +    {
@@ -516,7 +516,7 @@ index 0000000..55b8b09
 +    }
 +
 +    std::string sensorPathStrMax = sensorPathStr.substr(pos);
-+    if (sensorPathStrMax.compare("_max") == 0)
++    if (sensorPathStrMax == "_max")
 +    {
 +        labelPath = boost::replace_all_copy(sensorPathStr, "max", "label");
 +        maxLabel = true;
@@ -586,8 +586,8 @@ index 0000000..55b8b09
 +    std::string keyMin = labelHead + "_Min";
 +    std::string keyMax = labelHead + "_Max";
 +
-+    auto findCustomName = baseConfig->second.find(keyName);
-+    if (findCustomName == baseConfig->second.end())
++    auto findCustomName = baseConfig.second.find(keyName);
++    if (findCustomName == baseConfig.second.end())
 +    {
 +        return false; /* expected that each label have label name */
 +    }
@@ -611,13 +611,13 @@ index 0000000..55b8b09
 +    }
 +
 +    bool customizedScale = false;
-+    auto findCustomScale = baseConfig->second.find(keyScale);
-+    if (findCustomScale != baseConfig->second.end())
++    auto findCustomScale = baseConfig.second.find(keyScale);
++    if (findCustomScale != baseConfig.second.end())
 +    {
 +        try
 +        {
-+            socProperty->sensorScaleFactor = std::visit(
-+                VariantToUnsignedIntVisitor(), findCustomScale->second);
++            socProperty->sensorScaleFactor =
++                std::visit(VariantToDoubleVisitor(), findCustomScale->second);
 +        }
 +        catch (std::invalid_argument&)
 +        {
@@ -637,7 +637,7 @@ index 0000000..55b8b09
 +        }
 +    }
 +    // Use device's scale factor
-+    unsigned int factor = socProperty->sensorScaleFactor;
++    double factor = socProperty->sensorScaleFactor;
 +    if (!customizedScale)
 +    {
 +        // Preserve existing usage of hardcoded labelMatch table below
@@ -650,15 +650,16 @@ index 0000000..55b8b09
 +
 +        // Preserve existing configs by accepting earlier syntax,
 +        // example CurrScaleFactor, PowerScaleFactor, ...
-+        auto findScaleFactor = baseConfig->second.find(strScaleFactor);
-+        if (findScaleFactor != baseConfig->second.end())
++        auto findScaleFactor = baseConfig.second.find(strScaleFactor);
++        if (findScaleFactor != baseConfig.second.end())
 +        {
-+            factor = std::visit(VariantToIntVisitor(), findScaleFactor->second);
++            factor =
++                std::visit(VariantToDoubleVisitor(), findScaleFactor->second);
 +        }
 +    }
 +
-+    auto findCustomMin = baseConfig->second.find(keyMin);
-+    if (findCustomMin != baseConfig->second.end())
++    auto findCustomMin = baseConfig.second.find(keyMin);
++    if (findCustomMin != baseConfig.second.end())
 +    {
 +        try
 +        {
@@ -671,8 +672,8 @@ index 0000000..55b8b09
 +            return false;
 +        }
 +    }
-+    auto findCustomMax = baseConfig->second.find(keyMax);
-+    if (findCustomMax != baseConfig->second.end())
++    auto findCustomMax = baseConfig.second.find(keyMax);
++    if (findCustomMax != baseConfig.second.end())
 +    {
 +        try
 +        {
@@ -692,7 +693,7 @@ index 0000000..55b8b09
 +    }
 +
 +    std::vector<thresholds::Threshold> sensorThresholds;
-+    if (!parseThresholdsFromConfig(*sensorData, sensorThresholds, &labelHead))
++    if (!parseThresholdsFromConfig(sensorData, sensorThresholds, &labelHead))
 +    {
 +        std::cerr << "Error populating thresholds for " << sensorNameSubStr
 +                  << "\n";
@@ -721,16 +722,17 @@ index 0000000..55b8b09
 +    boost::asio::io_service& io, sdbusplus::asio::object_server& objectServer,
 +    std::shared_ptr<sdbusplus::asio::connection>& dbusConnection,
 +    const std::pair<std::string,
-+                    boost::container::flat_map<std::string, BasicVariantType>>*
++                    boost::container::flat_map<std::string, BasicVariantType>>&
 +        baseConfig,
-+    SensorData* sensorData, const std::string& interfacePath,
-+    const std::string& sensorType, const fs::path& directory, int* numSensors)
++    const SensorData& sensorData, const std::string& interfacePath,
++    const std::string& sensorType, const fs::path& directory,
++    unsigned int* numSensors)
 +{
-+    int numCreated = 0;
++    unsigned int numCreated = 0;
 +    std::vector<fs::path> sensorPaths;
 +
-+    auto findSOCName = baseConfig->second.find("Name");
-+    if (findSOCName == baseConfig->second.end())
++    auto findSOCName = baseConfig.second.find("Name");
++    if (findSOCName == baseConfig.second.end())
 +    {
 +        std::cerr << "Could not determine configuration name for "
 +                  << interfacePath << "\n";
@@ -748,32 +750,23 @@ index 0000000..55b8b09
 +        std::cout << "No max name in SOC \n";
 +    }
 +
-+    auto findPowerOn = baseConfig->second.find("PowerState");
-+    PowerState readState = PowerState::always;
-+    if (findPowerOn != baseConfig->second.end())
-+    {
-+        std::string powerState =
-+            std::visit(VariantToStringVisitor(), findPowerOn->second);
-+        setReadState(powerState, readState);
-+    }
++    PowerState readState = getPowerState(baseConfig.second);
 +
 +    /* Find array of labels to be exposed if it is defined in config */
 +    std::vector<std::string> findLabels;
-+    auto findLabelObj = baseConfig->second.find("Labels");
-+    if (findLabelObj != baseConfig->second.end())
++    auto findLabelObj = baseConfig.second.find("Labels");
++    if (findLabelObj != baseConfig.second.end())
 +    {
 +        findLabels = std::get<std::vector<std::string>>(findLabelObj->second);
 +    }
 +    for (const auto& sensorPath : sensorPaths)
 +    {
-+        auto ret = matchSensor(io, objectServer, dbusConnection, baseConfig,
-+                               sensorData, interfacePath, sensorType,
-+                               sensorPath, findLabels, readState);
-+        if (!ret)
++        if (matchAndCreateSensor(io, objectServer, dbusConnection, baseConfig,
++                                 sensorData, interfacePath, sensorType,
++                                 sensorPath, findLabels, readState))
 +        {
-+            continue;
++            numCreated++;
 +        }
-+        numCreated++;
 +    }
 +    *numSensors = numCreated;
 +
@@ -835,35 +828,29 @@ index 0000000..55b8b09
 +            continue;
 +        }
 +
-+        std::pair<std::string,
-+                  boost::container::flat_map<std::string, BasicVariantType>>
-+            baseConfig;
-+        SensorData sensorData;
-+        std::string interfacePath;
-+        std::string devType;
-+        bool retVal = findMatchConfig(sensorConfigs, &baseConfig, &sensorData,
-+                                      &interfacePath, &devType, bus, addr);
-+        if (!retVal)
++        std::shared_ptr<std::pair<std::string, SensorBaseConfigMap>>
++            baseConfig =
++                std::make_shared<std::pair<std::string, SensorBaseConfigMap>>();
++        std::shared_ptr<SensorData> sensorData = std::make_shared<SensorData>();
++        std::shared_ptr<std::string> interfacePath =
++            std::make_shared<std::string>();
++        std::shared_ptr<std::string> devType = std::make_shared<std::string>();
++
++        if (!findMatchConfig(sensorConfigs, baseConfig, sensorData,
++                             interfacePath, devType, bus, addr))
 +        {
 +            std::cerr << "Failed to find match for " << devPath << "\n";
 +            continue;
 +        }
 +
-+        int numCreated = 0;
-+        parseSensorConfig(io, objectServer, dbusConnection, &baseConfig,
-+                          &sensorData, interfacePath, devType, directory,
++        unsigned int numCreated = 0;
++        parseSensorConfig(io, objectServer, dbusConnection, *baseConfig,
++                          *sensorData, *interfacePath, *devType, directory,
 +                          &numCreated);
-+
-+        if (numCreated)
-+        {
-+            createdSensors = true;
-+        }
 +
 +        std::cerr << "Device " << bus << ":" << addr << " have " << numCreated
 +                  << " sensors \n";
 +    }
-+
-+    return;
 +}
 +
 +void createSensors(boost::asio::io_service& io,
@@ -871,62 +858,59 @@ index 0000000..55b8b09
 +                   std::shared_ptr<sdbusplus::asio::connection>& dbusConnection)
 +{
 +    auto getter = std::make_shared<GetSensorConfiguration>(
-+        dbusConnection, [&io, &objectServer, &dbusConnection](
-+                            const ManagedObjectType& sensorConfigs) {
-+            if (!createdSensors)
-+            {
-+                createSensorsCallback(io, objectServer, dbusConnection,
-+                                      sensorConfigs);
-+            }
++        dbusConnection,
++        [&io, &objectServer,
++         &dbusConnection](const ManagedObjectType& sensorConfigs) {
++        createSensorsCallback(io, objectServer, dbusConnection, sensorConfigs);
 +        });
-+    getter->getConfiguration(std::vector<std::string>{smproDevType});
++    getter->getConfiguration(std::vector<std::string>{smproDrvName});
 +}
 +
-+void propertyInitialize(void)
++void propertyInitialize()
 +{
-+    sensorTable = {{"power", "power/"},
-+                   {"curr", "current/"},
-+                   {"temp", "temperature/"},
-+                   {"in", "voltage/"}};
++    sensorTable = {{"power", sensor_paths::unitWatts},
++                   {"curr", sensor_paths::unitAmperes},
++                   {"temp", sensor_paths::unitDegreesC},
++                   {"in", sensor_paths::unitVolts}};
 +
-+    propMatch = {{"power", AmpereCPUProperty("Power Property", 30000, 0, 1)},
-+                 {"curr", AmpereCPUProperty("Curr property", 30000, 0, 1)},
++    propMatch = {{"power", AmpereCPUProperty("Power Property", 200, 0, 1)},
++                 {"curr", AmpereCPUProperty("Curr property", 100, 0, 1)},
 +                 {"temp", AmpereCPUProperty("Temp property", 255, 0, 1)},
-+                 {"in", AmpereCPUProperty("Voltage property", 30000, 0, 1)}};
++                 {"in", AmpereCPUProperty("Voltage property", 100, 0, 1)}};
 +}
 +
 +int main()
 +{
 +    boost::asio::io_service io;
 +    auto systemBus = std::make_shared<sdbusplus::asio::connection>(io);
-+    std::vector<std::unique_ptr<sdbusplus::bus::match::match>> matches;
 +
-+    systemBus->request_name("xyz.openbmc_project.AmpereCPUSensor");
++    systemBus->request_name(ampereDbusName);
 +    sdbusplus::asio::object_server objectServer(systemBus);
 +    propertyInitialize();
 +
-+    boost::asio::deadline_timer filterTimer(io);
++    io.post([&]() { createSensors(io, objectServer, systemBus); });
++    boost::asio::steady_timer filterTimer(io);
 +    std::function<void(sdbusplus::message::message&)> eventHandler =
 +        [&](sdbusplus::message::message& message) {
-+            if (message.is_method_error())
++        if (message.is_method_error())
++        {
++            std::cerr << "Callback method error\n";
++            return;
++        }
++
++        filterTimer.expires_from_now(std::chrono::seconds(1));
++        filterTimer.async_wait([&](const boost::system::error_code& ec) {
++            if (ec == boost::asio::error::operation_aborted)
 +            {
-+                std::cerr << "Callback method error\n";
 +                return;
 +            }
-+
-+            filterTimer.expires_from_now(boost::posix_time::seconds(1));
-+            filterTimer.async_wait([&](const boost::system::error_code& ec) {
-+                if (ec == boost::asio::error::operation_aborted)
-+                {
-+                    return;
-+                }
-+                if (ec)
-+                {
-+                    std::cerr << "timer error\n";
-+                }
-+                createSensors(io, objectServer, systemBus);
-+            });
-+        };
++            if (ec)
++            {
++                std::cerr << "timer error\n";
++            }
++            createSensors(io, objectServer, systemBus);
++        });
++    };
 +
 +    auto matchPropChanged = std::make_unique<sdbusplus::bus::match::match>(
 +        static_cast<sdbusplus::bus::bus&>(*systemBus),
@@ -934,14 +918,13 @@ index 0000000..55b8b09
 +            std::string(inventoryPath) + "',arg0namespace='" + smproDevType +
 +            "'",
 +        eventHandler);
-+    matches.emplace_back(std::move(matchPropChanged));
 +
 +    io.run();
 +
 +    return 0;
 +}
 diff --git a/src/meson.build b/src/meson.build
-index e420b27..045b4ff 100644
+index e420b27..39b7c93 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -179,6 +179,25 @@ if get_option('psu').enabled()
@@ -954,9 +937,9 @@ index e420b27..045b4ff 100644
 +        'AmpereCPU.cpp',
 +        'AmpereCPUMain.cpp',
 +        dependencies: [
-+            gpiodcxx,
 +            sdbusplus,
 +        ],
++        cpp_args: uring_args,
 +        implicit_include_directories: false,
 +        include_directories: '../include',
 +        install: true,
@@ -971,5 +954,5 @@ index e420b27..045b4ff 100644
      executable(
          'externalsensor',
 -- 
-2.25.1
+2.17.1
 

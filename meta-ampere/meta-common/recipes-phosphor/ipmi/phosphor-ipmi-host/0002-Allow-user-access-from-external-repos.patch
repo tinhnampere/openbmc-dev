@@ -1,7 +1,7 @@
-From ae2051497f401d1f3a74bade7c9f0c3bedff6016 Mon Sep 17 00:00:00 2001
+From 236abcf8face2fbceb69ea146889f70a692196a8 Mon Sep 17 00:00:00 2001
 From: Hieu Huynh <hieu.huynh@amperecomputing.com>
 Date: Fri, 24 Jun 2022 10:14:01 +0000
-Subject: [PATCH 2/8] Allow user access from external repos
+Subject: [PATCH 2/7] Allow user access from external repos
 
 This commit adds the user_mgmt.hpp to Makefile.am file for access
 from external.

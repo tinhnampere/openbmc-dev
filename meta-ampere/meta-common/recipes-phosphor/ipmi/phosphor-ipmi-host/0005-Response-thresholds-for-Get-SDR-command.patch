@@ -1,7 +1,7 @@
-From a391db19fd6c59b9f0d28e2812a7d5e54ad50866 Mon Sep 17 00:00:00 2001
+From 00f8a8f2822512be1b48251209f1e1ff307858a8 Mon Sep 17 00:00:00 2001
 From: Hieu Huynh <hieuh@os.amperecomputing.com>
 Date: Fri, 24 Jun 2022 10:18:28 +0000
-Subject: [PATCH 5/8] Response thresholds for "Get SDR command"
+Subject: [PATCH 5/7] Response thresholds for "Get SDR command"
 
 Section 33.12 in Ipmi spec v2.0 details about "Get SDR" command. When
 the byte_to_read byte of this command is 0xFF, the response data have to
@@ -18,7 +18,7 @@ Signed-off-by: Hieu Huynh <hieuh@os.amperecomputing.com>
  2 files changed, 125 insertions(+)
 
 diff --git a/sensorhandler.cpp b/sensorhandler.cpp
-index 2f6c569..f0c22fe 100644
+index 63b6d1d..92b676b 100644
 --- a/sensorhandler.cpp
 +++ b/sensorhandler.cpp
 @@ -757,6 +757,93 @@ get_sdr::GetSensorThresholdsResponse

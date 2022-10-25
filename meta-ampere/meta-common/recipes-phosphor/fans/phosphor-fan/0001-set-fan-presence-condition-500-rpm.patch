@@ -1,7 +1,7 @@
-From d488ff098bbfecc309800ed0a9b9207eced014e1 Mon Sep 17 00:00:00 2001
+From d206408674aec9fb80a38c8a7a3defa6c74b66b6 Mon Sep 17 00:00:00 2001
 From: "Thang Q. Nguyen" <thang@os.amperecomputing.com>
 Date: Fri, 18 Mar 2022 07:14:42 +0000
-Subject: [PATCH 1/6] set fan presence condition > 500 rpm
+Subject: [PATCH 1/2] set fan presence condition > 500 rpm
 
 Signed-off-by: Thang Q. Nguyen <thang@os.amperecomputing.com>
 ---

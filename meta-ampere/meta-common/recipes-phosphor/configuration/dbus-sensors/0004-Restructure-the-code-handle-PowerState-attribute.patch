@@ -1,7 +1,7 @@
-From 07398a0f52f0c73fa79521eaf5a3d1e59c07f3e7 Mon Sep 17 00:00:00 2001
+From 74c8605da558448a197c8ad3e9c9e770695a288d Mon Sep 17 00:00:00 2001
 From: ThuBaNguyen <thu@os.amperecomputing.com>
 Date: Tue, 16 Aug 2022 12:04:40 +0700
-Subject: [PATCH 5/5] Restructure the code handle PowerState attribute
+Subject: [PATCH] Restructure the code handle PowerState attribute
 
 There are some below issues with the code handle PowerState attribute:
 1. Use difference properties to the "PowerState" configuration.
@@ -41,6 +41,8 @@ Tested:
         6. The sensor always have the value.
 
 Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
+
+%% original patch: 0004-amperecpu-Support-label-_AddAssoc-option.patch
 ---
  include/ADCSensor.hpp       |   2 +-
  include/AmpereCPU.hpp       |   4 +-
@@ -49,7 +51,7 @@ Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
  include/PSUEvent.hpp        |   6 +-
  include/PSUSensor.hpp       |   2 +-
  include/TachSensor.hpp      |   2 +-
- include/Utils.hpp           |  92 ++++++++++++++------
+ include/Utils.hpp           |  90 ++++++++++++++------
  include/sensor.hpp          |  17 ++--
  src/ADCSensor.cpp           |   2 +-
  src/ADCSensorMain.cpp       |  31 ++++++-
@@ -68,11 +70,11 @@ Signed-off-by: ThuBaNguyen <thu@os.amperecomputing.com>
  src/PSUSensor.cpp           |   2 +-
  src/PSUSensorMain.cpp       |  25 +++++-
  src/TachSensor.cpp          |   2 +-
- src/Utils.cpp               | 166 +++++++++++-------------------------
- 27 files changed, 276 insertions(+), 193 deletions(-)
+ src/Utils.cpp               | 165 +++++++++++-------------------------
+ 27 files changed, 276 insertions(+), 190 deletions(-)
 
 diff --git a/include/ADCSensor.hpp b/include/ADCSensor.hpp
-index 79c220a..2493c4e 100644
+index 5c4b8ed..1c66bbe 100644
 --- a/include/ADCSensor.hpp
 +++ b/include/ADCSensor.hpp
 @@ -70,7 +70,7 @@ class ADCSensor : public Sensor, public std::enable_shared_from_this<ADCSensor>
@@ -85,20 +87,20 @@ index 79c220a..2493c4e 100644
                std::optional<BridgeGpio>&& bridgeGpio);
      ~ADCSensor() override;
 diff --git a/include/AmpereCPU.hpp b/include/AmpereCPU.hpp
-index df337f4..ff34ba6 100644
+index c50db1c..5b8c9ec 100644
 --- a/include/AmpereCPU.hpp
 +++ b/include/AmpereCPU.hpp
-@@ -24,7 +24,7 @@ class AmpereCPUSensor :
-                     std::string& sensorTypeName, unsigned int factor,
-                     double max, double min, bool addAssociation,
-                     const std::string& label, size_t tSize,
+@@ -23,7 +23,7 @@ class AmpereCPUSensor :
+                     const std::string& sensorConfiguration,
+                     std::string& sensorTypeName, double factor, double max,
+                     double min, const std::string& label, size_t tSize,
 -                    PowerState readState);
 +                    const ReadState& readState);
      ~AmpereCPUSensor() override;
      void setupRead(void);
  
-@@ -137,4 +137,4 @@ inline bool cpuIsPresent(const SensorData* sensorData)
-     cpuPresence[gpioName] = resp;
+@@ -128,4 +128,4 @@ inline bool cpuPresence(const SensorData& sensorData)
+     }
  
      return resp;
 -}
@@ -118,7 +120,7 @@ index 20dd2f0..a7562d9 100644
  
      // Call this immediately after calling the constructor
 diff --git a/include/HwmonTempSensor.hpp b/include/HwmonTempSensor.hpp
-index 640875b..6187d58 100644
+index af275ec..f494441 100644
 --- a/include/HwmonTempSensor.hpp
 +++ b/include/HwmonTempSensor.hpp
 @@ -30,7 +30,7 @@ class HwmonTempSensor :
@@ -131,7 +133,7 @@ index 640875b..6187d58 100644
      void setupRead(void);
  
 diff --git a/include/PSUEvent.hpp b/include/PSUEvent.hpp
-index 824019c..c2b1fc2 100644
+index 25a7ebc..f1a38de 100644
 --- a/include/PSUEvent.hpp
 +++ b/include/PSUEvent.hpp
 @@ -35,7 +35,7 @@ class PSUSubEvent : public std::enable_shared_from_this<PSUSubEvent>
@@ -149,7 +151,7 @@ index 824019c..c2b1fc2 100644
  
 -    PowerState readState;
 +    ReadState readState;
-     boost::asio::deadline_timer waitTimer;
+     boost::asio::steady_timer waitTimer;
      std::shared_ptr<std::array<char, 128>> buffer;
      void restartRead();
 @@ -81,7 +81,7 @@ class PSUCombineEvent
@@ -162,7 +164,7 @@ index 824019c..c2b1fc2 100644
              eventPathList,
          boost::container::flat_map<
 diff --git a/include/PSUSensor.hpp b/include/PSUSensor.hpp
-index 6466179..c6fa56c 100644
+index 63699ea..00d35c7 100644
 --- a/include/PSUSensor.hpp
 +++ b/include/PSUSensor.hpp
 @@ -20,7 +20,7 @@ class PSUSensor : public Sensor, public std::enable_shared_from_this<PSUSensor>
@@ -175,7 +177,7 @@ index 6466179..c6fa56c 100644
                const std::string& label, size_t tSize, double pollRate);
      ~PSUSensor() override;
 diff --git a/include/TachSensor.hpp b/include/TachSensor.hpp
-index a9da29f..5765fb3 100644
+index c360395..dbbef24 100644
 --- a/include/TachSensor.hpp
 +++ b/include/TachSensor.hpp
 @@ -72,7 +72,7 @@ class TachSensor :
@@ -188,10 +190,10 @@ index a9da29f..5765fb3 100644
      ~TachSensor() override;
      void setupRead();
 diff --git a/include/Utils.hpp b/include/Utils.hpp
-index fb543f4..0053436 100644
+index b39492e..57be555 100644
 --- a/include/Utils.hpp
 +++ b/include/Utils.hpp
-@@ -66,12 +66,6 @@ bool findFiles(const std::filesystem::path& dirPath,
+@@ -65,12 +65,6 @@ bool findFiles(const std::filesystem::path& dirPath,
                 std::string_view matchString,
                 std::vector<std::filesystem::path>& foundPaths,
                 int symlinkDepth = 1);
@@ -204,16 +206,7 @@ index fb543f4..0053436 100644
  bool getSensorConfiguration(
      const std::string& type,
      const std::shared_ptr<sdbusplus::asio::connection>& dbusConnection,
-@@ -90,8 +84,6 @@ void createAssociation(
- void findLimits(std::pair<double, double>& limits,
-                 const SensorBaseConfiguration* data);
- 
--bool readingStateGood(const PowerState& powerState);
--
- namespace mapper
- {
- constexpr const char* busName = "xyz.openbmc_project.ObjectMapper";
-@@ -99,7 +91,6 @@ constexpr const char* path = "/xyz/openbmc_project/object_mapper";
+@@ -106,7 +100,6 @@ constexpr const char* path = "/xyz/openbmc_project/object_mapper";
  constexpr const char* interface = "xyz.openbmc_project.ObjectMapper";
  constexpr const char* subtree = "GetSubTree";
  } // namespace mapper
@@ -221,7 +214,7 @@ index fb543f4..0053436 100644
  namespace properties
  {
  constexpr const char* interface = "org.freedesktop.DBus.Properties";
-@@ -113,7 +104,10 @@ const static constexpr char* busname = "xyz.openbmc_project.State.Host";
+@@ -120,7 +113,10 @@ const static constexpr char* busname = "xyz.openbmc_project.State.Host";
  const static constexpr char* interface = "xyz.openbmc_project.State.Host";
  const static constexpr char* path = "/xyz/openbmc_project/state/host0";
  const static constexpr char* property = "CurrentHostState";
@@ -232,7 +225,7 @@ index fb543f4..0053436 100644
  namespace post
  {
  const static constexpr char* busname =
-@@ -122,14 +116,53 @@ const static constexpr char* interface =
+@@ -129,14 +125,53 @@ const static constexpr char* interface =
      "xyz.openbmc_project.State.OperatingSystem.Status";
  const static constexpr char* path = "/xyz/openbmc_project/state/os";
  const static constexpr char* property = "OperatingSystemState";
@@ -286,7 +279,7 @@ index fb543f4..0053436 100644
  template <typename T>
  inline T loadVariant(const SensorBaseConfigMap& data, const std::string& key)
  {
-@@ -157,34 +190,36 @@ inline T loadVariant(const SensorBaseConfigMap& data, const std::string& key)
+@@ -164,34 +199,36 @@ inline T loadVariant(const SensorBaseConfigMap& data, const std::string& key)
      }
  }
  
@@ -342,13 +335,13 @@ index fb543f4..0053436 100644
  }
  
  inline void setLed(const std::shared_ptr<sdbusplus::asio::connection>& conn,
-@@ -342,3 +377,4 @@ std::vector<std::unique_ptr<sdbusplus::bus::match_t>>
+@@ -355,3 +392,4 @@ std::vector<std::unique_ptr<sdbusplus::bus::match_t>>
      setupPropertiesChangedMatches(
          sdbusplus::asio::connection& bus, std::span<const char* const> types,
          const std::function<void(sdbusplus::message_t&)>& handler);
 +bool readingStateGood(ReadState readState);
 diff --git a/include/sensor.hpp b/include/sensor.hpp
-index 076b1df..d8b847e 100644
+index 290b78b..f4dfdc2 100644
 --- a/include/sensor.hpp
 +++ b/include/sensor.hpp
 @@ -61,7 +61,7 @@ struct Sensor
@@ -358,9 +351,9 @@ index 076b1df..d8b847e 100644
 -           PowerState readState = PowerState::always) :
 +           const ReadState& readState = initReadState(PowerState::always)) :
          name(sensor_paths::escapePathForDbus(name)),
-         configurationPath(configurationPath), objectType(objectType),
-         isSensorSettable(isSettable), isValueMutable(isMutable), maxValue(max),
-@@ -101,7 +101,7 @@ struct Sensor
+         configurationPath(configurationPath),
+         objectType(configInterfaceName(objectType)),
+@@ -102,7 +102,7 @@ struct Sensor
      double hysteresisTrigger;
      double hysteresisPublish;
      std::shared_ptr<sdbusplus::asio::connection> dbusConnection;
@@ -369,9 +362,9 @@ index 076b1df..d8b847e 100644
      size_t errCount{0};
      std::unique_ptr<SensorInstrumentation> instrumentation;
  
-@@ -251,9 +251,9 @@ struct Sensor
+@@ -252,9 +252,9 @@ struct Sensor
                                const std::string& label = std::string(),
-                               size_t thresholdSize = 0, bool createAssoc = true)
+                               size_t thresholdSize = 0)
      {
 -        if (readState == PowerState::on || readState == PowerState::biosPost)
 +        if (!std::empty(readState.match) && (readState.match != power::sAlways))
@@ -380,8 +373,8 @@ index 076b1df..d8b847e 100644
 +            setupStateMatch(dbusConnection, readState);
          }
  
-         if (createAssoc)
-@@ -424,12 +424,9 @@ struct Sensor
+         createAssociation(association, configurationPath);
+@@ -422,12 +422,9 @@ struct Sensor
  
      bool readingStateGood() const
      {
@@ -398,10 +391,10 @@ index 076b1df..d8b847e 100644
              return false;
          }
 diff --git a/src/ADCSensor.cpp b/src/ADCSensor.cpp
-index 2a42999..3ed959b 100644
+index fe2c8a7..2bc4c63 100644
 --- a/src/ADCSensor.cpp
 +++ b/src/ADCSensor.cpp
-@@ -46,7 +46,7 @@ ADCSensor::ADCSensor(const std::string& path,
+@@ -44,7 +44,7 @@ ADCSensor::ADCSensor(const std::string& path,
                       boost::asio::io_service& io, const std::string& sensorName,
                       std::vector<thresholds::Threshold>&& thresholdsIn,
                       const double scaleFactor, const float pollRate,
@@ -411,10 +404,10 @@ index 2a42999..3ed959b 100644
                       std::optional<BridgeGpio>&& bridgeGpio) :
      Sensor(escapeName(sensorName), std::move(thresholdsIn), sensorConfiguration,
 diff --git a/src/ADCSensorMain.cpp b/src/ADCSensorMain.cpp
-index 019226f..a078116 100644
+index 05d586f..f91220f 100644
 --- a/src/ADCSensorMain.cpp
 +++ b/src/ADCSensorMain.cpp
-@@ -252,7 +252,36 @@ void createSensors(
+@@ -250,7 +250,36 @@ void createSensors(
                  }
              }
  
@@ -453,38 +446,38 @@ index 019226f..a078116 100644
              auto& sensor = sensors[sensorName];
              sensor = nullptr;
 diff --git a/src/AmpereCPU.cpp b/src/AmpereCPU.cpp
-index adf853a..1cab65a 100644
+index 4dbfff8..fbbe909 100644
 --- a/src/AmpereCPU.cpp
 +++ b/src/AmpereCPU.cpp
-@@ -43,7 +43,7 @@ AmpereCPUSensor::AmpereCPUSensor(
+@@ -46,7 +46,7 @@ AmpereCPUSensor::AmpereCPUSensor(
      std::vector<thresholds::Threshold>&& thresholdsIn,
      const std::string& sensorConfiguration, std::string& sensorTypeName,
-     unsigned int factor, double max, double min, bool addAssociation,
--    const std::string& label, size_t tSize, PowerState readState) :
-+    const std::string& label, size_t tSize, const ReadState& readState) :
-     Sensor(boost::replace_all_copy(sensorName, " ", "_"),
-            std::move(thresholdsIn), sensorConfiguration, objectType, false,
-            false, max, min, conn, readState),
+     double factor, double max, double min, const std::string& label,
+-    size_t tSize, PowerState readState) :
++    size_t tSize, const ReadState& readState) :
+     Sensor(escapeName(sensorName), std::move(thresholdsIn), sensorConfiguration,
+            objectType, false, false, max, min, conn, readState),
+     objServer(objectServer),
 diff --git a/src/AmpereCPUMain.cpp b/src/AmpereCPUMain.cpp
-index 59594fa..1aa531b 100644
+index 66be9db..58c56b7 100644
 --- a/src/AmpereCPUMain.cpp
 +++ b/src/AmpereCPUMain.cpp
-@@ -145,7 +145,7 @@ static bool matchSensor(
+@@ -142,7 +142,7 @@ static bool matchAndCreateSensor(
          baseConfig,
-     SensorData* sensorData, const std::string& interfacePath,
+     const SensorData& sensorData, const std::string& interfacePath,
      const std::string& devType, const fs::path& sensorPath,
 -    const std::vector<std::string>& findLabels, PowerState readState)
 +    const std::vector<std::string>& findLabels, ReadState readState)
  {
      bool maxLabel = false;
      std::regex sensorNameRegEx("([A-Za-z]+)[0-9]*_");
-@@ -457,12 +457,17 @@ static bool parseSensorConfig(
+@@ -438,12 +438,17 @@ static bool parseSensorConfig(
      }
  
-     auto findPowerOn = baseConfig->second.find("PowerState");
+     auto findPowerOn = baseConfig.second.find("PowerState");
 -    PowerState readState = PowerState::always;
 +    ReadState readState = initReadState(PowerState::always);
-     if (findPowerOn != baseConfig->second.end())
+     if (findPowerOn != baseConfig.second.end())
      {
          std::string powerState =
              std::visit(VariantToStringVisitor(), findPowerOn->second);
@@ -499,28 +492,28 @@ index 59594fa..1aa531b 100644
  
      /* Find array of labels to be exposed if it is defined in config */
 diff --git a/src/ExitAirTempSensor.cpp b/src/ExitAirTempSensor.cpp
-index 3c1d7e4..65fd800 100644
+index eb816e8..1f045a7 100644
 --- a/src/ExitAirTempSensor.cpp
 +++ b/src/ExitAirTempSensor.cpp
-@@ -162,7 +162,7 @@ CFMSensor::CFMSensor(std::shared_ptr<sdbusplus::asio::connection>& conn,
+@@ -160,7 +160,7 @@ CFMSensor::CFMSensor(std::shared_ptr<sdbusplus::asio::connection>& conn,
                       std::shared_ptr<ExitAirTempSensor>& parent) :
      Sensor(escapeName(sensorName), std::move(thresholdData),
-            sensorConfiguration, "xyz.openbmc_project.Configuration.ExitAirTemp",
--           false, false, cfmMaxReading, cfmMinReading, conn, PowerState::on),
-+           false, false, cfmMaxReading, cfmMinReading, conn, initReadState(PowerState::on)),
+            sensorConfiguration, "CFMSensor", false, false, cfmMaxReading,
+-           cfmMinReading, conn, PowerState::on),
++           cfmMinReading, conn, initReadState(PowerState::on)),
      parent(parent), objServer(objectServer)
  {
      sensorInterface = objectServer.add_interface(
-@@ -501,7 +501,7 @@ ExitAirTempSensor::ExitAirTempSensor(
+@@ -497,7 +497,7 @@ ExitAirTempSensor::ExitAirTempSensor(
+     std::vector<thresholds::Threshold>&& thresholdData) :
      Sensor(escapeName(sensorName), std::move(thresholdData),
-            sensorConfiguration, "xyz.openbmc_project.Configuration.ExitAirTemp",
-            false, false, exitAirMaxReading, exitAirMinReading, conn,
--           PowerState::on),
-+           initReadState(PowerState::on)),
+            sensorConfiguration, "ExitAirTemp", false, false, exitAirMaxReading,
+-           exitAirMinReading, conn, PowerState::on),
++           exitAirMinReading, conn, initReadState(PowerState::on)),
      objServer(objectServer)
  {
      sensorInterface = objectServer.add_interface(
-@@ -713,7 +713,7 @@ bool ExitAirTempSensor::calculate(double& val)
+@@ -709,7 +709,7 @@ bool ExitAirTempSensor::calculate(double& val)
      }
  
      // if fans are off, just make the exit temp equal to inlet
@@ -530,10 +523,10 @@ index 3c1d7e4..65fd800 100644
          val = inletTemp;
          return true;
 diff --git a/src/ExternalSensor.cpp b/src/ExternalSensor.cpp
-index cc9e7c5..5dbba2d 100644
+index cbba6e1..9eb3ba4 100644
 --- a/src/ExternalSensor.cpp
 +++ b/src/ExternalSensor.cpp
-@@ -25,7 +25,7 @@ ExternalSensor::ExternalSensor(
+@@ -23,7 +23,7 @@ ExternalSensor::ExternalSensor(
      const std::string& sensorName, const std::string& sensorUnits,
      std::vector<thresholds::Threshold>&& thresholdsIn,
      const std::string& sensorConfiguration, double maxReading,
@@ -543,10 +536,10 @@ index cc9e7c5..5dbba2d 100644
             objectType, true, true, maxReading, minReading, conn, powerState),
      objServer(objectServer), writeLast(std::chrono::steady_clock::now()),
 diff --git a/src/ExternalSensorMain.cpp b/src/ExternalSensorMain.cpp
-index 413a112..48520c0 100644
+index 23721a8..e6e6ee7 100644
 --- a/src/ExternalSensorMain.cpp
 +++ b/src/ExternalSensorMain.cpp
-@@ -307,7 +307,19 @@ void createSensors(
+@@ -305,7 +305,19 @@ void createSensors(
                            << "\n";
              }
  
@@ -568,10 +561,10 @@ index 413a112..48520c0 100644
              auto& sensorEntry = sensors[sensorName];
              sensorEntry = nullptr;
 diff --git a/src/FanMain.cpp b/src/FanMain.cpp
-index b52abd9..a28c520 100644
+index 9d495e0..cfdbc53 100644
 --- a/src/FanMain.cpp
 +++ b/src/FanMain.cpp
-@@ -403,7 +403,37 @@ void createSensors(
+@@ -426,7 +426,37 @@ void createSensors(
                  redundancy = &systemRedundancy;
              }
  
@@ -611,10 +604,10 @@ index b52abd9..a28c520 100644
              constexpr double defaultMaxReading = 25000;
              constexpr double defaultMinReading = 0;
 diff --git a/src/HwmonTempMain.cpp b/src/HwmonTempMain.cpp
-index 47f2f07..e285ab1 100644
+index 9ebdfcd..3f964d6 100644
 --- a/src/HwmonTempMain.cpp
 +++ b/src/HwmonTempMain.cpp
-@@ -395,7 +395,19 @@ void createSensors(
+@@ -397,7 +397,19 @@ void createSensors(
                  }
              }
  
@@ -636,10 +629,10 @@ index 47f2f07..e285ab1 100644
              auto permitSet = getPermitSet(baseConfigMap);
              auto& sensor = sensors[sensorName];
 diff --git a/src/HwmonTempSensor.cpp b/src/HwmonTempSensor.cpp
-index 744a40f..a0dbed6 100644
+index ee096ea..02f3a9f 100644
 --- a/src/HwmonTempSensor.cpp
 +++ b/src/HwmonTempSensor.cpp
-@@ -47,7 +47,7 @@ HwmonTempSensor::HwmonTempSensor(
+@@ -45,7 +45,7 @@ HwmonTempSensor::HwmonTempSensor(
      boost::asio::io_service& io, const std::string& sensorName,
      std::vector<thresholds::Threshold>&& thresholdsIn,
      const struct SensorParams& thisSensorParameters, const float pollRate,
@@ -649,10 +642,10 @@ index 744a40f..a0dbed6 100644
             std::move(thresholdsIn), sensorConfiguration, objectType, false,
             false, thisSensorParameters.maxValue, thisSensorParameters.minValue,
 diff --git a/src/IntelCPUSensor.cpp b/src/IntelCPUSensor.cpp
-index 79a51ed..e4b1b54 100644
+index 3410574..8047250 100644
 --- a/src/IntelCPUSensor.cpp
 +++ b/src/IntelCPUSensor.cpp
-@@ -43,7 +43,7 @@ IntelCPUSensor::IntelCPUSensor(
+@@ -41,7 +41,7 @@ IntelCPUSensor::IntelCPUSensor(
      const std::string& sensorConfiguration, int cpuId, bool show,
      double dtsOffset) :
      Sensor(escapeName(sensorName), std::move(thresholdsIn), sensorConfiguration,
@@ -661,7 +654,7 @@ index 79a51ed..e4b1b54 100644
      objServer(objectServer), inputDev(io), waitTimer(io),
      nameTcontrol("Tcontrol CPU" + std::to_string(cpuId)), path(path),
      privTcontrol(std::numeric_limits<double>::quiet_NaN()),
-@@ -90,7 +90,7 @@ IntelCPUSensor::IntelCPUSensor(
+@@ -88,7 +88,7 @@ IntelCPUSensor::IntelCPUSensor(
      }
  
      // call setup always as not all sensors call setInitialProperties
@@ -670,7 +663,7 @@ index 79a51ed..e4b1b54 100644
  }
  
  IntelCPUSensor::~IntelCPUSensor()
-@@ -200,7 +200,7 @@ void IntelCPUSensor::updateMinMaxValues(void)
+@@ -198,7 +198,7 @@ void IntelCPUSensor::updateMinMaxValues(void)
                  }
                  else
                  {
@@ -680,19 +673,19 @@ index 79a51ed..e4b1b54 100644
                          updateProperty(sensorInterface, oldValue, 0, dbusName);
                      }
 diff --git a/src/IpmbSensor.cpp b/src/IpmbSensor.cpp
-index dfec16b..909d54d 100644
+index 5dabc25..d6eb592 100644
 --- a/src/IpmbSensor.cpp
 +++ b/src/IpmbSensor.cpp
-@@ -66,7 +66,7 @@ IpmbSensor::IpmbSensor(std::shared_ptr<sdbusplus::asio::connection>& conn,
+@@ -64,7 +64,7 @@ IpmbSensor::IpmbSensor(std::shared_ptr<sdbusplus::asio::connection>& conn,
                         const float pollRate, std::string& sensorTypeName) :
      Sensor(escapeName(sensorName), std::move(thresholdData),
-            sensorConfiguration, "xyz.openbmc_project.Configuration.ExitAirTemp",
--           false, false, ipmbMaxReading, ipmbMinReading, conn, PowerState::on),
-+           false, false, ipmbMaxReading, ipmbMinReading, conn, initReadState(PowerState::on)),
+            sensorConfiguration, "IpmbSensor", false, false, ipmbMaxReading,
+-           ipmbMinReading, conn, PowerState::on),
++           ipmbMinReading, conn, initReadState(PowerState::on)),
      deviceAddress(deviceAddress), hostSMbusIndex(hostSMbusIndex),
      sensorPollMs(static_cast<int>(pollRate * 1000)), objectServer(objectServer),
      waitTimer(io)
-@@ -475,7 +475,20 @@ void IpmbSensor::parseConfigValues(const SensorBaseConfigMap& entry)
+@@ -473,7 +473,20 @@ void IpmbSensor::parseConfigValues(const SensorBaseConfigMap& entry)
          offsetVal = std::visit(VariantToDoubleVisitor(), findOffsetVal->second);
      }
  
@@ -715,20 +708,20 @@ index dfec16b..909d54d 100644
  
  void createSensors(
 diff --git a/src/NVMeSensor.cpp b/src/NVMeSensor.cpp
-index a5257f5..b7eaa60 100644
+index d32d166..278590a 100644
 --- a/src/NVMeSensor.cpp
 +++ b/src/NVMeSensor.cpp
 @@ -30,7 +30,7 @@ NVMeSensor::NVMeSensor(sdbusplus::asio::object_server& objectServer,
                         const int busNumber) :
      Sensor(escapeName(sensorName), std::move(thresholdsIn), sensorConfiguration,
-            NVMeSensor::configType, false, false, maxReading, minReading, conn,
+            NVMeSensor::sensorType, false, false, maxReading, minReading, conn,
 -           PowerState::on),
 +           initReadState(PowerState::on)),
      bus(busNumber), objServer(objectServer)
  {
      if (bus < 0)
 diff --git a/src/PSUEvent.cpp b/src/PSUEvent.cpp
-index 8c83d06..1e58330 100644
+index 27bb8b1..cbcec99 100644
 --- a/src/PSUEvent.cpp
 +++ b/src/PSUEvent.cpp
 @@ -35,7 +35,7 @@ PSUCombineEvent::PSUCombineEvent(
@@ -750,10 +743,10 @@ index 8c83d06..1e58330 100644
      std::shared_ptr<std::set<std::string>> asserts,
      std::shared_ptr<std::set<std::string>> combineEvent,
 diff --git a/src/PSUSensor.cpp b/src/PSUSensor.cpp
-index 9b7b38a..99dcddf 100644
+index 6e2934f..8a1057b 100644
 --- a/src/PSUSensor.cpp
 +++ b/src/PSUSensor.cpp
-@@ -42,7 +42,7 @@ PSUSensor::PSUSensor(const std::string& path, const std::string& objectType,
+@@ -40,7 +40,7 @@ PSUSensor::PSUSensor(const std::string& path, const std::string& objectType,
                       boost::asio::io_service& io, const std::string& sensorName,
                       std::vector<thresholds::Threshold>&& thresholdsIn,
                       const std::string& sensorConfiguration,
@@ -763,10 +756,10 @@ index 9b7b38a..99dcddf 100644
                       double max, double min, double offset,
                       const std::string& label, size_t tSize, double pollRate) :
 diff --git a/src/PSUSensorMain.cpp b/src/PSUSensorMain.cpp
-index 26cf7d1..71b253e 100644
+index 918b9c6..4f90434 100644
 --- a/src/PSUSensorMain.cpp
 +++ b/src/PSUSensorMain.cpp
-@@ -490,7 +490,19 @@ static void createSensorsCallback(
+@@ -460,7 +460,19 @@ static void createSensorsCallback(
          checkGroupEvent(directory.string(), groupEventMatch,
                          groupEventPathList);
  
@@ -787,7 +780,7 @@ index 26cf7d1..71b253e 100644
  
          /* Check if there are more sensors in the same interface */
          int i = 1;
-@@ -771,9 +783,14 @@ static void createSensorsCallback(
+@@ -741,9 +753,14 @@ static void createSensorsCallback(
              auto findPowerState = baseConfig->find(keyPowerState);
              if (findPowerState != baseConfig->end())
              {
@@ -806,10 +799,10 @@ index 26cf7d1..71b253e 100644
              if (!(psuProperty->minReading < psuProperty->maxReading))
              {
 diff --git a/src/TachSensor.cpp b/src/TachSensor.cpp
-index 41cc212..dfbb9a8 100644
+index 35185cd..501b587 100644
 --- a/src/TachSensor.cpp
 +++ b/src/TachSensor.cpp
-@@ -48,7 +48,7 @@ TachSensor::TachSensor(const std::string& path, const std::string& objectType,
+@@ -46,7 +46,7 @@ TachSensor::TachSensor(const std::string& path, const std::string& objectType,
                         std::vector<thresholds::Threshold>&& thresholdsIn,
                         const std::string& sensorConfiguration,
                         const std::pair<double, double>& limits,
@@ -819,7 +812,7 @@ index 41cc212..dfbb9a8 100644
      Sensor(escapeName(fanName), std::move(thresholdsIn), sensorConfiguration,
             objectType, false, false, limits.second, limits.first, conn,
 diff --git a/src/Utils.cpp b/src/Utils.cpp
-index e247edd..34abfb0 100644
+index 700b336..d331f6f 100644
 --- a/src/Utils.cpp
 +++ b/src/Utils.cpp
 @@ -35,12 +35,12 @@
@@ -839,7 +832,7 @@ index e247edd..34abfb0 100644
  
  /**
   * return the contents of a file
-@@ -296,31 +296,21 @@ bool findFiles(const fs::path& dirPath, std::string_view matchString,
+@@ -285,31 +285,21 @@ bool findFiles(const fs::path& dirPath, std::string_view matchString,
      return true;
  }
  
@@ -879,7 +872,7 @@ index e247edd..34abfb0 100644
      {
          return false;
      }
-@@ -329,12 +319,15 @@ bool readingStateGood(const PowerState& powerState)
+@@ -318,12 +308,15 @@ bool readingStateGood(const PowerState& powerState)
  }
  
  static void
@@ -899,7 +892,7 @@ index e247edd..34abfb0 100644
          if (ec)
          {
              if (retries != 0U)
-@@ -342,10 +335,12 @@ static void
+@@ -331,10 +324,12 @@ static void
                  auto timer = std::make_shared<boost::asio::steady_timer>(
                      conn->get_io_context());
                  timer->expires_after(std::chrono::seconds(15));
@@ -916,12 +909,11 @@ index e247edd..34abfb0 100644
                  return;
              }
  
-@@ -354,85 +349,50 @@ static void
+@@ -343,84 +338,50 @@ static void
              std::cerr << "error getting power status " << ec.message() << "\n";
              return;
          }
--        powerStatusOn =
--            boost::ends_with(std::get<std::string>(state), ".Running");
+-        powerStatusOn = std::get<std::string>(state).ends_with(".Running");
 -        },
 -        power::busname, power::path, properties::interface, properties::get,
 -        power::interface, power::property);
@@ -957,7 +949,7 @@ index e247edd..34abfb0 100644
 -                      (value != "xyz.openbmc_project.State.OperatingSystem."
 -                                "Status.OSStatus.Inactive");
 +        isStateMatch[key] =
-+            boost::ends_with(std::get<std::string>(state), match);
++            std::get<std::string>(state).ends_with(match);
          },
 -        post::busname, post::path, properties::interface, properties::get,
 -        post::interface, post::property);
@@ -1003,9 +995,9 @@ index e247edd..34abfb0 100644
 +        auto findState = values.find(prop);
          if (findState != values.end())
          {
--            bool on = boost::ends_with(std::get<std::string>(findState->second),
--                                       ".Running");
-+            bool on = boost::ends_with(std::get<std::string>(findState->second), match);
+-            bool on =
+-                std::get<std::string>(findState->second).ends_with(".Running");
++            bool on = std::get<std::string>(findState->second).ends_with(match);
              if (!on)
              {
                  timer.cancel();
@@ -1022,7 +1014,7 @@ index e247edd..34abfb0 100644
                  if (ec == boost::asio::error::operation_aborted)
                  {
                      return;
-@@ -442,40 +402,12 @@ void setupPowerMatchCallback(
+@@ -430,40 +391,12 @@ void setupPowerMatchCallback(
                      std::cerr << "Timer error " << ec.message() << "\n";
                      return;
                  }
@@ -1068,5 +1060,5 @@ index e247edd..34abfb0 100644
  
  // replaces limits if MinReading and MaxReading are found.
 -- 
-2.25.1
+2.17.1
 

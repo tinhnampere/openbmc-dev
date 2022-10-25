@@ -1,6 +1,6 @@
-From 16a5af4c6027e518318e17d8756e777be53f973b Mon Sep 17 00:00:00 2001
+From 0ce5077adbb4b502c00789d16f085a2f68213520 Mon Sep 17 00:00:00 2001
 From: Chanh Nguyen <chanh@os.amperecomputing.com>
-Date: Mon, 29 Aug 2022 11:16:26 +0700
+Date: Fri, 23 Sep 2022 15:53:40 +0700
 Subject: [PATCH] adcsensor: Disable io_uring build
 
 When the adcsensor uses the io_uring lib,
@@ -11,12 +11,14 @@ This is workaround for temp solution. That will be revert after we have
 a better solution with the ltc2497 driver.
 
 Signed-off-by: Chanh Nguyen <chanh@os.amperecomputing.com>
+
+%% original patch: 0005-Restructure-the-code-handle-PowerState-attribute.patch
 ---
  src/meson.build | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/src/meson.build b/src/meson.build
-index e420b27..17dda45 100644
+index e3e6ade..b540911 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -14,7 +14,6 @@ if get_option('adc').enabled()
