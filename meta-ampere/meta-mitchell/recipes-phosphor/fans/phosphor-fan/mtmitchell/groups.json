@@ -1,6 +1,6 @@
 [
  {
-   "name": "FAN inventory",
+   "name": "fan inventory",
    "members": [
      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN0",
      "/xyz/openbmc_project/inventory/system/board/Mt_Mitchell_MB/FAN1",
@@ -56,8 +56,8 @@
     "name": "CPU temps",
     "service": "xyz.openbmc_project.PLDM",
     "members": [
-      "/xyz/openbmc_project/sensors/temperature/S0_ThrotOff_Temp",
-      "/xyz/openbmc_project/sensors/temperature/S1_ThrotOff_Temp"
+      "/xyz/openbmc_project/sensors/temperature/S0_SOC_Pkg_Temp",
+      "/xyz/openbmc_project/sensors/temperature/S1_SOC_Pkg_Temp"
     ]
   }
 ]
