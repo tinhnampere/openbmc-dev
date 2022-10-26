@@ -110,11 +110,11 @@
     path: /xyz/openbmc_project/sensors/fan_tach/FAN1_R
 21:
     <<: *FAN_DEFAULTS
-    entityInstance: 3
+    entityInstance: 5
     path: /xyz/openbmc_project/sensors/fan_tach/FAN2_F
 22:
     <<: *FAN_DEFAULTS
-    entityInstance: 4
+    entityInstance: 6
     path: /xyz/openbmc_project/sensors/fan_tach/FAN2_R
 23:
     <<: *FAN_DEFAULTS
@@ -227,7 +227,7 @@
     path: /xyz/openbmc_project/sensors/voltage/S1_0V85_SOC
 71:
     <<: *VOLTAGE_DEFAULTS
-    entityInstance: 16
+    entityInstance: 15
     multiplierM: 5
     path: /xyz/openbmc_project/sensors/voltage/S1_0V85_RC_DDR0
 72:
@@ -1014,7 +1014,7 @@
 199:
     <<: *power
     entityID: 0x13
-    entityInstance: 106
+    entityInstance: 107
     multiplierM: 0x50
     path: /xyz/openbmc_project/sensors/power/S1_IOC_VR1_Pwr
 200:
