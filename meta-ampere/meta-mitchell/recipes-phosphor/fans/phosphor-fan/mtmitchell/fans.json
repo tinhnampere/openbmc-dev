@@ -3,48 +3,42 @@
         "name": "FAN0",
         "zone": "0",
         "sensors": ["PWM7"],
-        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
         "target_interface": "xyz.openbmc_project.Control.FanPwm",
-        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM7"
+        "target_path": "/xyz/openbmc_project/control/fanpwm/"
     },
     {
         "name": "FAN1",
         "zone": "0",
         "sensors": ["PWM5"],
-        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
         "target_interface": "xyz.openbmc_project.Control.FanPwm",
-        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM5"
+        "target_path": "/xyz/openbmc_project/control/fanpwm/"
     },
     {
         "name": "FAN2",
         "zone": "0",
         "sensors": ["PWM4"],
-        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
         "target_interface": "xyz.openbmc_project.Control.FanPwm",
-        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM4"
+        "target_path": "/xyz/openbmc_project/control/fanpwm/"
     },
     {
         "name": "FAN3",
         "zone": "0",
         "sensors": ["PWM3"],
-        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
         "target_interface": "xyz.openbmc_project.Control.FanPwm",
-        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM3"
+        "target_path": "/xyz/openbmc_project/control/fanpwm/"
     },
     {
         "name": "FAN4",
         "zone": "0",
         "sensors": ["PWM1"],
-        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
         "target_interface": "xyz.openbmc_project.Control.FanPwm",
-        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM1"
+        "target_path": "/xyz/openbmc_project/control/fanpwm/"
     },
     {
         "name": "FAN5",
         "zone": "0",
         "sensors": ["PWM0"],
-        "sensor_path": "/xyz/openbmc_project/control/fanpwm/",
         "target_interface": "xyz.openbmc_project.Control.FanPwm",
-        "target_path": "/xyz/openbmc_project/control/fanpwm/PWM0"
+        "target_path": "/xyz/openbmc_project/control/fanpwm/"
     }
 ]
