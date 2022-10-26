@@ -89,7 +89,7 @@
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 0.96
+                        "Value": 0.95
                     },
                     {
                         "Direction": "less than",
@@ -124,7 +124,7 @@
                         "Direction": "greater than",
                         "Name": "upper non critical",
                         "Severity": 0,
-                        "Value": 0.96
+                        "Value": 0.95
                     },
                     {
                         "Direction": "less than",
@@ -1963,14 +1963,6 @@
                 "Address": "0x48",
                 "Bus": 21,
                 "Name": "PcieZoneTemp1",
-                "Thresholds": [
-                    {
-                        "Direction": "greater than",
-                        "Name": "upper critical",
-                        "Severity": 1,
-                        "Value": 55
-                    }
-                ],
                 "Type": "TMP75"
             },
             {
@@ -1991,14 +1983,6 @@
                 "Address": "0x48",
                 "Bus": 22,
                 "Name": "PcieZoneTemp2",
-                "Thresholds": [
-                    {
-                        "Direction": "greater than",
-                        "Name": "upper critical",
-                        "Severity": 1,
-                        "Value": 55
-                    }
-                ],
                 "Type": "TMP75"
             },
             {
@@ -2014,6 +1998,13 @@
                 "Name1": "SysCabInletTemp",
                 "Thresholds": [
                     {
+                        "Direction": "greater than",
+                        "Name": "upper critical",
+                        "Severity": 1,
+                        "Value": 65
+                    },
+                    {
+                        "Index": 2,
                         "Direction": "greater than",
                         "Name": "upper critical",
                         "Severity": 1,
