@@ -1,0 +1,58 @@
+From 092da047bddb076d1d13611de7855060e9938d06 Mon Sep 17 00:00:00 2001
+From: Johnathan Mantey <johnathanx.mantey@intel.com>
+Date: Fri, 21 Oct 2022 07:19:06 -0700
+Subject: [PATCH] Eliminate compile time error with dynamic-sensors enabled
+
+The code changes made to add the decorators feature did not get
+propagated to all the functions needing the decorators. When the
+'dyanmic-sensors' compile time switch is enabled a compile time
+failure occurs.
+
+Tested:
+The out of date function compiles.
+
+Change-Id: Ida58cc17814f32bb5be206127f7244b7f05cd895
+Signed-off-by: Johnathan Mantey <johnathanx.mantey@intel.com>
+---
+ dbus-sdr/sensorcommands.cpp | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/dbus-sdr/sensorcommands.cpp b/dbus-sdr/sensorcommands.cpp
+index 1ca592a..f3c1bb9 100644
+--- a/dbus-sdr/sensorcommands.cpp
++++ b/dbus-sdr/sensorcommands.cpp
+@@ -2417,7 +2417,8 @@ ipmi::RspType<uint8_t,              // No of instances for requested id
+                                     // IDs
+               >
+     getSensorInfo(ipmi::Context::ptr ctx, uint8_t sensorType, uint8_t entityId,
+-                  uint8_t entityInstance, uint8_t instanceStart)
++                  uint8_t entityInstance,
++                  uint8_t instanceStart __attribute__((unused)))
+ {
+     auto match = ipmi::dcmi::validEntityId.find(entityId);
+     if (match == ipmi::dcmi::validEntityId.end())
+@@ -2440,6 +2441,8 @@ ipmi::RspType<uint8_t,              // No of instances for requested id
+         return ipmi::responseUnspecifiedError();
+     }
+ 
++    auto& ipmiDecoratorPaths = getIpmiDecoratorPaths(ctx);
++
+     std::vector<uint16_t> sensorRec{};
+     uint8_t numInstances = 0;
+ 
+@@ -2465,8 +2468,10 @@ ipmi::RspType<uint8_t,              // No of instances for requested id
+         uint8_t entityIdValue = 0;
+         uint8_t entityInstanceValue = 0;
+ 
+-        updateIpmiFromAssociation(sensor.first, sensorMap, entityIdValue,
+-                                  entityInstanceValue);
++        updateIpmiFromAssociation(
++            sensor.first,
++            ipmiDecoratorPaths.value_or(std::unordered_set<std::string>()),
++            sensorMap, entityIdValue, entityInstanceValue);
+         if (!entityInstance)
+         {
+             if (entityIdValue == match->first || entityIdValue == match->second)
+-- 
+2.25.1
+
