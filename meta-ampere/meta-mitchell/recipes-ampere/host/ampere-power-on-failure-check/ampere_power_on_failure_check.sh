@@ -5,6 +5,8 @@
 
 source /usr/sbin/gpio-lib.sh
 
+pcp_pwrgd_flag='/tmp/pcp_pwrgd'
+jtag_trst_disable='/var/ampere/jtag-trst-disable'
 
 function power_on_sequence_monitoring_log() {
 	local cnt="$1"
@@ -14,6 +16,11 @@ function power_on_sequence_monitoring_log() {
 		if [ "$2" == "power-chassis-good" ]; then
 			state=$(busctl get-property org.openbmc.control.Power /org/openbmc/control/power0 org.openbmc.control.Power pgood | cut -d' ' -f2)
 			if [ "$state" == "1" ]; then
+				break
+			fi
+		elif [[ "$2" == "sys-pgood" ]] && [[ ! -f $jtag_trst_disable ]]; then
+			if [ -f $pcp_pwrgd_flag ]; then
+				rm -f "$pcp_pwrgd_flag"
 				break
 			fi
 		else
