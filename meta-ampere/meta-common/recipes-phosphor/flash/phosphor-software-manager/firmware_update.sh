@@ -77,13 +77,17 @@ case ${EXTENDED_VERSION} in
 
 	"mbcpld")
 		IMAGE=$(find "${IMG_PATH}" -type f \( -name "*.jed" \))
-		CMD="/usr/bin/ampere_firmware_upgrade.sh mb_cpld $IMAGE"
+		CMD="/usr/sbin/ampere_firmware_upgrade.sh mb_cpld $IMAGE"
 		;;
 	"bmccpld")
 		IMAGE=$(find "${IMG_PATH}" -type f \( -name "*.jed" \))
-		CMD="/usr/bin/ampere_firmware_upgrade.sh bmc_cpld $IMAGE"
+		CMD="/usr/sbin/ampere_firmware_upgrade.sh bmc_cpld $IMAGE"
 		;;
-
+	"bpcpld"*)
+		IMAGE=$(find "${IMG_PATH}" -type f \( -name "*.bin" \))
+		TARGET="${EXTENDED_VERSION:6}"
+		CMD="/usr/sbin/ampere_firmware_upgrade.sh bp_cpld $IMAGE $TARGET"
+		;;
 	*)
 		echo "Invalid ExtendedVersion: ${EXTENDED_VERSION}. Please check MANIFEST file!"
 		exit 1
