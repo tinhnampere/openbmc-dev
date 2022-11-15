@@ -1,0 +1,88 @@
+From cd2e6b9a980a919831f8243afbd1e5e5c3e5bd30 Mon Sep 17 00:00:00 2001
+From: Dung Cao <dung@os.amperecomputing.com>
+Date: Wed, 16 Nov 2022 22:40:37 +0700
+Subject: [PATCH] Add Ampere API PldmMessagePollEventSignal
+
+This commit adds Ampere API PldmMessagePollEventSignal to libpldm.
+This should be in AmpereOEM.
+
+Signed-off-by: Dung Cao <dung@os.amperecomputing.com>
+Change-Id: I1934792f0ce8f339ee04c4bae0c65e3973ed38b4
+---
+ include/libpldm/platform.h | 16 ++++++++++++++++
+ src/platform.c             | 25 +++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
+
+diff --git a/include/libpldm/platform.h b/include/libpldm/platform.h
+index b0a80be..3854a86 100644
+--- a/include/libpldm/platform.h
++++ b/include/libpldm/platform.h
+@@ -926,6 +926,16 @@ struct pldm_pdr_repository_chg_event_data {
+ 	uint8_t change_records[1];
+ } __attribute__((packed));
+ 
++/** @struct pldm_msg_poll_event_data
++ *
++ *  structure representing pldm_msg_poll_event_data class eventData
++ */
++struct pldm_msg_poll_event_data {
++	uint8_t format_version;
++	uint16_t event_id;
++	uint32_t data_transfer_handle;
++} __attribute__((packed));
++
+ /** @struct pldm_pdr_repository_chg_event_change_record_data
+  *
+  *  structure representing pldmPDRRepositoryChgEvent class eventData's change
+@@ -1690,6 +1700,12 @@ int decode_pldm_pdr_repository_chg_event_data(
+     uint8_t *event_data_format, uint8_t *number_of_change_records,
+     size_t *change_record_data_offset);
+ 
++int decode_pldm_message_poll_event_data(const uint8_t *event_data,
++					size_t event_data_size,
++					uint8_t *format_version,
++					uint16_t *event_id,
++					uint32_t *data_transfer_handle);
++
+ /** @brief Encode PLDM PDR Repository Change eventData
+  *  @param[in] event_data_format - Format of this event data (e.g.
+  * FORMAT_IS_PDR_HANDLES)
+diff --git a/src/platform.c b/src/platform.c
+index 2f2b05e..84a3a29 100644
+--- a/src/platform.c
++++ b/src/platform.c
+@@ -1439,6 +1439,31 @@ int decode_pldm_pdr_repository_chg_event_data(const uint8_t *event_data,
+ 	return PLDM_SUCCESS;
+ }
+ 
++int decode_pldm_message_poll_event_data(const uint8_t *event_data,
++					size_t event_data_size,
++					uint8_t *format_version,
++					uint16_t *event_id,
++					uint32_t *data_transfer_handle)
++{
++	if (event_data == NULL || format_version == NULL || event_id == NULL ||
++	    data_transfer_handle == NULL) {
++		return PLDM_ERROR_INVALID_DATA;
++	}
++
++	if (event_data_size < PLDM_MSG_POLL_EVENT_LENGTH) {
++		return PLDM_ERROR_INVALID_LENGTH;
++	}
++
++	struct pldm_msg_poll_event_data *msg_poll_event_data =
++	    (struct pldm_msg_poll_event_data *)event_data;
++
++	*format_version = msg_poll_event_data->format_version;
++	*event_id = msg_poll_event_data->event_id;
++	*data_transfer_handle = msg_poll_event_data->data_transfer_handle;
++
++	return PLDM_SUCCESS;
++}
++
+ int decode_pldm_pdr_repository_change_record_data(
+     const uint8_t *change_record_data, size_t change_record_data_size,
+     uint8_t *event_data_operation, uint8_t *number_of_change_entries,
+-- 
+2.17.1
+
