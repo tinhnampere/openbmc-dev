@@ -1,0 +1,60 @@
+From 26948d13f13cd3157486f8afef85db15d97c98a3 Mon Sep 17 00:00:00 2001
+From: Thu Nguyen <thu@os.amperecomputing.com>
+Date: Wed, 2 Nov 2022 09:57:25 +0700
+Subject: [PATCH] Add effecter aux name PDR struct
+
+Add the definition for effecter aux name PDR struct base on "28.15
+Effecter Auxiliary Names PDR" section of DSP0248 1.2.1 specification.
+
+Signed-off-by: Thu Nguyen <thu@os.amperecomputing.com>
+Change-Id: I3ff170f81097eef36932cd18741fef282f790959
+---
+ include/libpldm/platform.h | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/include/libpldm/platform.h b/include/libpldm/platform.h
+index 8ef0f76..b49e747 100644
+--- a/include/libpldm/platform.h
++++ b/include/libpldm/platform.h
+@@ -634,6 +634,38 @@ struct state_effecter_possible_states {
+ 	bitfield8_t states[1];
+ } __attribute__((packed));
+ 
++/** @struct pldm_effecter_name_string
++ *
++ *  Structure representing each effect string name (name language tag, effecter
++ *  name string)
++ */
++struct pldm_effecter_name_string {
++	char name_language_tag[1];
++	char effecter_name[1];
++} __attribute__((packed));
++
++/** @struct pldm_effecter_name
++ *
++ *  Structure representing each effect name (name string count, name language
++ *  tags, effecter name strings)
++ */
++struct pldm_effecter_name {
++	uint8_t name_string_count;
++	struct pldm_effecter_name_string name_strings[1];
++} __attribute__((packed));
++
++/** @struct pldm_effecter_aux_name_pdr
++ *
++ *  Structure representing PLDM aux name numeric effecter value PDR
++ */
++struct pldm_effecter_aux_name_pdr {
++	struct pldm_pdr_hdr hdr;
++	uint16_t terminus_handle;
++	uint16_t effecter_id;
++	uint8_t effecter_count;
++	struct pldm_effecter_name effecter_names[1];
++} __attribute__((packed));
++
+ /** @brief Encode PLDM state effecter PDR
+  *
+  * @param[in/out] effecter               Structure to encode. All members of
+-- 
+2.17.1
+
