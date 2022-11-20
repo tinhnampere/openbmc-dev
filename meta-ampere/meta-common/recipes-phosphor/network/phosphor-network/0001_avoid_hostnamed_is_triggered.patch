@@ -1,0 +1,28 @@
+diff --git a/src/network_manager.cpp b/src/network_manager.cpp
+index 86d892fb..6c627de5 100644
+--- a/src/network_manager.cpp
++++ b/src/network_manager.cpp
+@@ -149,20 +149,9 @@ void Manager::createChildObjects()
+ 
+     // creates the ethernet interface dbus object.
+     createInterfaces();
+-
+-    systemConf.reset(nullptr);
+-    dhcpConf.reset(nullptr);
+-
+-    fs::path objPath = objectPath;
+-    objPath /= "config";
+-
+-    // create the system conf object.
+-    systemConf = std::make_unique<phosphor::network::SystemConfiguration>(
+-        bus, objPath.string());
+-    // create the dhcp conf object.
+-    objPath /= "dhcp";
+-    dhcpConf = std::make_unique<phosphor::network::dhcp::Configuration>(
+-        bus, objPath.string(), *this);
++    
++    //simply return to prevent hostnamed service is called
++    return;
+ }
+ 
+ ObjectPath Manager::vlan(IntfName interfaceName, uint32_t id)
