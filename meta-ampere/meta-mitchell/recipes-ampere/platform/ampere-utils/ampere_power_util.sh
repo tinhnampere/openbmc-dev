@@ -30,6 +30,22 @@ shutdown_ack() {
 	fi
 }
 
+bind_aspeed_smc_driver() {
+	# Switch the Host SPI-NOR to BMC
+	gpio_name_set spi0-program-sel 1
+	sleep 1
+	echo "Bind the ASpeed SMC driver"
+	echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/bind
+	# Check the HNOR partition available
+	HOST_MTD=$(< /proc/mtd grep "hnor" | sed -n 's/^\(.*\):.*/\1/p')
+	if [ -z "$HOST_MTD" ]; then
+		echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/unbind
+		sleep 1
+		echo "Bind the ASpeed SMC driver again"
+		echo 1e630000.spi > /sys/bus/platform/drivers/spi-aspeed-smc/bind
+	fi
+}
+
 unbind_aspeed_smc_driver() {
 	# Switch the Host SPI-NOR to BMC
 	gpio_name_set spi0-program-sel 1
@@ -109,7 +125,17 @@ force_reset() {
 	gpio_name_set host0-sysreset-n 1
 }
 
+bert_file="/usr/share/pldm/bert/bert_trigger"
+
 host_reboot_wa() {
+    if [ -f "$bert_file" ]; then
+       bert_trigger=$(cat "$bert_file")
+       if [ "$bert_trigger" == "1" ]; then
+          echo "BERT TRIGGER"
+          bind_aspeed_smc_driver
+       fi
+    fi
+
     busctl set-property xyz.openbmc_project.State.Chassis \
         /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis \
         RequestedPowerTransition s "xyz.openbmc_project.State.Chassis.Transition.Off"
@@ -122,6 +148,12 @@ host_reboot_wa() {
         sleep 2
     done
     echo "The power is already Off."
+
+    if [ "$bert_trigger" == "1" ]; then
+       # Sleep 5 seconds for RAS BERT process completed
+       sleep 5
+       unbind_aspeed_smc_driver
+    fi
 
     busctl set-property xyz.openbmc_project.State.Host \
         /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host \
