@@ -6,6 +6,10 @@ SRC_URI = "git://github.com/ampere-openbmc/pldm;protocol=https;branch=ampere \
            file://host_eid \
            file://eid_to_name.json \
            file://dbus_to_host_effecter.json \
+           file://nvparm.a \
+           file://gpt.h \
+           file://spinor_func.h \
+           file://utils.h \
           "
 SRCREV = "580e110c801b0b8e84e06f7d8054b2a25962f97e"
 
@@ -19,6 +23,14 @@ EXTRA_OEMESON = " \
         -Dsleep-between-get-sensor-reading=10 \
         -Dpoll-sensor-timer-interval=3000 \
         "
+do_configure:prepend() {
+  cd ${WORKDIR}/git
+  mkdir libnvparm
+  cp ${WORKDIR}/nvparm.a ${WORKDIR}/git/libnvparm/
+  cp ${WORKDIR}/gpt.h ${WORKDIR}/git/libnvparm/
+  cp ${WORKDIR}/spinor_func.h ${WORKDIR}/git/libnvparm/
+  cp ${WORKDIR}/utils.h ${WORKDIR}/git/libnvparm/
+}
 
 do_install:append() {
     install -d ${D}/${datadir}/pldm
