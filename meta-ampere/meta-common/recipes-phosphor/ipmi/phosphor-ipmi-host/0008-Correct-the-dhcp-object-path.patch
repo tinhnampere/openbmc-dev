@@ -1,0 +1,33 @@
+From 2fa5e91b5bc7641139d9469979490067852b8440 Mon Sep 17 00:00:00 2001
+From: Thang Tran <thuutran@amperecomputing.com>
+Date: Tue, 20 Dec 2022 14:12:01 +0700
+Subject: [PATCH] Correct the dhcp object path
+
+The object path which includes DHCPConfiguration interface is
+"/xyz/openbmc_project/network/dhcp", it does not include "config".
+
+Tested:
+    1. Get configuration params successfully
+       $ipmitool dcmi get_conf_param
+
+Signed-off-by: Thang Tran <thuutran@amperecomputing.com>
+---
+ dcmihandler.hpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/dcmihandler.hpp b/dcmihandler.hpp
+index 81c1e0b..303f6d0 100644
+--- a/dcmihandler.hpp
++++ b/dcmihandler.hpp
+@@ -48,7 +48,7 @@ static constexpr auto ethernetIntf =
+     "xyz.openbmc_project.Network.EthernetInterface";
+ static constexpr auto ethernetDefaultChannelNum = 0x1;
+ static constexpr auto networkRoot = "/xyz/openbmc_project/network";
+-static constexpr auto dhcpObj = "/xyz/openbmc_project/network/config/dhcp";
++static constexpr auto dhcpObj = "/xyz/openbmc_project/network/dhcp";
+ static constexpr auto dhcpIntf =
+     "xyz.openbmc_project.Network.DHCPConfiguration";
+ static constexpr auto systemBusName = "org.freedesktop.systemd1";
+-- 
+2.30.0
+
