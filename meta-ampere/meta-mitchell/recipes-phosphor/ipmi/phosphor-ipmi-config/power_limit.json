@@ -1,0 +1,13 @@
+{
+  "pldm": 
+  [
+    {
+      "objectPath": "/xyz/openbmc_project/sensors/power/S0_PLimit",
+      "requiredFlag": true
+    },
+    {
+      "objectPath": "/xyz/openbmc_project/sensors/power/S1_PLimit",
+      "requiredFlag": false
+    }
+  ]
+}
