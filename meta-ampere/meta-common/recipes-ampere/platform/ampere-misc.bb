@@ -37,7 +37,6 @@ PACKAGECONFIG[mctp-ctrl] ??= "-Dmctp-ctrl=enabled -Dmctp-delay-before-add-termin
                               -Dmctp-ctrl=disabled"
 
 SYSTEMD_SERVICE:${PN} += "${@bb.utils.contains("PACKAGECONFIG", "nmi-manager", "xyz.openbmc_project.nmi.manager.service nmi.service", "", d)}"
-SYSTEMD_SERVICE:${PN} += "${@bb.utils.contains("PACKAGECONFIG", "peripheral-manager", "xyz.openbmc_project.peripheral.manager.service", "", d)}"
 SYSTEMD_SERVICE:${PN} += "${@bb.utils.contains("PACKAGECONFIG", "state-logger", "xyz.openbmc_project.state_logger.service", "", d)}"
 SYSTEMD_SERVICE:${PN} += "${@bb.utils.contains("PACKAGECONFIG", "mctp-ctrl", " xyz.openbmc_project.AmpereMctpCtrl.service", "", d)}"
 
