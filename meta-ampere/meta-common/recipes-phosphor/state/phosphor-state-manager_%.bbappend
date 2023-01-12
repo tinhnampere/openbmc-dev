@@ -3,7 +3,6 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 DEPENDS += "gpioplus libgpiod"
 
 SRC_URI += " \
-	      file://0001-Limit-power-actions-when-the-host-is-off.patch \
               file://ampere-phosphor-reboot-host@.service \
 	   "
 
