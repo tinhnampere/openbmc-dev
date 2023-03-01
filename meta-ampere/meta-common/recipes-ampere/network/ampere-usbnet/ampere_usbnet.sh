@@ -1,18 +1,25 @@
 #!/bin/bash
 
-ENV_MAC_ADDR=$(fw_printenv bmc_macaddr)
+cd /sys/kernel/config/usb_gadget
 
-MAC_ADDR=$(echo "$ENV_MAC_ADDR" | cut -d "=" -f 2)
-
-if [ -n "$MAC_ADDR" ]; then
-	# Generate MAC Address from eth1addr using locally administered MAC
-	# https://en.wikipedia.org/wiki/MAC_address#Universal_vs._local_(U/L_bit
-	SUBMAC=$(echo "$MAC_ADDR" | cut -d ":" -f 2-6)
-	/usr/bin/usb-ctrl ecm usbnet on "06:$SUBMAC" "02:$SUBMAC"
-else
-	/usr/bin/usb-ctrl ecm usbnet on
+if [ ! -f "ncm" ]; then
+    mkdir ncm
+    cd ncm
+    echo 0x1d6b > idVendor  # Linux foundation
+    echo 0x0104 > idProduct # Multifunction composite gadget
+    mkdir -p strings/0x409
+    echo "Tinh-openbmc" > strings/0x409/manufacturer
+    echo "test-NCM" > strings/0x409/product
+    
+    mkdir -p configs/c.1
+    echo 100 > configs/c.1/MaxPower
+    mkdir -p configs/c.1/strings/0x409
+    echo "OpenBMC test NCM" > configs/c.1/strings/0x409/configuration
+    
+    mkdir -p functions/ncm.usb0 
+    
+    ln -s functions/ncm.usb0 configs/c.1
+    
+    echo 1e6a0000.usb-vhub:p1 > UDC
 fi
-
-# Use NCM (Ethernet) Gadget instead of FunctionFS Gadget
-echo 0x0103 > /sys/kernel/config/usb_gadget/usbnet/idProduct
-echo "OpenBMC usbnet Device" > /sys/kernel/config/usb_gadget/usbnet/strings/0x409/product
+exit 0
